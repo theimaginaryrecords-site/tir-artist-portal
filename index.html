@@ -4,1430 +4,643 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>TIR Artist Portal — The Imaginary Records</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+
+<!-- Firebase COMPAT SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<!-- EmailJS -->
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
 <script>
-  // EmailJS — free 200 emails/month
-  // Setup: emailjs.com → free account → create service → create template → paste IDs below
-  const EMAILJS_SERVICE_ID = 'service_3bit5yi';
-  const EMAILJS_TEMPLATE_ID = 'eg3omh9';
-  const EMAILJS_PUBLIC_KEY = 'O_glA7q-_LOyfl0AS';
-  window.addEventListener('load', () => {
-    if(typeof emailjs !== 'undefined') emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
-  });
-</script>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=DM+Mono:wght@300;400;500&family=Bebas+Neue&display=swap" rel="stylesheet"/>
-
-<!-- Firebase -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getFirestore, doc, setDoc, getDoc, collection, addDoc, getDocs, query, where, orderBy, serverTimestamp, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-  // ==================== FIREBASE CONFIG ====================
-  // REPLACE THIS WITH YOUR FIREBASE CONFIG
-  const firebaseConfig = {
+  firebase.initializeApp({
     apiKey: "AIzaSyDq7PGSfxGfwAJhzpEVq0Bj2TBhCg09NTU",
     authDomain: "tir-portal.firebaseapp.com",
     projectId: "tir-portal",
     storageBucket: "tir-portal.firebasestorage.app",
     messagingSenderId: "941411383328",
-    appId: "1:941411383328:web:4b7b0aa63e2c7e44d82a445",
-    measurementId: "G-R6ECJHMK6D"
-  };
+    appId: "1:941411383328:web:4b7b0aa63e2c7e44d82a445"
+  });
+  const auth = firebase.auth();
+  const db   = firebase.firestore();
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
+  const EJS_SERVICE  = 'service_3bit5yi';
+  const EJS_TEMPLATE = 'eg3omh9';
+  const EJS_KEY      = 'O_glA7q-_LOyfl0AS';
+  const DRIVE_LINK   = 'https://drive.google.com/drive/folders/156B6lBrUKOlyrvSuoAtFGw0LKmWZ9Srl?usp=sharing';
 
-  window.__TIR = { auth, db, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile, doc, setDoc, getDoc, collection, addDoc, getDocs, query, where, orderBy, serverTimestamp, updateDoc };
+  emailjs.init({ publicKey: EJS_KEY });
 </script>
 
 <style>
-:root {
-  --black: #080808;
-  --deep: #0e0e0e;
-  --card: #131313;
-  --border: #222;
-  --gold: #c9a84c;
-  --gold-light: #e8c97a;
-  --gold-dim: #7a6030;
-  --white: #f0ede6;
-  --muted: #888;
-  --red: #c0392b;
-  --green: #27ae60;
-  --blue: #2980b9;
-}
-
-* { box-sizing: border-box; margin: 0; padding: 0; }
-
-body {
-  background: var(--black);
-  color: var(--white);
-  font-family: 'Cormorant Garamond', Georgia, serif;
-  min-height: 100vh;
-  overflow-x: hidden;
-}
-
-/* NOISE TEXTURE */
-body::before {
-  content: '';
-  position: fixed; inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-  pointer-events: none; z-index: 9999; opacity: 0.4;
-}
-
-/* GOLD LINE TOP */
-.gold-line { height: 2px; background: linear-gradient(90deg, transparent, var(--gold), transparent); }
-
-/* ============ AUTH SCREEN ============ */
-#auth-screen {
-  min-height: 100vh;
-  display: flex; align-items: center; justify-content: center;
-  position: relative;
-}
-
-#auth-screen::before {
-  content: '';
-  position: absolute; inset: 0;
-  background: radial-gradient(ellipse at 50% 30%, rgba(201,168,76,0.07) 0%, transparent 60%);
-}
-
-.auth-box {
-  width: 420px;
-  background: var(--card);
-  border: 1px solid var(--border);
-  padding: 48px 40px;
-  position: relative;
-  animation: fadeUp 0.6s ease forwards;
-}
-
-.auth-box::before {
-  content: '';
-  position: absolute; top: 0; left: 0; right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, var(--gold), transparent);
-}
-
-.auth-logo {
-  text-align: center; margin-bottom: 32px;
-}
-
-.auth-logo .label {
-  font-family: 'DM Mono', monospace;
-  font-size: 10px; letter-spacing: 4px;
-  color: var(--gold); text-transform: uppercase;
-  margin-bottom: 6px;
-}
-
-.auth-logo h1 {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 36px; letter-spacing: 3px;
-  color: var(--white);
-  line-height: 1;
-}
-
-.auth-logo .sub {
-  font-size: 13px; color: var(--muted);
-  font-style: italic; margin-top: 4px;
-}
-
-.tab-row {
-  display: flex; border-bottom: 1px solid var(--border);
-  margin-bottom: 28px;
-}
-
-.tab-btn {
-  flex: 1; padding: 10px;
-  background: none; border: none; color: var(--muted);
-  font-family: 'DM Mono', monospace; font-size: 11px;
-  letter-spacing: 2px; text-transform: uppercase;
-  cursor: pointer; transition: color 0.2s;
-  border-bottom: 2px solid transparent; margin-bottom: -1px;
-}
-
-.tab-btn.active { color: var(--gold); border-bottom-color: var(--gold); }
-
-.form-group { margin-bottom: 16px; }
-
-label {
-  display: block;
-  font-family: 'DM Mono', monospace; font-size: 10px;
-  letter-spacing: 2px; text-transform: uppercase;
-  color: var(--muted); margin-bottom: 6px;
-}
-
-input, select, textarea {
-  width: 100%;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid var(--border);
-  color: var(--white);
-  padding: 11px 14px;
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 15px;
-  outline: none;
-  transition: border-color 0.2s;
-}
-
-input:focus, select:focus, textarea:focus {
-  border-color: var(--gold-dim);
-}
-
-select option { background: #1a1a1a; }
-
-.btn-gold {
-  width: 100%; padding: 13px;
-  background: var(--gold);
-  border: none; color: #000;
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 16px; letter-spacing: 3px;
-  cursor: pointer; transition: background 0.2s, transform 0.1s;
-  margin-top: 8px;
-}
-
-.btn-gold:hover { background: var(--gold-light); }
-.btn-gold:active { transform: scale(0.99); }
-
-.btn-outline {
-  padding: 10px 20px;
-  background: none;
-  border: 1px solid var(--gold-dim);
-  color: var(--gold);
-  font-family: 'DM Mono', monospace;
-  font-size: 11px; letter-spacing: 2px;
-  text-transform: uppercase;
-  cursor: pointer; transition: all 0.2s;
-}
-
-.btn-outline:hover { border-color: var(--gold); background: rgba(201,168,76,0.07); }
-
-.err-msg {
-  background: rgba(192,57,43,0.15);
-  border: 1px solid rgba(192,57,43,0.3);
-  color: #e74c3c;
-  padding: 10px 14px;
-  font-family: 'DM Mono', monospace;
-  font-size: 11px;
-  margin-bottom: 16px;
-  display: none;
-}
-
-.err-msg.show { display: block; }
-
-/* ============ DASHBOARD ============ */
-#dashboard { display: none; min-height: 100vh; }
-
-/* SIDEBAR */
-.layout { display: flex; min-height: 100vh; }
-
-.sidebar {
-  width: 220px; min-width: 220px;
-  background: var(--deep);
-  border-right: 1px solid var(--border);
-  display: flex; flex-direction: column;
-  position: sticky; top: 0; height: 100vh;
-}
-
-.sidebar-logo {
-  padding: 24px 20px 20px;
-  border-bottom: 1px solid var(--border);
-}
-
-.sidebar-logo .tir {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 22px; letter-spacing: 3px;
-  color: var(--gold);
-}
-
-.sidebar-logo .portal {
-  font-family: 'DM Mono', monospace;
-  font-size: 9px; letter-spacing: 2px;
-  color: var(--muted); text-transform: uppercase;
-}
-
-.nav { flex: 1; padding: 16px 0; }
-
-.nav-section {
-  font-family: 'DM Mono', monospace;
-  font-size: 9px; letter-spacing: 2px;
-  color: var(--gold-dim); text-transform: uppercase;
-  padding: 12px 20px 6px;
-}
-
-.nav-item {
-  display: flex; align-items: center; gap: 10px;
-  padding: 10px 20px;
-  color: var(--muted);
-  cursor: pointer;
-  transition: color 0.2s, background 0.2s;
-  font-size: 14px;
-  border-left: 2px solid transparent;
-}
-
-.nav-item:hover { color: var(--white); background: rgba(255,255,255,0.03); }
-
-.nav-item.active {
-  color: var(--gold);
-  background: rgba(201,168,76,0.06);
-  border-left-color: var(--gold);
-}
-
-.nav-item .icon { font-size: 16px; width: 18px; text-align: center; }
-
-.sidebar-user {
-  padding: 16px 20px;
-  border-top: 1px solid var(--border);
-}
-
-.user-name {
-  font-size: 13px; color: var(--white);
-  font-style: italic; margin-bottom: 2px;
-}
-
-.user-email {
-  font-family: 'DM Mono', monospace;
-  font-size: 9px; color: var(--muted);
-  letter-spacing: 0.5px; margin-bottom: 10px;
-}
-
-/* MAIN CONTENT */
-.main { flex: 1; overflow-y: auto; }
-
-.topbar {
-  padding: 20px 32px;
-  border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; justify-content: space-between;
-  background: var(--deep);
-  position: sticky; top: 0; z-index: 100;
-}
-
-.page-title {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 24px; letter-spacing: 3px;
-  color: var(--white);
-}
-
-.page-subtitle {
-  font-family: 'DM Mono', monospace;
-  font-size: 10px; color: var(--muted);
-  letter-spacing: 1px; margin-top: 2px;
-}
-
-.content { padding: 32px; }
-
-/* PAGES */
-.page { display: none; animation: fadeIn 0.3s ease; }
-.page.active { display: block; }
-
-/* CARDS */
-.card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  padding: 24px;
-  margin-bottom: 20px;
-  position: relative;
-}
-
-.card-title {
-  font-family: 'DM Mono', monospace;
-  font-size: 10px; letter-spacing: 3px;
-  color: var(--gold); text-transform: uppercase;
-  margin-bottom: 16px;
-}
-
-/* STATS ROW */
-.stats-row {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px; margin-bottom: 24px;
-}
-
-.stat-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  padding: 20px;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-}
-
-.stat-card::before {
-  content: '';
-  position: absolute; bottom: 0; left: 0; right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
-}
-
-.stat-num {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 36px; color: var(--gold);
-  line-height: 1;
-}
-
-.stat-label {
-  font-family: 'DM Mono', monospace;
-  font-size: 9px; color: var(--muted);
-  letter-spacing: 2px; text-transform: uppercase;
-  margin-top: 4px;
-}
-
-/* RELEASE LIST */
-.release-item {
-  display: flex; align-items: center; gap: 16px;
-  padding: 16px 0;
-  border-bottom: 1px solid var(--border);
-}
-
-.release-item:last-child { border-bottom: none; }
-
-.release-thumb {
-  width: 48px; height: 48px;
-  background: var(--border);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 20px; flex-shrink: 0;
-}
-
-.release-info { flex: 1; }
-
-.release-title {
-  font-size: 15px; color: var(--white);
-  font-style: italic;
-}
-
-.release-meta {
-  font-family: 'DM Mono', monospace;
-  font-size: 10px; color: var(--muted);
-  letter-spacing: 1px; margin-top: 2px;
-}
-
-.status-badge {
-  font-family: 'DM Mono', monospace;
-  font-size: 9px; letter-spacing: 1px;
-  text-transform: uppercase; padding: 4px 10px;
-  border: 1px solid;
-}
-
-.status-pending { color: #f39c12; border-color: rgba(243,156,18,0.4); background: rgba(243,156,18,0.06); }
-.status-review { color: var(--blue); border-color: rgba(41,128,185,0.4); background: rgba(41,128,185,0.06); }
-.status-approved { color: var(--green); border-color: rgba(39,174,96,0.4); background: rgba(39,174,96,0.06); }
-.status-live { color: var(--gold); border-color: rgba(201,168,76,0.4); background: rgba(201,168,76,0.06); }
-.status-rejected { color: var(--red); border-color: rgba(192,57,43,0.4); background: rgba(192,57,43,0.06); }
-
-/* FORM RELEASE */
-.form-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-
-.form-full { grid-column: 1 / -1; }
-
-.form-section-title {
-  font-family: 'DM Mono', monospace;
-  font-size: 10px; letter-spacing: 3px;
-  color: var(--gold); text-transform: uppercase;
-  padding-bottom: 10px;
-  border-bottom: 1px solid var(--border);
-  margin: 24px 0 16px;
-  grid-column: 1 / -1;
-}
-
-.form-section-title:first-child { margin-top: 0; }
-
-textarea { resize: vertical; min-height: 80px; font-size: 14px; }
-
-.upload-zone {
-  border: 1px dashed var(--gold-dim);
-  padding: 40px;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.2s;
-  background: rgba(201,168,76,0.02);
-  grid-column: 1 / -1;
-}
-
-.upload-zone:hover {
-  border-color: var(--gold);
-  background: rgba(201,168,76,0.05);
-}
-
-.upload-zone .upload-icon { font-size: 32px; margin-bottom: 8px; }
-
-.upload-zone .upload-title {
-  font-size: 16px; font-style: italic; color: var(--white);
-}
-
-.upload-zone .upload-sub {
-  font-family: 'DM Mono', monospace;
-  font-size: 10px; color: var(--muted);
-  letter-spacing: 1px; margin-top: 4px;
-}
-
-#file-input { display: none; }
-
-.file-chosen {
-  font-family: 'DM Mono', monospace;
-  font-size: 11px; color: var(--gold);
-  margin-top: 8px;
-}
-
-/* ROYALTIES */
-.royalty-row {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 12px 0;
-  border-bottom: 1px solid var(--border);
-}
-
-.royalty-row:last-child { border-bottom: none; }
-
-.royalty-platform { font-size: 14px; font-style: italic; }
-
-.royalty-amount {
-  font-family: 'DM Mono', monospace;
-  font-size: 13px; color: var(--gold);
-}
-
-/* PROFILE */
-.profile-avatar {
-  width: 80px; height: 80px;
-  border: 2px solid var(--gold-dim);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 32px; margin-bottom: 16px;
-  background: rgba(201,168,76,0.05);
-}
-
-/* NOTIFICATIONS */
-.notif {
-  display: flex; gap: 12px;
-  padding: 14px 0;
-  border-bottom: 1px solid var(--border);
-  align-items: flex-start;
-}
-
-.notif-dot {
-  width: 8px; height: 8px;
-  border-radius: 50%; background: var(--gold);
-  margin-top: 5px; flex-shrink: 0;
-}
-
-.notif-dot.read { background: var(--border); }
-
-.notif-text { font-size: 14px; color: var(--white); line-height: 1.5; }
-.notif-time {
-  font-family: 'DM Mono', monospace;
-  font-size: 10px; color: var(--muted); margin-top: 2px;
-}
-
-/* TRACKS TABLE */
-.tracks-table { width: 100%; border-collapse: collapse; }
-
-.tracks-table th {
-  font-family: 'DM Mono', monospace;
-  font-size: 9px; letter-spacing: 2px;
-  text-transform: uppercase; color: var(--muted);
-  text-align: left; padding: 10px 12px;
-  border-bottom: 1px solid var(--border);
-}
-
-.tracks-table td {
-  padding: 14px 12px;
-  font-size: 14px;
-  border-bottom: 1px solid rgba(255,255,255,0.04);
-  vertical-align: middle;
-}
-
-.tracks-table tr:last-child td { border-bottom: none; }
-.tracks-table tr:hover td { background: rgba(255,255,255,0.02); }
-
-/* GDRIVE INSTRUCTIONS */
-.steps {
-  counter-reset: step;
-  list-style: none;
-}
-
-.steps li {
-  counter-increment: step;
-  display: flex; gap: 16px;
-  padding: 12px 0;
-  border-bottom: 1px solid var(--border);
-  font-size: 14px; line-height: 1.6;
-}
-
-.steps li:last-child { border-bottom: none; }
-
-.steps li::before {
-  content: counter(step, decimal-leading-zero);
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 20px; color: var(--gold-dim);
-  flex-shrink: 0; min-width: 30px;
-}
-
-.code-snippet {
-  background: rgba(201,168,76,0.06);
-  border: 1px solid var(--gold-dim);
-  font-family: 'DM Mono', monospace;
-  font-size: 11px; padding: 8px 12px;
-  color: var(--gold-light); margin-top: 6px;
-  word-break: break-all;
-}
-
-/* PROGRESS BAR */
-.progress-bar {
-  height: 3px; background: var(--border);
-  margin-top: 8px; overflow: hidden;
-}
-
-.progress-fill {
-  height: 100%; background: var(--gold);
-  transition: width 0.3s;
-}
-
-/* NOTICE */
-.notice {
-  background: rgba(201,168,76,0.05);
-  border: 1px solid var(--gold-dim);
-  padding: 14px 18px;
-  font-size: 13px; line-height: 1.7;
-  margin-bottom: 20px;
-}
-
-.notice strong { color: var(--gold); }
-
-/* ANIMATIONS */
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-/* EMPTY STATE */
-.empty {
-  text-align: center; padding: 60px 20px;
-  color: var(--muted);
-}
-
-.empty-icon { font-size: 40px; margin-bottom: 12px; opacity: 0.4; }
-.empty-text { font-size: 16px; font-style: italic; }
-.empty-sub {
-  font-family: 'DM Mono', monospace;
-  font-size: 11px; margin-top: 4px;
-}
-
-/* SUCCESS MSG */
-.success-box {
-  background: rgba(39,174,96,0.1);
-  border: 1px solid rgba(39,174,96,0.3);
-  color: #2ecc71;
-  padding: 14px 18px;
-  font-family: 'DM Mono', monospace;
-  font-size: 12px; margin-bottom: 16px;
-  display: none;
-}
-
-.success-box.show { display: block; }
+:root{
+  --blk:#080808;--deep:#0d0d0d;--card:#121212;--brd:#202020;
+  --gold:#c9a84c;--gl:#e8c97a;--gd:#7a6030;
+  --wh:#f0ede6;--mt:#777;--grn:#27ae60;--red:#c0392b;--blu:#2980b9;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--blk);color:var(--wh);font-family:'Cormorant Garamond',serif;min-height:100vh}
 
 /* LOADING */
-.loading {
-  text-align: center; padding: 40px;
-  font-family: 'DM Mono', monospace;
-  font-size: 11px; color: var(--muted);
-  letter-spacing: 2px;
-}
+#ld{position:fixed;inset:0;background:var(--blk);display:flex;align-items:center;justify-content:center;z-index:9999}
+.ld-t{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:4px;color:var(--gold);animation:pulse 1.4s ease infinite}
+@keyframes pulse{0%,100%{opacity:.3}50%{opacity:1}}
 
-/* ============ RESPONSIVE ============ */
-@media (max-width: 768px) {
-  .stats-row { grid-template-columns: 1fr 1fr; }
-  .form-grid { grid-template-columns: 1fr; }
-  .form-full { grid-column: 1; }
-  .sidebar { display: none; }
-  .auth-box { width: 95%; padding: 32px 24px; }
+/* AUTH */
+#auth{min-height:100vh;display:none;align-items:center;justify-content:center;
+  background:radial-gradient(ellipse at 50% 20%,rgba(201,168,76,.07) 0%,transparent 60%)}
+.abox{width:420px;max-width:95vw;background:var(--card);border:1px solid var(--brd);padding:48px 40px;position:relative;animation:up .5s ease}
+.abox::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.logo{text-align:center;margin-bottom:30px}
+.logo .ey{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:4px;color:var(--gold);margin-bottom:8px}
+.logo h1{font-family:'Bebas Neue',sans-serif;font-size:38px;letter-spacing:4px;line-height:1}
+.logo p{font-size:13px;color:var(--mt);font-style:italic;margin-top:6px}
+.tabs{display:flex;border-bottom:1px solid var(--brd);margin-bottom:22px}
+.tab{flex:1;padding:10px 0;background:none;border:none;color:var(--mt);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s}
+.tab.on{color:var(--gold);border-bottom-color:var(--gold)}
+.fg{margin-bottom:14px}
+label{display:block;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--mt);margin-bottom:5px}
+input,select,textarea{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--brd);color:var(--wh);padding:11px 13px;font-family:'Cormorant Garamond',serif;font-size:15px;outline:none;transition:border-color .2s}
+input:focus,select:focus,textarea:focus{border-color:var(--gd)}
+select option{background:#1a1a1a}
+textarea{resize:vertical;min-height:80px}
+.btn-g{width:100%;padding:13px;background:var(--gold);border:none;color:#000;font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:3px;cursor:pointer;transition:background .2s;margin-top:4px}
+.btn-g:hover{background:var(--gl)}
+.btn-g:disabled{background:var(--gd);cursor:not-allowed}
+.btn-o{padding:9px 18px;background:none;border:1px solid var(--gd);color:var(--gold);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .2s}
+.btn-o:hover{border-color:var(--gold);background:rgba(201,168,76,.06)}
+.al{padding:10px 14px;margin-bottom:12px;font-family:'DM Mono',monospace;font-size:11px;display:none}
+.al.on{display:block}
+.al-e{background:rgba(192,57,43,.12);border:1px solid rgba(192,57,43,.3);color:#e74c3c}
+.al-s{background:rgba(39,174,96,.1);border:1px solid rgba(39,174,96,.3);color:#2ecc71}
+
+/* DASHBOARD */
+#dash{display:none}
+.layout{display:flex;min-height:100vh}
+
+/* SIDEBAR */
+.sb{width:220px;min-width:220px;background:var(--deep);border-right:1px solid var(--brd);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sb-logo{padding:20px 18px 16px;border-bottom:1px solid var(--brd)}
+.sb-logo .t{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;color:var(--gold)}
+.sb-logo .s{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:2px;color:var(--mt)}
+nav{flex:1;padding:12px 0}
+.ns{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:2px;color:var(--gd);text-transform:uppercase;padding:10px 18px 4px}
+.ni{display:flex;align-items:center;gap:10px;padding:10px 18px;color:var(--mt);cursor:pointer;font-size:14px;transition:all .2s;border-left:2px solid transparent}
+.ni:hover{color:var(--wh);background:rgba(255,255,255,.02)}
+.ni.on{color:var(--gold);background:rgba(201,168,76,.06);border-left-color:var(--gold)}
+.ni .ic{font-size:14px;width:16px;text-align:center}
+.sb-u{padding:14px 18px;border-top:1px solid var(--brd)}
+.sb-u .un{font-size:14px;font-style:italic;color:var(--wh)}
+.sb-u .ue{font-family:'DM Mono',monospace;font-size:9px;color:var(--mt);margin:2px 0 10px}
+
+/* MAIN */
+.main{flex:1;overflow-y:auto}
+.topbar{padding:18px 28px;border-bottom:1px solid var(--brd);background:var(--deep);position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between}
+.pt{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px}
+.ps{font-family:'DM Mono',monospace;font-size:9px;color:var(--mt);margin-top:2px}
+.content{padding:28px}
+
+/* PAGES */
+.pg{display:none;animation:fi .3s ease}
+.pg.on{display:block}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+.stat{background:var(--card);border:1px solid var(--brd);padding:18px;text-align:center;position:relative}
+.stat::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gd),transparent)}
+.sn{font-family:'Bebas Neue',sans-serif;font-size:34px;color:var(--gold);line-height:1}
+.sl{font-family:'DM Mono',monospace;font-size:8px;color:var(--mt);letter-spacing:2px;text-transform:uppercase;margin-top:4px}
+
+/* CARD */
+.card{background:var(--card);border:1px solid var(--brd);padding:22px;margin-bottom:20px}
+.ct{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--brd)}
+
+/* RELEASE ITEM */
+.ri{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.ri:last-child{border-bottom:none}
+.rt{width:46px;height:46px;flex-shrink:0;background:var(--brd);display:flex;align-items:center;justify-content:center;font-size:18px}
+.rinfo{flex:1}
+.rtitle{font-size:15px;font-style:italic}
+.rmeta{font-family:'DM Mono',monospace;font-size:9px;color:var(--mt);margin-top:2px}
+.badge{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:1px;text-transform:uppercase;padding:3px 9px;border:1px solid;white-space:nowrap;flex-shrink:0}
+.bp{color:#f39c12;border-color:rgba(243,156,18,.4);background:rgba(243,156,18,.06)}
+.br{color:var(--blu);border-color:rgba(41,128,185,.4);background:rgba(41,128,185,.06)}
+.ba{color:var(--grn);border-color:rgba(39,174,96,.4);background:rgba(39,174,96,.06)}
+.bl{color:var(--gold);border-color:rgba(201,168,76,.4);background:rgba(201,168,76,.06)}
+.bx{color:var(--red);border-color:rgba(192,57,43,.4);background:rgba(192,57,43,.06)}
+
+/* FORM */
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.full{grid-column:1/-1}
+.sh{grid-column:1/-1;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;padding-bottom:8px;border-bottom:1px solid var(--brd);margin-top:8px}
+.sh:first-child{margin-top:0}
+.uz{grid-column:1/-1;border:1px dashed var(--gd);padding:36px;text-align:center;cursor:pointer;transition:all .2s;background:rgba(201,168,76,.02)}
+.uz:hover{border-color:var(--gold);background:rgba(201,168,76,.05)}
+.uzi{font-size:28px;margin-bottom:8px}
+.uzt{font-size:16px;font-style:italic}
+.uzs{font-family:'DM Mono',monospace;font-size:9px;color:var(--mt);margin-top:4px}
+
+/* EMPTY */
+.empty{text-align:center;padding:48px 20px;color:var(--mt)}
+.ei{font-size:36px;opacity:.25;margin-bottom:10px}
+.et{font-size:16px;font-style:italic}
+.es{font-family:'DM Mono',monospace;font-size:10px;margin-top:4px}
+
+/* NOTICE */
+.notice{background:rgba(201,168,76,.05);border:1px solid var(--gd);padding:12px 16px;font-size:13px;line-height:1.7;margin-bottom:18px}
+.notice strong{color:var(--gold)}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--card);border:1px solid var(--gd);color:var(--gold);font-family:'DM Mono',monospace;font-size:11px;padding:11px 18px;z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.on{opacity:1}
+
+/* ANIMATIONS */
+@keyframes up{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fi{from{opacity:0}to{opacity:1}}
+
+@media(max-width:700px){
+  .sb{display:none}
+  .stats{grid-template-columns:1fr 1fr}
+  .fg2{grid-template-columns:1fr}
+  .full,.sh,.uz{grid-column:1}
+  .content{padding:16px}
 }
 </style>
 </head>
 <body>
 
-<div class="gold-line"></div>
+<!-- LOADING -->
+<div id="ld"><div class="ld-t">Loading Portal...</div></div>
 
-<!-- ========== AUTH SCREEN ========== -->
-<div id="auth-screen">
-  <div class="auth-box">
-    <div class="auth-logo">
-      <div class="label">Artist Portal</div>
+<!-- AUTH -->
+<div id="auth">
+  <div class="abox">
+    <div class="logo">
+      <div class="ey">Artist Portal</div>
       <h1>THE IMAGINARY<br>RECORDS</h1>
-      <div class="sub">Artist Portal — By Invitation Only</div>
+      <p>Your music. Your legacy.</p>
+    </div>
+    <div class="tabs">
+      <button class="tab on" id="tl" onclick="switchTab('login')">Sign In</button>
+      <button class="tab" id="tr" onclick="switchTab('reg')">Register</button>
+    </div>
+    <div class="al al-e" id="ae"></div>
+    <div class="al al-s" id="as"></div>
+
+    <!-- LOGIN FORM -->
+    <div id="fl">
+      <div class="fg"><label>Email</label>
+        <input type="email" id="le" placeholder="your@email.com" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+      <div class="fg"><label>Password</label>
+        <input type="password" id="lp" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+      <button class="btn-g" id="blg" onclick="doLogin()">Sign In</button>
     </div>
 
-    <div class="tab-row" style="display:none">
-      <button class="tab-btn active" onclick="switchTab('login')">Sign In</button>
-      
+    <!-- REGISTER FORM -->
+    <div id="fr" style="display:none">
+      <div class="fg"><label>Artist / Stage Name *</label>
+        <input type="text" id="rn" placeholder="Your artist name"/></div>
+      <div class="fg"><label>Email *</label>
+        <input type="email" id="re" placeholder="your@email.com"/></div>
+      <div class="fg"><label>Password * (min 6 characters)</label>
+        <input type="password" id="rp" placeholder="••••••••"/></div>
+      <div class="fg"><label>Primary Genre</label>
+        <select id="rg">
+          <option value="">— Select Genre —</option>
+          <option>Hip Hop / Trap</option><option>UK Drill</option>
+          <option>R&amp;B / Soul</option><option>Pop</option>
+          <option>Electronic / EDM</option><option>Lofi / Chillhop</option>
+          <option>Nasheed / Islamic</option><option>Devotional</option>
+          <option>Instrumental</option><option>Folk / Acoustic</option>
+          <option>Other</option>
+        </select></div>
+      <div class="fg"><label>Country</label>
+        <input type="text" id="rc" placeholder="e.g. India"/></div>
+      <button class="btn-g" id="brg" onclick="doRegister()">Create Account</button>
     </div>
+  </div>
+</div>
 
-    <div class="err-msg" id="auth-error"></div>
-
-    <!-- LOGIN -->
-    <div id="login-form">
-      <div class="form-group">
-        <label>Email Address</label>
-        <input type="email" id="login-email" placeholder="artist@email.com"/>
+<!-- DASHBOARD -->
+<div id="dash">
+  <div class="layout">
+    <div class="sb">
+      <div class="sb-logo">
+        <div class="t">T·I·R</div>
+        <div class="s">Artist Portal</div>
       </div>
-      <div class="form-group">
-        <label>Password</label>
-        <input type="password" id="login-pass" placeholder="••••••••"/>
+      <nav>
+        <div class="ns">Main</div>
+        <div class="ni on" onclick="goPage('home',this)"><span class="ic">◈</span> Dashboard</div>
+        <div class="ni" onclick="goPage('releases',this)"><span class="ic">◉</span> My Releases</div>
+        <div class="ni" onclick="goPage('submit',this)"><span class="ic">✦</span> Submit Release</div>
+        <div class="ns">Account</div>
+        <div class="ni" onclick="goPage('royalties',this)"><span class="ic">◇</span> Royalties</div>
+        <div class="ni" onclick="goPage('profile',this)"><span class="ic">◎</span> My Profile</div>
+      </nav>
+      <div class="sb-u">
+        <div class="un" id="sbn">—</div>
+        <div class="ue" id="sbe">—</div>
+        <button class="btn-o" style="width:100%" onclick="doSignOut()">Sign Out</button>
       </div>
-      <button class="btn-gold" onclick="doLogin()">Enter the Portal</button>
     </div>
 
-    <!-- INVITE ONLY -->
-    <div id="register-form" style="display:none">
-      <div style="text-align:center;padding:20px 0">
-        <div style="font-size:32px;margin-bottom:12px">◈</div>
-        <div style="font-size:18px;font-style:italic;color:var(--white);margin-bottom:8px">Invite Only</div>
-        <div style="font-family:DM Mono,monospace;font-size:11px;color:var(--muted);letter-spacing:1px;line-height:1.8">The Imaginary Records Artist Portal<br>is available by invitation only.<br><br>Contact us to apply:</div>
-        <div style="margin-top:16px;font-family:DM Mono,monospace;font-size:12px;color:var(--gold)"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="0e7a666b67636f6967606f7c777c6b6d617c6a7d4e69636f6762206d6163">[email&#160;protected]</a></div>
+    <div class="main">
+      <div class="topbar">
+        <div>
+          <div class="pt" id="pgt">Dashboard</div>
+          <div class="ps" id="pgs">Welcome back.</div>
+        </div>
+        <button class="btn-o" onclick="goPage('submit',null)">+ New Release</button>
+      </div>
+
+      <div class="content">
+
+        <!-- HOME -->
+        <div class="pg on" id="page-home">
+          <div class="stats">
+            <div class="stat"><div class="sn" id="st0">0</div><div class="sl">Releases</div></div>
+            <div class="stat"><div class="sn" id="st1">0</div><div class="sl">Pending</div></div>
+            <div class="stat"><div class="sn" id="st2">0</div><div class="sl">Live</div></div>
+            <div class="stat"><div class="sn">—</div><div class="sl">Earnings</div></div>
+          </div>
+          <div class="card">
+            <div class="ct">Recent Releases</div>
+            <div id="home-r"><div class="empty"><div class="ei">◉</div><div class="et">No releases yet</div><div class="es">Submit your first release to get started</div></div></div>
+          </div>
+          <div class="card">
+            <div class="ct">Announcements from TIR</div>
+            <div style="font-size:14px;line-height:1.9;color:var(--mt)">
+              ♪ &nbsp;TIR distributes to <strong style="color:var(--wh)">200+ platforms</strong> — Spotify, Apple Music, JioSaavn, Gaana, YouTube Music, Amazon Music and more.<br>
+              ♪ &nbsp;Review takes <strong style="color:var(--wh)">3–5 business days</strong> after submission.<br>
+              ♪ &nbsp;Audio: <strong style="color:var(--wh)">WAV or FLAC</strong>, 44.1kHz / 16-bit minimum.<br>
+              ♪ &nbsp;Artwork: <strong style="color:var(--wh)">3000×3000px JPG or PNG</strong>.
+            </div>
+          </div>
+        </div>
+
+        <!-- MY RELEASES -->
+        <div class="pg" id="page-releases">
+          <div class="card">
+            <div class="ct">All My Releases</div>
+            <div id="all-r"><div class="empty"><div class="ei">◉</div><div class="et">No releases yet</div></div></div>
+          </div>
+        </div>
+
+        <!-- SUBMIT -->
+        <div class="pg" id="page-submit">
+          <div class="notice">
+            <strong>How to submit:</strong> Fill all details below. For audio &amp; artwork — click the upload button to open the TIR Google Drive folder, upload your files there, copy the sharing link, and paste it in the fields below.
+          </div>
+          <div class="al al-e" id="se"></div>
+          <div class="al al-s" id="ss"></div>
+          <div class="card">
+            <div class="ct">Release Submission Form</div>
+            <div class="fg2">
+              <div class="sh">Release Info</div>
+              <div class="fg"><label>Release Title *</label><input type="text" id="s0" placeholder="Song or Album name"/></div>
+              <div class="fg"><label>Release Type *</label>
+                <select id="s1"><option value="">— Select —</option><option>Single</option><option>EP</option><option>Album</option><option>Mixtape</option></select></div>
+              <div class="fg"><label>Primary Artist *</label><input type="text" id="s2" placeholder="Main artist name"/></div>
+              <div class="fg"><label>Featured Artists</label><input type="text" id="s3" placeholder="ft. Name (optional)"/></div>
+              <div class="fg"><label>Primary Genre *</label>
+                <select id="s4"><option value="">— Select —</option>
+                  <option>Hip Hop / Trap</option><option>UK Drill</option>
+                  <option>R&amp;B / Soul</option><option>Pop</option>
+                  <option>Electronic / EDM</option><option>Lofi / Chillhop</option>
+                  <option>Nasheed / Islamic</option><option>Devotional</option>
+                  <option>Instrumental</option><option>Folk / Acoustic</option>
+                  <option>Other</option></select></div>
+              <div class="fg"><label>Sub Genre</label><input type="text" id="s5" placeholder="e.g. Dark Trap"/></div>
+              <div class="fg"><label>Language *</label>
+                <select id="s6"><option value="">— Select —</option>
+                  <option>English</option><option>Hindi / Urdu</option>
+                  <option>Kashmiri</option><option>Arabic</option>
+                  <option>Punjabi</option><option>Instrumental (No Lyrics)</option>
+                  <option>Other</option></select></div>
+              <div class="fg"><label>Desired Release Date *</label><input type="date" id="s7"/></div>
+
+              <div class="sh">Rights &amp; Credits</div>
+              <div class="fg"><label>Explicit?</label>
+                <select id="s8"><option value="no">No — Clean</option><option value="yes">Yes — Explicit</option></select></div>
+              <div class="fg"><label>Copyright Year</label><input type="number" id="s9" value="2025" min="2000" max="2030"/></div>
+              <div class="fg"><label>Label Name</label><input type="text" id="s10" value="The Imaginary Records"/></div>
+              <div class="fg"><label>UPC / ISRC (optional)</label><input type="text" id="s11" placeholder="Leave blank to auto-assign"/></div>
+              <div class="fg full"><label>Songwriter(s) *</label><input type="text" id="s12" placeholder="Full legal names of all writers"/></div>
+              <div class="fg full"><label>Producer(s)</label><input type="text" id="s13" placeholder="Producer credits"/></div>
+
+              <div class="sh">Distribution</div>
+              <div class="fg"><label>Platforms</label>
+                <select id="s14"><option value="all">All Platforms (Recommended)</option><option value="streaming">Streaming Only</option><option value="india">India Only</option></select></div>
+              <div class="fg"><label>Territories</label>
+                <select id="s15"><option value="worldwide">Worldwide</option><option value="india">India Only</option></select></div>
+              <div class="fg full"><label>Lyrics (optional)</label><textarea id="s16" placeholder="Paste full lyrics here..."></textarea></div>
+              <div class="fg full"><label>Notes for TIR</label><textarea id="s17" placeholder="Anything else we should know..."></textarea></div>
+
+              <div class="sh">Audio &amp; Artwork</div>
+              <div class="uz" onclick="window.open(DRIVE_LINK,'_blank')">
+                <div class="uzi">📁</div>
+                <div class="uzt">Open TIR Google Drive Upload Folder</div>
+                <div class="uzs">Upload audio (WAV/FLAC) &amp; artwork (3000×3000 JPG/PNG) → then paste links below</div>
+              </div>
+              <div class="fg full"><label>Google Drive Link — Audio File *</label>
+                <input type="url" id="s18" placeholder="Paste shareable Drive link to audio file"/></div>
+              <div class="fg full"><label>Google Drive Link — Cover Artwork</label>
+                <input type="url" id="s19" placeholder="Paste shareable Drive link to artwork"/></div>
+
+              <div class="full" style="margin-top:8px">
+                <button class="btn-g" id="bsub" style="width:auto;padding:13px 48px" onclick="submitRelease()">Submit Release to TIR</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ROYALTIES -->
+        <div class="pg" id="page-royalties">
+          <div class="notice">Royalty statements updated quarterly. Payouts via PayPal — set your PayPal email in your profile.</div>
+          <div class="stats" style="grid-template-columns:repeat(3,1fr)">
+            <div class="stat"><div class="sn">₹0</div><div class="sl">Total Earned</div></div>
+            <div class="stat"><div class="sn">₹0</div><div class="sl">Pending Payout</div></div>
+            <div class="stat"><div class="sn">₹0</div><div class="sl">Last Payout</div></div>
+          </div>
+          <div class="card">
+            <div class="ct">Earnings by Platform</div>
+            <div class="empty"><div class="ei">◇</div><div class="et">No earnings yet</div><div class="es">Appears after your first live release</div></div>
+          </div>
+        </div>
+
+        <!-- PROFILE -->
+        <div class="pg" id="page-profile">
+          <div class="al al-s" id="po"></div>
+          <div class="card">
+            <div class="ct">Artist Profile</div>
+            <div class="fg2">
+              <div class="fg"><label>Artist / Stage Name</label><input type="text" id="p0"/></div>
+              <div class="fg"><label>Email (cannot change)</label><input type="email" id="p1" disabled/></div>
+              <div class="fg"><label>Genre</label>
+                <select id="p2">
+                  <option>Hip Hop / Trap</option><option>UK Drill</option>
+                  <option>R&amp;B / Soul</option><option>Nasheed / Islamic</option>
+                  <option>Lofi / Chillhop</option><option>Instrumental</option><option>Other</option>
+                </select></div>
+              <div class="fg"><label>Country</label><input type="text" id="p3"/></div>
+              <div class="fg full"><label>Bio</label><textarea id="p4" placeholder="Tell the world about yourself..."></textarea></div>
+              <div class="fg"><label>PayPal Email</label><input type="email" id="p5" placeholder="paypal@email.com"/></div>
+              <div class="fg"><label>Spotify Artist ID</label><input type="text" id="p6" placeholder="spotify:artist:..."/></div>
+              <div class="fg"><label>Instagram</label><input type="text" id="p7" placeholder="@handle"/></div>
+              <div class="fg"><label>YouTube</label><input type="text" id="p8" placeholder="Channel URL"/></div>
+              <div class="full">
+                <button class="btn-g" style="width:auto;padding:12px 40px" onclick="saveProfile()">Save Profile</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
 </div>
 
-<!-- ========== DASHBOARD ========== -->
-<div id="dashboard">
-  <div class="layout">
+<div class="toast" id="toast"></div>
 
-    <!-- SIDEBAR -->
-    <div class="sidebar">
-      <div class="sidebar-logo">
-        <div class="tir">T·I·R</div>
-        <div class="portal">Artist Portal</div>
-      </div>
+<script>
+let CU = null, AD = {};
 
-      <nav class="nav">
-        <div class="nav-section">Main</div>
-        <div class="nav-item active" onclick="goPage('home', this)"><span class="icon">◈</span> Dashboard</div>
-        <div class="nav-item" onclick="goPage('releases', this)"><span class="icon">◉</span> My Releases</div>
-        <div class="nav-item" onclick="goPage('submit', this)"><span class="icon">✦</span> Submit Release</div>
+// AUTH STATE LISTENER
+auth.onAuthStateChanged(async function(user) {
+  document.getElementById('ld').style.display = 'none';
+  if (user) {
+    CU = user;
+    document.getElementById('auth').style.display = 'none';
+    document.getElementById('dash').style.display = 'block';
+    document.getElementById('sbn').textContent = user.displayName || 'Artist';
+    document.getElementById('sbe').textContent = user.email;
+    document.getElementById('pgs').textContent = 'Welcome back, ' + (user.displayName || 'Artist') + '.';
+    await loadProfile();
+    await loadReleases();
+  } else {
+    CU = null;
+    document.getElementById('auth').style.display = 'flex';
+    document.getElementById('dash').style.display = 'none';
+  }
+});
 
-        <div class="nav-section">Finances</div>
-        <div class="nav-item" onclick="goPage('royalties', this)"><span class="icon">◇</span> Royalties</div>
-
-        <div class="nav-section">Account</div>
-        <div class="nav-item" onclick="goPage('profile', this)"><span class="icon">◎</span> My Profile</div>
-        <div class="nav-item" onclick="goPage('notifications', this)"><span class="icon">◌</span> Notifications</div>
-        <div class="nav-item" onclick="goPage('setup', this)"><span class="icon">⚙</span> Setup Guide</div>
-      </nav>
-
-      <div class="sidebar-user">
-        <div class="user-name" id="sb-name">—</div>
-        <div class="user-email" id="sb-email">—</div>
-        <button class="btn-outline" style="width:100%;margin-top:8px" onclick="doSignOut()">Sign Out</button>
-      </div>
-    </div>
-
-    <!-- MAIN -->
-    <div class="main">
-      <div class="topbar">
-        <div>
-          <div class="page-title" id="topbar-title">Dashboard</div>
-          <div class="page-subtitle" id="topbar-sub">Welcome back, artist.</div>
-        </div>
-        <button class="btn-outline" onclick="goPage('submit', document.querySelector('.nav-item:nth-child(6)'))">+ New Release</button>
-      </div>
-
-      <div class="content">
-
-        <!-- HOME PAGE -->
-        <div class="page active" id="page-home">
-          <div class="stats-row">
-            <div class="stat-card">
-              <div class="stat-num" id="stat-releases">0</div>
-              <div class="stat-label">Total Releases</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-num" id="stat-pending">0</div>
-              <div class="stat-label">Pending Review</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-num" id="stat-live">0</div>
-              <div class="stat-label">Live Releases</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-num">—</div>
-              <div class="stat-label">Total Earnings</div>
-            </div>
-          </div>
-
-          <div class="card">
-            <div class="card-title">Recent Releases</div>
-            <div id="home-releases"><div class="loading">Loading releases...</div></div>
-          </div>
-
-          <div class="card">
-            <div class="card-title">Latest Notifications</div>
-            <div class="notif">
-              <div class="notif-dot"></div>
-              <div>
-                <div class="notif-text">Welcome to The Imaginary Records Artist Portal. Submit your first release to get started.</div>
-                <div class="notif-time">Today</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- RELEASES PAGE -->
-        <div class="page" id="page-releases">
-          <div class="card">
-            <div class="card-title">All Releases</div>
-            <div id="releases-list"><div class="loading">Loading...</div></div>
-          </div>
-        </div>
-
-        <!-- SUBMIT RELEASE PAGE -->
-        <div class="page" id="page-submit">
-          <div class="notice">
-            <strong>How song upload works:</strong> Fill in all release details below. For your audio file, click the upload zone — it will open a Google Drive upload link in a new tab. Upload your file there (folder opens automatically), then paste the shareable Drive link in the field below. We'll receive everything and review within 3–5 business days.
-          </div>
-
-          <div class="err-msg" id="submit-error"></div>
-          <div class="success-box" id="submit-success">✓ Release submitted successfully! We'll review it within 3–5 business days.</div>
-
-          <div class="card">
-            <div class="card-title">Release Submission Form</div>
-            <div class="form-grid">
-
-              <div class="form-section-title">Release Info</div>
-
-              <div class="form-group">
-                <label>Release Title *</label>
-                <input type="text" id="r-title" placeholder="Song or Album title"/>
-              </div>
-              <div class="form-group">
-                <label>Release Type *</label>
-                <select id="r-type">
-                  <option value="">— Select —</option>
-                  <option>Single</option>
-                  <option>EP</option>
-                  <option>Album</option>
-                  <option>Mixtape</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label>Primary Artist *</label>
-                <input type="text" id="r-artist" placeholder="Main artist name"/>
-              </div>
-              <div class="form-group">
-                <label>Featured Artists</label>
-                <input type="text" id="r-features" placeholder="ft. Artist Name (if any)"/>
-              </div>
-              <div class="form-group">
-                <label>Primary Genre *</label>
-                <select id="r-genre">
-                  <option value="">— Select Genre —</option>
-                  <option>Hip Hop / Trap</option>
-                  <option>UK Drill</option>
-                  <option>R&B / Soul</option>
-                  <option>Pop</option>
-                  <option>Electronic / EDM</option>
-                  <option>Lofi / Chillhop</option>
-                  <option>Nasheed / Islamic</option>
-                  <option>Devotional</option>
-                  <option>Instrumental</option>
-                  <option>Folk / Acoustic</option>
-                  <option>Other</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label>Sub Genre</label>
-                <input type="text" id="r-subgenre" placeholder="e.g. Dark Trap, Emo Rap"/>
-              </div>
-              <div class="form-group">
-                <label>Language *</label>
-                <select id="r-language">
-                  <option value="">— Select Language —</option>
-                  <option>English</option>
-                  <option>Hindi / Urdu</option>
-                  <option>Kashmiri</option>
-                  <option>Arabic</option>
-                  <option>Punjabi</option>
-                  <option>Instrumental (No Lyrics)</option>
-                  <option>Other</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label>Desired Release Date *</label>
-                <input type="date" id="r-date"/>
-              </div>
-
-              <div class="form-section-title">Content & Rights</div>
-
-              <div class="form-group">
-                <label>Explicit Content?</label>
-                <select id="r-explicit">
-                  <option value="no">No — Clean</option>
-                  <option value="yes">Yes — Explicit</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label>UPC / ISRC (if you have one)</label>
-                <input type="text" id="r-upc" placeholder="Leave blank — we'll assign one"/>
-              </div>
-              <div class="form-group">
-                <label>Label Name</label>
-                <input type="text" id="r-label" value="The Imaginary Records"/>
-              </div>
-              <div class="form-group">
-                <label>Copyright Year *</label>
-                <input type="number" id="r-year" value="2025" min="2000" max="2030"/>
-              </div>
-              <div class="form-group form-full">
-                <label>Songwriter(s) / Composer(s) *</label>
-                <input type="text" id="r-writers" placeholder="Full legal names of all writers"/>
-              </div>
-              <div class="form-group form-full">
-                <label>Producer(s)</label>
-                <input type="text" id="r-producers" placeholder="Producer credit names"/>
-              </div>
-
-              <div class="form-section-title">Distribution</div>
-
-              <div class="form-group form-full">
-                <label>Platforms to Distribute To</label>
-                <select id="r-platforms">
-                  <option value="all">All Platforms (Recommended)</option>
-                  <option value="streaming">Streaming Only (Spotify, Apple, etc.)</option>
-                  <option value="custom">Custom Selection (specify below)</option>
-                </select>
-              </div>
-              <div class="form-group form-full">
-                <label>Territories</label>
-                <select id="r-territories">
-                  <option value="worldwide">Worldwide</option>
-                  <option value="india">India Only</option>
-                  <option value="custom">Custom Territories</option>
-                </select>
-              </div>
-              <div class="form-group form-full">
-                <label>Lyrics (Optional)</label>
-                <textarea id="r-lyrics" placeholder="Paste full lyrics here (helps with metadata and platforms like Genius)"></textarea>
-              </div>
-              <div class="form-group form-full">
-                <label>Additional Notes</label>
-                <textarea id="r-notes" placeholder="Anything else you want us to know about this release..."></textarea>
-              </div>
-
-              <div class="form-section-title">Audio & Artwork Upload</div>
-
-              <div class="upload-zone form-full" onclick="openDriveUpload()">
-                <div class="upload-icon">♪</div>
-                <div class="upload-title">Upload Audio File via Google Drive</div>
-                <div class="upload-sub">WAV / FLAC preferred · 44.1kHz / 16-bit minimum · Click to open upload folder</div>
-              </div>
-
-              <div class="form-group form-full">
-                <label>Google Drive Link — Audio File *</label>
-                <input type="url" id="r-audio-link" placeholder="Paste shareable Google Drive link to your audio file"/>
-              </div>
-              <div class="form-group form-full">
-                <label>Google Drive Link — Cover Artwork *</label>
-                <input type="url" id="r-artwork-link" placeholder="3000x3000px JPG/PNG — Paste shareable Drive link"/>
-              </div>
-
-              <div style="grid-column:1/-1; margin-top: 8px;">
-                <button class="btn-gold" style="width:auto;padding:13px 48px" onclick="submitRelease()">Submit Release to TIR</button>
-              </div>
-
-            </div>
-          </div>
-        </div>
-
-        <!-- ROYALTIES PAGE -->
-        <div class="page" id="page-royalties">
-          <div class="notice">
-            Royalty statements are updated quarterly. Your earnings are paid via PayPal. Make sure your PayPal email is set in your profile.
-          </div>
-          <div class="stats-row" style="grid-template-columns:repeat(3,1fr)">
-            <div class="stat-card">
-              <div class="stat-num">₹0</div>
-              <div class="stat-label">Total Earned</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-num">₹0</div>
-              <div class="stat-label">Pending Payout</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-num">₹0</div>
-              <div class="stat-label">Last Payout</div>
-            </div>
-          </div>
-          <div class="card">
-            <div class="card-title">Royalty Breakdown by Platform</div>
-            <div class="empty">
-              <div class="empty-icon">◇</div>
-              <div class="empty-text">No royalty data yet</div>
-              <div class="empty-sub">Earnings will appear here after your first live release</div>
-            </div>
-          </div>
-          <div class="card">
-            <div class="card-title">Payout History</div>
-            <div class="empty">
-              <div class="empty-icon">◌</div>
-              <div class="empty-text">No payouts yet</div>
-              <div class="empty-sub">Payouts processed via PayPal every quarter</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- PROFILE PAGE -->
-        <div class="page" id="page-profile">
-          <div class="card">
-            <div class="card-title">Artist Profile</div>
-            <div class="profile-avatar" id="profile-avatar">🎵</div>
-            <div class="form-grid">
-              <div class="form-group">
-                <label>Artist / Stage Name</label>
-                <input type="text" id="p-name" placeholder="Your artist name"/>
-              </div>
-              <div class="form-group">
-                <label>Email</label>
-                <input type="email" id="p-email" disabled/>
-              </div>
-              <div class="form-group">
-                <label>Genre</label>
-                <select id="p-genre">
-                  <option>Hip Hop / Trap</option>
-                  <option>UK Drill</option>
-                  <option>R&B / Soul</option>
-                  <option>Nasheed / Islamic</option>
-                  <option>Lofi / Chillhop</option>
-                  <option>Instrumental</option>
-                  <option>Other</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label>Country</label>
-                <input type="text" id="p-country"/>
-              </div>
-              <div class="form-group form-full">
-                <label>Bio</label>
-                <textarea id="p-bio" placeholder="Tell the world about yourself..."></textarea>
-              </div>
-              <div class="form-group">
-                <label>PayPal Email (for royalties)</label>
-                <input type="email" id="p-paypal" placeholder="paypal@email.com"/>
-              </div>
-              <div class="form-group">
-                <label>Spotify Artist ID</label>
-                <input type="text" id="p-spotify" placeholder="spotify:artist:..."/>
-              </div>
-              <div class="form-group">
-                <label>Instagram Handle</label>
-                <input type="text" id="p-instagram" placeholder="@yourhandle"/>
-              </div>
-              <div class="form-group">
-                <label>YouTube Channel</label>
-                <input type="text" id="p-youtube" placeholder="Channel URL or handle"/>
-              </div>
-              <div style="grid-column:1/-1">
-                <div class="success-box" id="profile-success">✓ Profile saved successfully.</div>
-                <button class="btn-gold" style="width:auto;padding:12px 40px" onclick="saveProfile()">Save Profile</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- NOTIFICATIONS PAGE -->
-        <div class="page" id="page-notifications">
-          <div class="card">
-            <div class="card-title">Notifications</div>
-            <div class="notif">
-              <div class="notif-dot"></div>
-              <div>
-                <div class="notif-text">Welcome to The Imaginary Records! Your artist account has been created. Complete your profile and submit your first release.</div>
-                <div class="notif-time">Today</div>
-              </div>
-            </div>
-            <div class="notif">
-              <div class="notif-dot read"></div>
-              <div>
-                <div class="notif-text">TIR distributes to 200+ platforms including Spotify, Apple Music, Amazon, JioSaavn, Gaana, YouTube Music and more.</div>
-                <div class="notif-time">Getting started tip</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- SETUP GUIDE PAGE -->
-        <div class="page" id="page-setup">
-          <div class="card">
-            <div class="card-title">Setup Guide — For TIR Admin</div>
-            <div class="notice">
-              <strong>This page is a step-by-step guide</strong> for setting up the backend (Firebase + Google Drive) so this dashboard works fully. Share this with your developer or follow it yourself.
-            </div>
-
-            <div style="margin-bottom: 24px">
-              <div class="card-title" style="margin-bottom:12px">Step 1 — Create Firebase Project (Free)</div>
-              <ol class="steps">
-                <li>Go to <strong>console.firebase.google.com</strong> → "Add project" → name it <em>tir-artist-portal</em></li>
-                <li>Enable <strong>Authentication</strong> → Sign-in method → <strong>Email/Password</strong> → Enable</li>
-                <li>Enable <strong>Firestore Database</strong> → Start in test mode (secure later)</li>
-                <li>Go to Project Settings → Your apps → Add Web app → Copy the config object</li>
-                <li>Replace <code>YOUR_API_KEY</code> etc. in the &lt;script&gt; at the top of this HTML file with your real config</li>
-              </ol>
-            </div>
-
-            <div style="margin-bottom: 24px">
-              <div class="card-title" style="margin-bottom:12px">Step 2 — Set Up Google Drive Folder (Free)</div>
-              <ol class="steps">
-                <li>Create a Google Drive folder called <strong>"TIR Submissions"</strong></li>
-                <li>Inside it, create sub-folders: <strong>Audio Files</strong> and <strong>Artwork</strong></li>
-                <li>Right-click the folder → Share → Change to <em>"Anyone with the link can edit"</em></li>
-                <li>Copy the folder link and paste it below as your upload destination</li>
-              </ol>
-              <div class="form-group" style="margin-top:16px">
-                <label>Your Google Drive Upload Folder Link</label>
-                <input type="url" id="setup-drive-link" placeholder="https://drive.google.com/drive/folders/..."/>
-                <button class="btn-outline" style="margin-top:8px" onclick="saveDriveLink()">Save Link</button>
-              </div>
-            </div>
-
-            <div>
-              <div class="card-title" style="margin-bottom:12px">Step 3 — Firestore Security Rules</div>
-              <ol class="steps">
-                <li>In Firebase Console → Firestore → Rules → replace with these rules to secure your data:</li>
-              </ol>
-              <div class="code-snippet">
-rules_version = '2';<br>
-service cloud.firestore {<br>
-&nbsp;&nbsp;match /databases/{database}/documents {<br>
-&nbsp;&nbsp;&nbsp;&nbsp;match /users/{userId} {<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;allow read, write: if request.auth.uid == userId;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;}<br>
-&nbsp;&nbsp;&nbsp;&nbsp;match /releases/{releaseId} {<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;allow read, write: if request.auth != null<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&amp;&amp; request.auth.uid == resource.data.userId;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;allow create: if request.auth != null;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;}<br>
-&nbsp;&nbsp;}<br>
-}
-              </div>
-            </div>
-          </div>
-
-          <div class="card">
-            <div class="card-title">Deployment — Host Free on GitHub Pages or Vercel</div>
-            <ol class="steps">
-              <li>Save this HTML file as <strong>index.html</strong></li>
-              <li>Push to a GitHub repo (e.g. <em>tir-artist-portal</em>)</li>
-              <li>Go to repo Settings → Pages → Source: main branch → Save</li>
-              <li>Your portal will be live at <strong>yourusername.github.io/tir-artist-portal</strong></li>
-            </ol>
-          </div>
-        </div>
-
-      </div><!-- /content -->
-    </div><!-- /main -->
-  </div><!-- /layout -->
-</div><!-- /dashboard -->
-
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-// ============== UI STATE ==============
-let currentUser = null;
-let currentArtistData = {};
-let driveFolderLink = 'https://drive.google.com/drive/folders/156B6lBrUKOlyrvSuoAtFGw0LKmWZ9Srl?usp=sharing';
-const ADMIN_EMAIL = 'theimaginaryrecords@gmail.com';
-
-function switchTab(tab) {
-  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', (tab==='login'&&i===0)||(tab==='register'&&i===1)));
-  document.getElementById('login-form').style.display = tab==='login'?'block':'none';
-  document.getElementById('register-form').style.display = tab==='register'?'block':'none';
-  hideError('auth-error');
-}
-
-function showError(id, msg) {
-  const el = document.getElementById(id);
-  el.textContent = msg; el.classList.add('show');
-}
-
-function hideError(id) {
-  document.getElementById(id).classList.remove('show');
-}
-
-// ============== AUTH ==============
+// LOGIN
 async function doLogin() {
-  const { auth, signInWithEmailAndPassword } = window.__TIR;
-  const email = document.getElementById('login-email').value.trim();
-  const pass = document.getElementById('login-pass').value;
-  if (!email || !pass) return showError('auth-error', 'Please fill in all fields.');
+  const email = document.getElementById('le').value.trim();
+  const pass  = document.getElementById('lp').value;
+  const btn   = document.getElementById('blg');
+  clrAl();
+  if (!email || !pass) return showErr('ae','Please enter your email and password.');
+  btn.disabled = true; btn.textContent = 'Signing in...';
   try {
-    await signInWithEmailAndPassword(auth, email, pass);
+    await auth.signInWithEmailAndPassword(email, pass);
   } catch(e) {
-    showError('auth-error', 'Login failed: ' + e.message.replace('Firebase: ',''));
+    let m = 'Login failed. ';
+    if(e.code==='auth/user-not-found'||e.code==='auth/invalid-credential') m+='Wrong email or password.';
+    else if(e.code==='auth/wrong-password') m+='Wrong password.';
+    else if(e.code==='auth/invalid-email') m+='Invalid email.';
+    else m+=e.message;
+    showErr('ae', m);
+    btn.disabled = false; btn.textContent = 'Sign In';
   }
 }
 
+// REGISTER
 async function doRegister() {
-  const { auth, db, createUserWithEmailAndPassword, updateProfile, doc, setDoc } = window.__TIR;
-  const name = document.getElementById('reg-name').value.trim();
-  const email = document.getElementById('reg-email').value.trim();
-  const pass = document.getElementById('reg-pass').value;
-  const genre = document.getElementById('reg-genre').value;
-  const country = document.getElementById('reg-country').value.trim();
-  if (!name || !email || !pass) return showError('auth-error', 'Please fill in required fields.');
-  if (pass.length < 6) return showError('auth-error', 'Password must be at least 6 characters.');
+  const name  = document.getElementById('rn').value.trim();
+  const email = document.getElementById('re').value.trim();
+  const pass  = document.getElementById('rp').value;
+  const genre = document.getElementById('rg').value;
+  const country = document.getElementById('rc').value.trim();
+  const btn   = document.getElementById('brg');
+  clrAl();
+  if(!name||!email||!pass) return showErr('ae','Please fill all required fields.');
+  if(pass.length<6) return showErr('ae','Password must be at least 6 characters.');
+  btn.disabled = true; btn.textContent = 'Creating account...';
   try {
-    const cred = await createUserWithEmailAndPassword(auth, email, pass);
-    await updateProfile(cred.user, { displayName: name });
-    await setDoc(doc(db, 'users', cred.user.uid), {
-      name, email, genre, country,
-      bio: '', paypal: '', spotify: '', instagram: '', youtube: '',
+    const cred = await auth.createUserWithEmailAndPassword(email, pass);
+    await cred.user.updateProfile({ displayName: name });
+    await db.collection('users').doc(cred.user.uid).set({
+      name, email, genre, country, bio:'', paypal:'', spotify:'', instagram:'', youtube:'',
       createdAt: new Date().toISOString()
     });
   } catch(e) {
-    showError('auth-error', 'Registration failed: ' + e.message.replace('Firebase: ',''));
+    let m = 'Registration failed. ';
+    if(e.code==='auth/email-already-in-use') m+='Email already registered — please sign in.';
+    else if(e.code==='auth/invalid-email') m+='Invalid email address.';
+    else m+=e.message;
+    showErr('ae', m);
+    btn.disabled = false; btn.textContent = 'Create Account';
   }
 }
 
-async function doSignOut() {
-  const { auth, signOut } = window.__TIR;
-  await signOut(auth);
-}
+function doSignOut() { auth.signOut(); }
 
-// ============== AUTH STATE ==============
-window.addEventListener('load', () => {
-  // Wait for Firebase to initialize
-  const check = setInterval(() => {
-    if (window.__TIR) {
-      clearInterval(check);
-      const { auth, onAuthStateChanged } = window.__TIR;
-      onAuthStateChanged(auth, async (user) => {
-        if (user) {
-          currentUser = user;
-          document.getElementById('auth-screen').style.display = 'none';
-          document.getElementById('dashboard').style.display = 'block';
-          document.getElementById('sb-name').textContent = user.displayName || 'Artist';
-          document.getElementById('sb-email').textContent = user.email;
-          await loadArtistData();
-          loadReleases();
-        } else {
-          currentUser = null;
-          document.getElementById('auth-screen').style.display = 'flex';
-          document.getElementById('dashboard').style.display = 'none';
-        }
-      });
-    }
-  }, 100);
-});
-
-// ============== LOAD ARTIST DATA ==============
-async function loadArtistData() {
-  const { db, doc, getDoc } = window.__TIR;
+// PROFILE
+async function loadProfile() {
   try {
-    const snap = await getDoc(doc(db, 'users', currentUser.uid));
-    if (snap.exists()) {
-      currentArtistData = snap.data();
-      // Fill profile form
-      document.getElementById('p-name').value = currentArtistData.name || '';
-      document.getElementById('p-email').value = currentUser.email || '';
-      document.getElementById('p-country').value = currentArtistData.country || '';
-      document.getElementById('p-bio').value = currentArtistData.bio || '';
-      document.getElementById('p-paypal').value = currentArtistData.paypal || '';
-      document.getElementById('p-spotify').value = currentArtistData.spotify || '';
-      document.getElementById('p-instagram').value = currentArtistData.instagram || '';
-      document.getElementById('p-youtube').value = currentArtistData.youtube || '';
-      if (currentArtistData.genre) document.getElementById('p-genre').value = currentArtistData.genre;
-      // Pre-fill artist name in release form
-      document.getElementById('r-artist').value = currentArtistData.name || '';
+    const snap = await db.collection('users').doc(CU.uid).get();
+    if(snap.exists) {
+      AD = snap.data();
+      document.getElementById('p0').value = AD.name||'';
+      document.getElementById('p1').value = CU.email||'';
+      document.getElementById('p3').value = AD.country||'';
+      document.getElementById('p4').value = AD.bio||'';
+      document.getElementById('p5').value = AD.paypal||'';
+      document.getElementById('p6').value = AD.spotify||'';
+      document.getElementById('p7').value = AD.instagram||'';
+      document.getElementById('p8').value = AD.youtube||'';
+      if(AD.genre) document.getElementById('p2').value = AD.genre;
+      document.getElementById('s2').value = AD.name || CU.displayName || '';
     }
-  } catch(e) { console.log('Profile load error:', e); }
+  } catch(e){ console.log('Profile load:',e); }
 }
 
-// ============== LOAD RELEASES ==============
+async function saveProfile() {
+  const data = {
+    name: document.getElementById('p0').value.trim(),
+    email: CU.email,
+    genre: document.getElementById('p2').value,
+    country: document.getElementById('p3').value.trim(),
+    bio: document.getElementById('p4').value.trim(),
+    paypal: document.getElementById('p5').value.trim(),
+    spotify: document.getElementById('p6').value.trim(),
+    instagram: document.getElementById('p7').value.trim(),
+    youtube: document.getElementById('p8').value.trim()
+  };
+  try {
+    await db.collection('users').doc(CU.uid).set(data,{merge:true});
+    AD = {...AD,...data};
+    document.getElementById('sbn').textContent = data.name;
+    showOk('po','✓ Profile saved.');
+    setTimeout(()=>document.getElementById('po').classList.remove('on'),3000);
+    toast('Profile saved ✓');
+  } catch(e){ toast('Error: '+e.message); }
+}
+
+// RELEASES
 async function loadReleases() {
-  const { db, collection, query, where, orderBy, getDocs } = window.__TIR;
   try {
-    const q = query(
-      collection(db, 'releases'),
-      where('userId', '==', currentUser.uid)
-    );
-    const snap = await getDocs(q);
-    const releases = [];
-    snap.forEach(d => releases.push({ id: d.id, ...d.data() }));
-
-    // Sort by date
-    releases.sort((a,b) => new Date(b.submittedAt||0) - new Date(a.submittedAt||0));
-
-    // Stats
-    document.getElementById('stat-releases').textContent = releases.length;
-    document.getElementById('stat-pending').textContent = releases.filter(r => r.status === 'pending' || r.status === 'review').length;
-    document.getElementById('stat-live').textContent = releases.filter(r => r.status === 'live').length;
-
-    // Render home releases (last 5)
-    renderReleaseList('home-releases', releases.slice(0,5));
-    // Render all releases
-    renderReleaseList('releases-list', releases);
-
-  } catch(e) {
-    document.getElementById('home-releases').innerHTML = '<div class="loading">Error loading releases.</div>';
-  }
+    const snap = await db.collection('releases').where('userId','==',CU.uid).get();
+    const list = [];
+    snap.forEach(d => list.push({id:d.id,...d.data()}));
+    list.sort((a,b)=>new Date(b.submittedAt||0)-new Date(a.submittedAt||0));
+    document.getElementById('st0').textContent = list.length;
+    document.getElementById('st1').textContent = list.filter(r=>r.status==='pending'||r.status==='review').length;
+    document.getElementById('st2').textContent = list.filter(r=>r.status==='live').length;
+    renderR('home-r', list.slice(0,5));
+    renderR('all-r', list);
+  } catch(e){ console.log('Releases:',e); }
 }
 
-function renderReleaseList(containerId, releases) {
-  const el = document.getElementById(containerId);
-  if (!releases.length) {
-    el.innerHTML = '<div class="empty"><div class="empty-icon">◉</div><div class="empty-text">No releases yet</div><div class="empty-sub">Submit your first release to get started</div></div>';
+function renderR(id, list) {
+  const el = document.getElementById(id);
+  if(!list.length){
+    el.innerHTML='<div class="empty"><div class="ei">◉</div><div class="et">No releases yet</div><div class="es">Click Submit Release to get started</div></div>';
     return;
   }
-  el.innerHTML = releases.map(r => `
-    <div class="release-item">
-      <div class="release-thumb">♪</div>
-      <div class="release-info">
-        <div class="release-title">${r.title || '—'}</div>
-        <div class="release-meta">${r.type || 'Single'} · ${r.genre || '—'} · ${r.releaseDate || '—'}</div>
+  const cls = {pending:'bp',review:'br',approved:'ba',live:'bl',rejected:'bx'};
+  el.innerHTML = list.map(r=>`
+    <div class="ri">
+      <div class="rt">♪</div>
+      <div class="rinfo">
+        <div class="rtitle">${r.title||'—'}</div>
+        <div class="rmeta">${r.type||'Single'} · ${r.genre||'—'} · ${r.releaseDate||'—'}</div>
       </div>
-      <span class="status-badge status-${r.status||'pending'}">${r.status||'pending'}</span>
+      <span class="badge ${cls[r.status]||'bp'}">${r.status||'pending'}</span>
     </div>
   `).join('');
 }
 
-// ============== SUBMIT RELEASE ==============
+// SUBMIT
 async function submitRelease() {
-  const { db, collection, addDoc } = window.__TIR;
+  const v = id => document.getElementById(id).value.trim();
+  const title   = v('s0'), type  = v('s1'), artist = v('s2');
+  const genre   = v('s4'), lang  = v('s6'), date   = v('s7');
+  const writers = v('s12'),audio = v('s18');
 
-  const title = document.getElementById('r-title').value.trim();
-  const type = document.getElementById('r-type').value;
-  const artist = document.getElementById('r-artist').value.trim();
-  const genre = document.getElementById('r-genre').value;
-  const language = document.getElementById('r-language').value;
-  const releaseDate = document.getElementById('r-date').value;
-  const writers = document.getElementById('r-writers').value.trim();
-  const audioLink = document.getElementById('r-audio-link').value.trim();
-  const artworkLink = document.getElementById('r-artwork-link').value.trim();
+  document.getElementById('se').classList.remove('on');
+  document.getElementById('ss').classList.remove('on');
 
-  if (!title || !type || !artist || !genre || !language || !releaseDate || !writers) {
-    showError('submit-error', 'Please fill in all required fields (marked with *).');
-    return;
-  }
-  if (!audioLink) {
-    showError('submit-error', 'Please upload your audio file to Google Drive and paste the link.');
-    return;
-  }
+  if(!title)   return showErr('se','Please enter a release title.');
+  if(!type)    return showErr('se','Please select a release type.');
+  if(!artist)  return showErr('se','Please enter the primary artist name.');
+  if(!genre)   return showErr('se','Please select a genre.');
+  if(!lang)    return showErr('se','Please select a language.');
+  if(!date)    return showErr('se','Please select a release date.');
+  if(!writers) return showErr('se','Please enter songwriter name(s).');
+  if(!audio)   return showErr('se','Please paste your Google Drive audio file link.');
 
-  hideError('submit-error');
+  const btn = document.getElementById('bsub');
+  btn.disabled = true; btn.textContent = 'Submitting...';
 
-  const releaseData = {
-    userId: currentUser.uid,
-    artistName: currentArtistData.name || currentUser.displayName,
-    title,
-    type,
-    primaryArtist: artist,
-    featuredArtists: document.getElementById('r-features').value.trim(),
-    genre,
-    subGenre: document.getElementById('r-subgenre').value.trim(),
-    language,
-    releaseDate,
-    explicit: document.getElementById('r-explicit').value,
-    upc: document.getElementById('r-upc').value.trim(),
-    label: document.getElementById('r-label').value.trim(),
-    copyrightYear: document.getElementById('r-year').value,
-    writers,
-    producers: document.getElementById('r-producers').value.trim(),
-    platforms: document.getElementById('r-platforms').value,
-    territories: document.getElementById('r-territories').value,
-    lyrics: document.getElementById('r-lyrics').value.trim(),
-    notes: document.getElementById('r-notes').value.trim(),
-    audioLink,
-    artworkLink,
-    status: 'pending',
-    submittedAt: new Date().toISOString(),
-    adminEmail: ADMIN_EMAIL
-  };
-
-  try {
-    await addDoc(collection(db, 'releases'), releaseData);
-    document.getElementById('submit-success').classList.add('show');
-    // Clear form
-    ['r-title','r-features','r-subgenre','r-upc','r-writers','r-producers','r-lyrics','r-notes','r-audio-link','r-artwork-link'].forEach(id => document.getElementById(id).value = '');
-    document.getElementById('r-type').value = '';
-    document.getElementById('r-genre').value = '';
-    document.getElementById('r-language').value = '';
-    loadReleases();
-    setTimeout(() => document.getElementById('submit-success').classList.remove('show'), 5000);
-    // Notify admin via email
-    try {
-      if(typeof emailjs !== 'undefined' && EMAILJS_SERVICE_ID !== 'service_3bit5yi') {
-        emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
-          to_email: ADMIN_EMAIL,
-          artist_name: releaseData.artistName,
-          release_title: releaseData.title,
-          release_type: releaseData.type,
-          genre: releaseData.genre,
-          release_date: releaseData.releaseDate,
-          audio_link: releaseData.audioLink,
-          artwork_link: releaseData.artworkLink,
-        });
-      }
-    } catch(e) { console.log('Email notify skipped:', e); }
-  } catch(e) {
-    showError('submit-error', 'Submission failed: ' + e.message);
-  }
-}
-
-// ============== SAVE PROFILE ==============
-async function saveProfile() {
-  const { db, doc, setDoc } = window.__TIR;
   const data = {
-    name: document.getElementById('p-name').value.trim(),
-    email: currentUser.email,
-    genre: document.getElementById('p-genre').value,
-    country: document.getElementById('p-country').value.trim(),
-    bio: document.getElementById('p-bio').value.trim(),
-    paypal: document.getElementById('p-paypal').value.trim(),
-    spotify: document.getElementById('p-spotify').value.trim(),
-    instagram: document.getElementById('p-instagram').value.trim(),
-    youtube: document.getElementById('p-youtube').value.trim(),
+    userId: CU.uid,
+    artistName: AD.name||CU.displayName||artist,
+    title, type, primaryArtist: artist,
+    featuredArtists: v('s3'), genre, subGenre: v('s5'),
+    language: lang, releaseDate: date,
+    explicit: document.getElementById('s8').value,
+    copyrightYear: v('s9'), label: v('s10'), upc: v('s11'),
+    writers, producers: v('s13'),
+    platforms: document.getElementById('s14').value,
+    territories: document.getElementById('s15').value,
+    lyrics: v('s16'), notes: v('s17'),
+    audioLink: audio, artworkLink: v('s19'),
+    status: 'pending',
+    submittedAt: new Date().toISOString()
   };
+
   try {
-    await setDoc(doc(db, 'users', currentUser.uid), data, { merge: true });
-    document.getElementById('sb-name').textContent = data.name;
-    currentArtistData = { ...currentArtistData, ...data };
-    document.getElementById('profile-success').classList.add('show');
-    setTimeout(() => document.getElementById('profile-success').classList.remove('show'), 3000);
-  } catch(e) {
-    alert('Save failed: ' + e.message);
-  }
+    await db.collection('releases').add(data);
+    try {
+      await emailjs.send(EJS_SERVICE, EJS_TEMPLATE, {
+        artist_name: data.artistName, release_title: title,
+        release_type: type, genre, release_date: date,
+        audio_link: audio, artwork_link: v('s19')||'Not provided'
+      });
+    } catch(ee){ console.log('Email skipped:',ee); }
+
+    // Clear form
+    ['s0','s3','s5','s11','s12','s13','s16','s17','s18','s19'].forEach(id=>document.getElementById(id).value='');
+    ['s1','s4','s6'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('s10').value='The Imaginary Records';
+
+    showOk('ss','✓ Release submitted! We will review within 3–5 business days.');
+    await loadReleases();
+    toast('Release submitted ✓');
+  } catch(e){ showErr('se','Submission failed: '+e.message); }
+
+  btn.disabled = false; btn.textContent = 'Submit Release to TIR';
 }
 
-// ============== NAVIGATION ==============
+// NAV
 function goPage(name, el) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById('page-'+name).classList.add('active');
-  if (el) el.classList.add('active');
-
-  const titles = {
-    home: ['Dashboard', 'Your releases at a glance.'],
-    releases: ['My Releases', 'All submitted releases.'],
-    submit: ['Submit Release', 'Fill in all details carefully.'],
-    royalties: ['Royalties', 'Your earnings overview.'],
-    profile: ['My Profile', 'Manage your artist info.'],
-    notifications: ['Notifications', 'Updates from TIR.'],
-    setup: ['Setup Guide', 'Admin: Configure the portal.'],
-  };
-
-  const [title, sub] = titles[name] || ['Dashboard', ''];
-  document.getElementById('topbar-title').textContent = title;
-  document.getElementById('topbar-sub').textContent = sub;
-
-  if (name === 'setup') {
-    document.getElementById('setup-drive-link').value = driveFolderLink;
-  }
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));
+  document.getElementById('page-'+name).classList.add('on');
+  if(el) el.classList.add('on');
+  const m={home:['Dashboard','Your releases at a glance.'],releases:['My Releases','All submitted releases.'],submit:['Submit Release','Fill in all details carefully.'],royalties:['Royalties','Your earnings.'],profile:['My Profile','Update your info.']};
+  const [t,s]=m[name]||['Dashboard',''];
+  document.getElementById('pgt').textContent=t;
+  document.getElementById('pgs').textContent=s;
 }
 
-// ============== DRIVE UPLOAD ==============
-function openDriveUpload() {
-  const link = driveFolderLink || 'https://drive.google.com';
-  window.open(link, '_blank');
+function switchTab(t) {
+  clrAl();
+  document.getElementById('tl').classList.toggle('on',t==='login');
+  document.getElementById('tr').classList.toggle('on',t==='reg');
+  document.getElementById('fl').style.display=t==='login'?'block':'none';
+  document.getElementById('fr').style.display=t==='reg'?'block':'none';
 }
 
-function saveDriveLink()
+// HELPERS
+function showErr(id,m){const e=document.getElementById(id);e.textContent=m;e.classList.add('on')}
+function showOk(id,m){const e=document.getElementById(id);e.textContent=m;e.classList.add('on')}
+function clrAl(){['ae','as'].forEach(id=>document.getElementById(id).classList.remove('on'))}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),3000)}
+</script>
+</body>
+</html>

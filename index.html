@@ -9,7 +9,7 @@
   // EmailJS — free 200 emails/month
   // Setup: emailjs.com → free account → create service → create template → paste IDs below
   const EMAILJS_SERVICE_ID = 'service_3bit5yi';
-  const EMAILJS_TEMPLATE_ID = 'template_ilcfeua';
+  const EMAILJS_TEMPLATE_ID = 'eg3omh9';
   const EMAILJS_PUBLIC_KEY = 'O_glA7q-_LOyfl0AS';
   window.addEventListener('load', () => {
     if(typeof emailjs !== 'undefined') emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
@@ -686,7 +686,7 @@ textarea { resize: vertical; min-height: 80px; font-size: 14px; }
         <div style="font-size:32px;margin-bottom:12px">◈</div>
         <div style="font-size:18px;font-style:italic;color:var(--white);margin-bottom:8px">Invite Only</div>
         <div style="font-family:DM Mono,monospace;font-size:11px;color:var(--muted);letter-spacing:1px;line-height:1.8">The Imaginary Records Artist Portal<br>is available by invitation only.<br><br>Contact us to apply:</div>
-        <div style="margin-top:16px;font-family:DM Mono,monospace;font-size:12px;color:var(--gold)">theimaginaryrecords@gmail.com</div>
+        <div style="margin-top:16px;font-family:DM Mono,monospace;font-size:12px;color:var(--gold)"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="0e7a666b67636f6967606f7c777c6b6d617c6a7d4e69636f6762206d6163">[email&#160;protected]</a></div>
       </div>
     </div>
   </div>
@@ -1130,7 +1130,7 @@ service cloud.firestore {<br>
   </div><!-- /layout -->
 </div><!-- /dashboard -->
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 // ============== UI STATE ==============
 let currentUser = null;
 let currentArtistData = {};
@@ -1430,15 +1430,4 @@ function openDriveUpload() {
   window.open(link, '_blank');
 }
 
-function saveDriveLink() {
-  const link = document.getElementById('setup-drive-link').value.trim();
-  if (link) {
-    localStorage.setItem('tir_drive_link', link);
-    driveFolderLink = link;
-    alert('Drive folder link saved!');
-  }
-}
-</script>
-
-</body>
-</html>
+function saveDriveLink()

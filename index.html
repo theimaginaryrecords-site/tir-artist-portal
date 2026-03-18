@@ -51,7 +51,7 @@ body{background:#0f0f0f;color:#e8e8e8;font-family:'Inter',sans-serif;min-height:
 .auth-brand-name{font-size:16px;font-weight:600;letter-spacing:1px}
 .auth-title{font-size:26px;font-weight:700;margin-bottom:6px;color:#fff}
 .auth-sub{color:#888;font-size:14px;margin-bottom:32px}
-.tabs{display:flex;background:#1a1a1a;border-radius:8px;padding:4px;margin-bottom:28px;gap:4px}
+.tabs{display:flex;background:#1a1a1a;border-radius:8px;padding:4px;margin-bottom:28px;gap:4px}.tabs:has(button:only-child){background:none;padding:0}
 .tab{flex:1;padding:9px;border:none;background:none;color:#888;font-family:'Inter',sans-serif;font-size:13px;font-weight:500;cursor:pointer;border-radius:6px;transition:all .2s}
 .tab.on{background:#fff;color:#000;font-weight:600}
 .fg{margin-bottom:16px}
@@ -249,7 +249,7 @@ nav{flex:1;padding:16px 12px}
 
         <div class="tabs">
           <button class="tab on" id="tl" onclick="switchTab('login')">Sign In</button>
-          <button class="tab" id="tr" onclick="switchTab('reg')">Register</button>
+          
         </div>
 
         <div class="al al-e" id="ae"></div>
@@ -264,27 +264,16 @@ nav{flex:1;padding:16px 12px}
           <button class="btn-primary" id="blg" onclick="doLogin()">Sign In</button>
         </div>
 
-        <!-- REGISTER -->
+        <!-- INVITE ONLY -->
         <div id="fr" style="display:none">
-          <div class="fg"><label>Artist / Stage Name *</label>
-            <input type="text" id="rn" placeholder="Your artist name"/></div>
-          <div class="fg"><label>Email Address *</label>
-            <input type="email" id="re" placeholder="your@email.com"/></div>
-          <div class="fg"><label>Password * (min 6 characters)</label>
-            <input type="password" id="rp" placeholder="Create a password"/></div>
-          <div class="fg"><label>Primary Genre</label>
-            <select id="rg">
-              <option value="">— Select Genre —</option>
-              <option>Hip Hop / Trap</option><option>UK Drill</option>
-              <option>R&amp;B / Soul</option><option>Pop</option>
-              <option>Electronic / EDM</option><option>Lofi / Chillhop</option>
-              <option>Nasheed / Islamic</option><option>Devotional</option>
-              <option>Instrumental</option><option>Folk / Acoustic</option>
-              <option>Other</option>
-            </select></div>
-          <div class="fg"><label>Country</label>
-            <input type="text" id="rc" placeholder="e.g. India"/></div>
-          <button class="btn-primary" id="brg" onclick="doRegister()">Create Artist Account</button>
+          <div style="text-align:center;padding:32px 20px;background:#161616;border-radius:12px;border:1px solid #2a2a2a">
+            <div style="font-size:40px;margin-bottom:14px">🎵</div>
+            <div style="font-size:16px;font-weight:700;color:#fff;margin-bottom:8px">Invite Only</div>
+            <div style="font-size:13px;color:#888;line-height:1.7;margin-bottom:20px">The Imaginary Records is an invite-only label. Artist accounts are created by our team after approval.</div>
+            <div style="font-size:13px;color:#aaa;margin-bottom:20px">Want to join TIR? Reach out to us:</div>
+            <a href="mailto:support@theimaginaryrecords.in" style="display:block;padding:11px;background:#fff;color:#000;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;margin-bottom:10px">✉ support@theimaginaryrecords.in</a>
+            <a href="https://instagram.com/theimaginaryrecords" target="_blank" style="display:block;padding:11px;background:#1a1a1a;color:#e8e8e8;border:1px solid #2a2a2a;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none">📸 @theimaginaryrecords</a>
+          </div>
         </div>
       </div>
     </div>
@@ -637,7 +626,7 @@ nav{flex:1;padding:16px 12px}
               </div>
               <div style="padding:16px;background:#161616;border-radius:10px">
                 <div style="font-size:14px;font-weight:600;color:#e8e8e8;margin-bottom:6px">How do I contact TIR support?</div>
-                <div style="font-size:13px;color:#888;line-height:1.6">Email us at <strong style="color:#e8e8e8">support@theimaginaryrecords.in</strong> or DM us on Instagram <strong style="color:#e8e8e8">@theimaginaryrecords</strong>.</div>
+                <div style="font-size:13px;color:#888;line-height:1.6">Email us at <strong style="color:#e8e8e8"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="53202623233c212713273b363a3e32343a3d32212a2136303c2137207d3a3d">[email&#160;protected]</a></strong> or DM us on Instagram <strong style="color:#e8e8e8">@theimaginaryrecords</strong>.</div>
               </div>
             </div>
           </div>
@@ -650,7 +639,7 @@ nav{flex:1;padding:16px 12px}
 
 <div class="toast" id="toast"></div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 let CU = null, AD = {};
 
 auth.onAuthStateChanged(async function(user) {
@@ -877,14 +866,10 @@ function switchTab(t) {
   document.getElementById('tr').classList.toggle('on',t==='reg');
   document.getElementById('fl').style.display=t==='login'?'block':'none';
   document.getElementById('fr').style.display=t==='reg'?'block':'none';
-  document.getElementById('auth-title').textContent=t==='login'?'Welcome back':'Create your account';
-  document.getElementById('auth-sub').textContent=t==='login'?'Sign in to your artist account':'Join The Imaginary Records';
+  document.getElementById('auth-title').textContent=t==='login'?'Welcome back':'Invite Only';
+  document.getElementById('auth-sub').textContent=t==='login'?'Sign in to your artist account':'Artist accounts are created by TIR team only.';
 }
 
 function showErr(id,m){const e=document.getElementById(id);e.textContent=m;e.classList.add('on')}
 function showOk(id,m){const e=document.getElementById(id);e.textContent=m;e.classList.add('on')}
-function clrAl(){['ae','as2'].forEach(id=>document.getElementById(id).classList.remove('on'))}
-function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),3500)}
-</script>
-</body>
-</html>
+function clrAl(){['ae','

@@ -277,46 +277,19 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-
         <div class="auth-h1">Welcome back</div>
         <div class="auth-sub">Sign in to manage your releases</div>
 
-        <div class="tabs">
-          <button class="tab on" id="tl" onclick="switchTab('login')">Sign In</button>
-          <button class="tab" id="tr" onclick="switchTab('reg')">Create Account</button>
-        </div>
-
         <div class="alert alert-e" id="ae"></div>
         <div class="alert alert-s" id="as_"></div>
 
-        <!-- LOGIN -->
         <div id="fl">
           <div class="fg"><label>Email Address</label>
             <input type="email" id="le" placeholder="your@email.com" onkeydown="if(event.key==='Enter')doLogin()"/></div>
           <div class="fg"><label>Password</label>
             <input type="password" id="lp" placeholder="Enter your password" onkeydown="if(event.key==='Enter')doLogin()"/></div>
           <button class="btn-primary" id="blg" onclick="doLogin()">Sign In</button>
-        </div>
-
-        <!-- REGISTER -->
-        <div id="fr" style="display:none">
-          <div class="fg"><label>Artist / Stage Name *</label>
-            <input type="text" id="rn" placeholder="Your artist name"/></div>
-          <div class="fg"><label>Email Address *</label>
-            <input type="email" id="re" placeholder="your@email.com"/></div>
-          <div class="fg"><label>Password * <span style="font-weight:400;color:var(--muted2)">(min 6 characters)</span></label>
-            <input type="password" id="rp" placeholder="Create a password"/></div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-            <div class="fg"><label>Genre</label>
-              <select id="rg">
-                <option value="">Select genre</option>
-                <option>Hip Hop / Trap</option><option>UK Drill</option>
-                <option>R&amp;B / Soul</option><option>Pop</option>
-                <option>Electronic / EDM</option><option>Lofi / Chillhop</option>
-                <option>Nasheed / Islamic</option><option>Devotional</option>
-                <option>Instrumental</option><option>Folk / Acoustic</option>
-                <option>Other</option>
-              </select></div>
-            <div class="fg"><label>Country</label>
-              <input type="text" id="rc" placeholder="e.g. India"/></div>
+          <div style="margin-top:16px;padding:12px;background:var(--surface2);border-radius:var(--radius);font-size:12px;color:var(--muted);text-align:center">
+            Don't have an account? Contact TIR at<br/>
+            <strong style="color:var(--gold)">support@theimaginaryrecords.in</strong>
           </div>
-          <button class="btn-primary" id="brg" onclick="doRegister()">Create Artist Account</button>
         </div>
       </div>
     </div>
@@ -355,6 +328,8 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-
         <div class="sb-item" onclick="goPage('royalties',this)"><span class="ic">◇</span> Royalties</div>
         <div class="sb-section">Account</div>
         <div class="sb-item" onclick="goPage('profile',this)"><span class="ic">◎</span> My Profile</div>
+        <div class="sb-section">Help</div>
+        <div class="sb-item" onclick="goPage('support',this)"><span class="ic">💬</span> Support <span class="badge-count" id="sup-count" style="display:none">!</span></div>
       </div>
       <div class="sb-footer">
         <div class="sb-user">
@@ -635,7 +610,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-
           </div>
 
           <div class="notice" style="margin-top:16px">
-            <strong>Payout Info:</strong> Royalties are paid quarterly via PayPal. Make sure your PayPal email is set in your profile. Minimum payout threshold is ₹500. Contact <strong>support@theimaginaryrecords.in</strong> for any payout questions.
+            <strong>Payout Info:</strong> Royalties are paid quarterly via PayPal. Make sure your PayPal email is set in your profile. Minimum payout threshold is ₹500. Contact <strong><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="52212722223d202612263a373b3f33353b3c33202b2037313d2036217c3b3c">[email&#160;protected]</a></strong> for any payout questions.
           </div>
         </div>
 
@@ -686,6 +661,57 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-
           </div>
         </div>
 
+
+        <!-- SUPPORT -->
+        <div class="pg" id="page-support">
+          <div class="alert alert-e" id="sup-err"></div>
+          <div class="alert alert-s" id="sup-ok"></div>
+
+          <!-- NEW TICKET -->
+          <div class="card">
+            <div class="sec-title" style="margin-bottom:6px">Submit a Support Ticket</div>
+            <div style="font-size:13px;color:var(--muted);margin-bottom:20px">We typically respond within 24–48 hours.</div>
+            <div class="form-grid">
+              <div class="fg"><label>Category *</label>
+                <select id="sup-cat">
+                  <option value="">Select category</option>
+                  <option>Release Issue</option>
+                  <option>Distribution Problem</option>
+                  <option>Royalty / Payment</option>
+                  <option>ISRC / UPC Request</option>
+                  <option>Takedown Request</option>
+                  <option>Account Issue</option>
+                  <option>Metadata Change Request</option>
+                  <option>Content ID Issue</option>
+                  <option>Platform Rejection</option>
+                  <option>General Inquiry</option>
+                  <option>Other</option>
+                </select></div>
+              <div class="fg"><label>Priority</label>
+                <select id="sup-pri">
+                  <option value="normal">Normal</option>
+                  <option value="urgent">Urgent</option>
+                  <option value="low">Low</option>
+                </select></div>
+              <div class="fg form-full"><label>Subject *</label>
+                <input type="text" id="sup-sub" placeholder="Brief summary of your issue"/></div>
+              <div class="fg form-full"><label>Release Title (if related to a specific release)</label>
+                <input type="text" id="sup-rel" placeholder="Leave blank if not applicable"/></div>
+              <div class="fg form-full"><label>Message *</label>
+                <textarea id="sup-msg" style="min-height:120px" placeholder="Describe your issue in detail. Include any relevant links, dates, or platform names..."></textarea></div>
+              <div class="form-full">
+                <button class="btn-primary" id="sup-btn" style="width:auto;padding:11px 32px" onclick="submitTicket()">Submit Ticket</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- MY TICKETS -->
+          <div class="card">
+            <div class="sec-title" style="margin-bottom:16px">My Support Tickets</div>
+            <div id="tickets-list"><div class="empty"><div class="empty-icon">💬</div><div class="empty-title">No tickets yet</div><div class="empty-sub">Submit a ticket above if you need help</div></div></div>
+          </div>
+        </div>
+
       </div><!-- /content -->
     </div><!-- /main -->
   </div><!-- /layout -->
@@ -693,7 +719,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-
 
 <div class="toast" id="toast">✓ <span id="toast-msg"></span></div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 let CU = null, AD = {};
 
 // AUTH STATE
@@ -711,6 +737,7 @@ auth.onAuthStateChanged(async function(user) {
     document.getElementById('pgs').textContent = 'Welcome back, ' + (user.displayName||'Artist') + '.';
     await loadProfile();
     await loadReleases();
+    await loadTickets();
   } else {
     CU = null;
     document.getElementById('auth').style.display = 'block';
@@ -917,6 +944,86 @@ async function submitRelease(){
   btn.disabled=false; btn.textContent='Submit Release';
 }
 
+
+// SUPPORT TICKETS
+async function submitTicket(){
+  const cat = document.getElementById('sup-cat').value;
+  const sub = document.getElementById('sup-sub').value.trim();
+  const msg = document.getElementById('sup-msg').value.trim();
+  const pri = document.getElementById('sup-pri').value;
+  const rel = document.getElementById('sup-rel').value.trim();
+  document.getElementById('sup-err').classList.remove('on');
+  document.getElementById('sup-ok').classList.remove('on');
+  if(!cat) return showErr('sup-err','Please select a category.');
+  if(!sub) return showErr('sup-err','Please enter a subject.');
+  if(!msg) return showErr('sup-err','Please describe your issue.');
+  const btn = document.getElementById('sup-btn');
+  btn.disabled=true; btn.textContent='Submitting...';
+  try{
+    await db.collection('tickets').add({
+      userId: CU.uid,
+      artistName: AD.name||CU.displayName||'Unknown',
+      artistEmail: CU.email,
+      category: cat,
+      subject: sub,
+      message: msg,
+      priority: pri,
+      relatedRelease: rel,
+      status: 'open',
+      createdAt: new Date().toISOString(),
+      replies: []
+    });
+    document.getElementById('sup-cat').value='';
+    document.getElementById('sup-sub').value='';
+    document.getElementById('sup-msg').value='';
+    document.getElementById('sup-rel').value='';
+    document.getElementById('sup-pri').value='normal';
+    showOk('sup-ok','✓ Ticket submitted! We will respond within 24–48 hours.');
+    await loadTickets();
+    toast('Support ticket submitted!');
+  }catch(e){showErr('sup-err','Failed: '+e.message);}
+  btn.disabled=false; btn.textContent='Submit Ticket';
+}
+
+async function loadTickets(){
+  try{
+    const snap = await db.collection('tickets').where('userId','==',CU.uid).get();
+    const tickets = [];
+    snap.forEach(d=>tickets.push({id:d.id,...d.data()}));
+    tickets.sort((a,b)=>new Date(b.createdAt||0)-new Date(a.createdAt||0));
+    const open = tickets.filter(t=>t.status==='open').length;
+    const sc = document.getElementById('sup-count');
+    if(open>0){sc.style.display='';sc.textContent=open;}else{sc.style.display='none';}
+    const el = document.getElementById('tickets-list');
+    if(!tickets.length){
+      el.innerHTML='<div class="empty"><div class="empty-icon">💬</div><div class="empty-title">No tickets yet</div><div class="empty-sub">Submit a ticket above if you need help</div></div>';
+      return;
+    }
+    const priColor={urgent:'var(--red)',normal:'var(--blue)',low:'var(--muted)'};
+    const stColor={open:'pill-orange',resolved:'pill-approved',closed:'pill-review'};
+    el.innerHTML=tickets.map(t=>`
+      <div style="border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px;background:var(--surface2)">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px">
+          <div>
+            <div style="font-size:14px;font-weight:600;color:var(--white)">${t.subject||'—'}</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:3px">${t.category||'—'} · ${t.createdAt?t.createdAt.substring(0,10):'—'} · Priority: <span style="color:${priColor[t.priority]||'var(--muted)'}">${t.priority||'normal'}</span></div>
+          </div>
+          <span class="pill ${t.status==='open'?'pill-pending':t.status==='resolved'?'pill-approved':'pill-review'}">${t.status||'open'}</span>
+        </div>
+        <div style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:10px">${t.message||''}</div>
+        ${t.replies&&t.replies.length?`
+          <div style="border-top:1px solid var(--border);padding-top:10px;margin-top:10px">
+            <div style="font-size:11px;font-weight:600;color:var(--gold);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">TIR Response</div>
+            ${t.replies.map(r=>`
+              <div style="background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.15);border-radius:var(--radius);padding:12px;margin-bottom:8px">
+                <div style="font-size:11px;color:var(--gold);margin-bottom:4px">The Imaginary Records · ${r.date||''}</div>
+                <div style="font-size:13px;color:var(--text);line-height:1.6">${r.text||''}</div>
+              </div>`).join('')}
+          </div>`:''}
+      </div>`).join('');
+  }catch(e){console.log('Tickets:',e);}
+}
+
 // NAV
 function goPage(name,el){
   document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
@@ -928,7 +1035,8 @@ function goPage(name,el){
     releases:['My Releases','All your submitted releases.'],
     submit:['Submit Release','Fill in all release details carefully.'],
     royalties:['Royalties','Your earnings overview.'],
-    profile:['My Profile','Manage your artist information.']
+    profile:['My Profile','Manage your artist information.'],
+    support:['Support','Get help from The Imaginary Records team.']
   };
   const[t,s]=m[name]||['Dashboard',''];
   document.getElementById('pgt').textContent=t;
@@ -946,13 +1054,4 @@ function switchTab(t){
 
 function showErr(id,m){const e=document.getElementById(id);e.textContent=m;e.classList.add('on')}
 function showOk(id,m){const e=document.getElementById(id);e.textContent=m;e.classList.add('on')}
-function clrAl(){['ae','as_'].forEach(id=>document.getElementById(id).classList.remove('on'))}
-function toast(m){
-  document.getElementById('toast-msg').textContent=m;
-  const t=document.getElementById('toast');
-  t.classList.add('on');
-  setTimeout(()=>t.classList.remove('on'),3000);
-}
-</script>
-</body>
-</html>
+function clrAl(){['ae','as_'].forEach(id=>document.getElementById(id).cla

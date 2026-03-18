@@ -3,256 +3,210 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>TIR Artist Portal — The Imaginary Records</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet"/>
+<title>TIR Artist Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script>
-  firebase.initializeApp({
-    apiKey:"AIzaSyDq7PGSfxGfwAJhzpEVq0Bj2TBhCg09NTU",
-    authDomain:"tir-portal.firebaseapp.com",
-    projectId:"tir-portal",
-    storageBucket:"tir-portal.firebasestorage.app",
-    messagingSenderId:"941411383328",
-    appId:"1:941411383328:web:4b7b0aa63e2c7e44d82a445"
-  });
-  const auth = firebase.auth();
-  const db   = firebase.firestore();
-  const EJS_SERVICE  = 'service_3bit5yi';
-  const EJS_TEMPLATE = 'eg3omh9';
-  const EJS_KEY      = 'O_glA7q-_LOyfl0AS';
-  const DRIVE_LINK   = 'https://drive.google.com/drive/folders/156B6lBrUKOlyrvSuoAtFGw0LKmWZ9Srl?usp=sharing';
-  emailjs.init({publicKey: EJS_KEY});
+firebase.initializeApp({
+  apiKey:"AIzaSyDq7PGSfxGfwAJhzpEVq0Bj2TBhCg09NTU",
+  authDomain:"tir-portal.firebaseapp.com",
+  projectId:"tir-portal",
+  storageBucket:"tir-portal.firebasestorage.app",
+  messagingSenderId:"941411383328",
+  appId:"1:941411383328:web:4b7b0aa63e2c7e44d82a445"
+});
+const auth = firebase.auth();
+const db   = firebase.firestore();
+const DRIVE = 'https://drive.google.com/drive/folders/156B6lBrUKOlyrvSuoAtFGw0LKmWZ9Srl?usp=sharing';
+const ADMIN = 'theimaginaryrecords@gmail.com';
+emailjs.init({publicKey:'O_glA7q-_LOyfl0AS'});
 </script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#0f0f0f;
-  --surface:#181818;
-  --surface2:#202020;
-  --border:#2a2a2a;
-  --border2:#333;
-  --gold:#c9a84c;
-  --gold2:#e8c97a;
-  --white:#ffffff;
-  --text:#e0e0e0;
-  --muted:#888;
-  --muted2:#555;
-  --green:#22c55e;
-  --red:#ef4444;
-  --blue:#3b82f6;
-  --orange:#f97316;
-  --radius:8px;
-  --radius2:12px;
+  --bg:#0a0a0a;--surface:#111114;--card:#18181c;--brd:#26262c;
+  --gold:#c9a84c;--gold2:#e8c97a;--gold3:rgba(201,168,76,.12);
+  --txt:#f4f4f5;--txt2:#a1a1aa;--txt3:#71717a;
+  --grn:#22c55e;--red:#ef4444;--blu:#3b82f6;--org:#f97316;
+  --r:10px;
 }
-
-body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:14px;min-height:100vh}
-
-/* SCROLLBAR */
-::-webkit-scrollbar{width:6px;height:6px}
-::-webkit-scrollbar-track{background:var(--bg)}
-::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;min-height:100vh;font-size:14px}
 
 /* LOADING */
-#ld{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;gap:16px}
+#ld{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column;gap:16px}
 .ld-logo{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:6px;color:var(--gold)}
-.ld-bar{width:200px;height:2px;background:var(--border);border-radius:2px;overflow:hidden}
-.ld-fill{height:100%;width:30%;background:var(--gold);border-radius:2px;animation:ldAnim 1.2s ease infinite}
-@keyframes ldAnim{0%{transform:translateX(-100%)}100%{transform:translateX(400%)}}
+.ld-bar{width:120px;height:2px;background:var(--brd);border-radius:2px;overflow:hidden}
+.ld-fill{height:100%;background:var(--gold);animation:ldanim 1.4s ease infinite}
+@keyframes ldanim{0%{width:0;margin-left:0}50%{width:100%;margin-left:0}100%{width:0;margin-left:100%}}
 
 /* AUTH */
-#auth{min-height:100vh;display:none;background:var(--bg)}
-.auth-wrap{display:flex;min-height:100vh}
-.auth-left{flex:1;display:flex;align-items:center;justify-content:center;padding:40px}
-.auth-right{width:480px;background:linear-gradient(135deg,#1a1200 0%,#0f0f0f 50%,#0a1a0a 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 40px;border-left:1px solid var(--border)}
-.auth-box{width:100%;max-width:400px}
-.auth-brand{display:flex;align-items:center;gap:10px;margin-bottom:40px}
-.auth-brand .logo{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;color:var(--gold)}
-.auth-brand .dot{width:6px;height:6px;background:var(--gold);border-radius:50%}
-.auth-h1{font-size:24px;font-weight:700;color:var(--white);margin-bottom:6px}
-.auth-sub{color:var(--muted);font-size:14px;margin-bottom:32px}
-.tabs{display:flex;background:var(--surface);border-radius:var(--radius);padding:4px;margin-bottom:24px;gap:4px}
-.tab{flex:1;padding:8px;border:none;background:none;color:var(--muted);font-family:'Inter',sans-serif;font-size:13px;font-weight:500;cursor:pointer;border-radius:6px;transition:all .2s}
-.tab.on{background:var(--surface2);color:var(--white);box-shadow:0 1px 3px rgba(0,0,0,.3)}
-.fg{margin-bottom:16px}
-.fg label{display:block;font-size:12px;font-weight:500;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
-.fg input,.fg select,.fg textarea{width:100%;background:var(--surface);border:1px solid var(--border);color:var(--white);padding:10px 14px;border-radius:var(--radius);font-family:'Inter',sans-serif;font-size:14px;outline:none;transition:border-color .2s}
-.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--gold)}
-.fg select option{background:#1a1a1a}
-.fg textarea{resize:vertical;min-height:90px;line-height:1.5}
-.btn-primary{width:100%;padding:12px;background:var(--gold);border:none;color:#000;font-family:'Inter',sans-serif;font-size:14px;font-weight:700;border-radius:var(--radius);cursor:pointer;transition:all .2s;letter-spacing:.3px}
-.btn-primary:hover{background:var(--gold2)}
-.btn-primary:disabled{opacity:.5;cursor:not-allowed}
-.alert{padding:10px 14px;border-radius:var(--radius);font-size:13px;margin-bottom:14px;display:none}
-.alert.on{display:block}
-.alert-e{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#fca5a5}
-.alert-s{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);color:#86efac}
-/* right side */
-.auth-right-logo{font-family:'Bebas Neue',sans-serif;font-size:48px;letter-spacing:8px;color:var(--gold);margin-bottom:8px}
-.auth-right-tag{font-size:13px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:48px}
-.auth-features{list-style:none;display:flex;flex-direction:column;gap:16px}
-.auth-features li{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:13px}
-.auth-features li .ic{width:32px;height:32px;background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+#auth{min-height:100vh;display:none;align-items:center;justify-content:center;position:relative;overflow:hidden}
+#auth::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 50% 0%,rgba(201,168,76,.08) 0%,transparent 70%)}
+.auth-wrap{display:flex;width:900px;max-width:98vw;min-height:520px;border:1px solid var(--brd);border-radius:16px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.6)}
+.auth-left{flex:1;background:linear-gradient(135deg,#0d0d0f 0%,#151518 100%);padding:60px 48px;display:flex;flex-direction:column;justify-content:center;border-right:1px solid var(--brd)}
+.auth-left .brand{font-family:'Bebas Neue',sans-serif;font-size:48px;letter-spacing:6px;color:var(--gold);line-height:1;margin-bottom:4px}
+.auth-left .brand-sub{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--txt3);margin-bottom:32px}
+.auth-left .tagline{font-size:22px;font-weight:300;color:var(--txt);line-height:1.5;margin-bottom:24px}
+.auth-left .features{display:flex;flex-direction:column;gap:10px}
+.auth-left .feat{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--txt2)}
+.auth-left .feat span{width:6px;height:6px;border-radius:50%;background:var(--gold);flex-shrink:0}
+.auth-right{width:380px;background:var(--surface);padding:48px 40px;display:flex;flex-direction:column;justify-content:center}
+.auth-right h2{font-size:22px;font-weight:600;margin-bottom:6px}
+.auth-right p{font-size:13px;color:var(--txt2);margin-bottom:28px}
+.inp-wrap{margin-bottom:16px}
+.inp-wrap label{display:block;font-size:11px;font-weight:500;color:var(--txt2);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.inp-wrap input{width:100%;background:var(--card);border:1px solid var(--brd);border-radius:8px;color:var(--txt);padding:11px 14px;font-family:'Inter',sans-serif;font-size:14px;outline:none;transition:border-color .2s}
+.inp-wrap input:focus{border-color:var(--gold)}
+.btn-main{width:100%;padding:12px;background:var(--gold);border:none;border-radius:8px;color:#000;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:background .2s;margin-top:4px}
+.btn-main:hover{background:var(--gold2)}
+.btn-main:disabled{background:#4a3d1c;color:#888;cursor:not-allowed}
+.err-box{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:8px;color:#fca5a5;font-size:12px;padding:10px 12px;margin-bottom:14px;display:none}
+.err-box.on{display:block}
+.auth-note{font-size:11px;color:var(--txt3);text-align:center;margin-top:16px}
 
-/* DASHBOARD */
-#dash{display:none;min-height:100vh}
+/* LAYOUT */
+#dash{display:none}
 .layout{display:flex;min-height:100vh}
 
 /* SIDEBAR */
-.sidebar{width:240px;min-width:240px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto}
-.sb-header{padding:20px 20px 16px;border-bottom:1px solid var(--border)}
-.sb-logo{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;color:var(--gold)}
-.sb-tagline{font-size:11px;color:var(--muted);margin-top:2px}
-.sb-nav{flex:1;padding:12px 8px}
-.sb-section{font-size:10px;font-weight:600;color:var(--muted2);text-transform:uppercase;letter-spacing:1px;padding:12px 12px 6px}
-.sb-item{display:flex;align-items:center;gap:10px;padding:9px 12px;color:var(--muted);cursor:pointer;border-radius:var(--radius);transition:all .2s;font-size:13px;font-weight:500;margin-bottom:2px}
-.sb-item:hover{background:var(--surface2);color:var(--text)}
-.sb-item.on{background:rgba(201,168,76,.12);color:var(--gold)}
-.sb-item .ic{width:18px;text-align:center;font-size:15px}
-.sb-item .badge-count{margin-left:auto;background:var(--gold);color:#000;font-size:10px;font-weight:700;padding:2px 6px;border-radius:10px}
-.sb-footer{padding:16px;border-top:1px solid var(--border)}
-.sb-user{display:flex;align-items:center;gap:10px;margin-bottom:12px}
-.sb-avatar{width:36px;height:36px;background:linear-gradient(135deg,var(--gold),var(--gold2));border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#000;flex-shrink:0}
-.sb-user-info .name{font-size:13px;font-weight:600;color:var(--white)}
-.sb-user-info .email{font-size:11px;color:var(--muted);margin-top:1px}
-.btn-signout{width:100%;padding:8px;background:none;border:1px solid var(--border);color:var(--muted);border-radius:var(--radius);font-family:'Inter',sans-serif;font-size:12px;cursor:pointer;transition:all .2s}
-.btn-signout:hover{border-color:var(--red);color:var(--red)}
+.sb{width:240px;min-width:240px;background:var(--surface);border-right:1px solid var(--brd);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sb-top{padding:20px 16px;border-bottom:1px solid var(--brd)}
+.sb-brand{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:4px;color:var(--gold)}
+.sb-sub{font-size:10px;color:var(--txt3);letter-spacing:1px;margin-top:1px}
+.sb-artist{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--brd)}
+.av{width:36px;height:36px;border-radius:50%;background:var(--gold3);border:1px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:var(--gold);flex-shrink:0}
+.av-name{font-size:13px;font-weight:500;color:var(--txt)}
+.av-role{font-size:11px;color:var(--txt3)}
+nav{flex:1;padding:8px 8px}
+.nav-sec{font-size:10px;font-weight:600;color:var(--txt3);text-transform:uppercase;letter-spacing:1.5px;padding:14px 8px 6px}
+.ni{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;color:var(--txt2);cursor:pointer;font-size:13px;font-weight:500;transition:all .15s;margin-bottom:2px}
+.ni:hover{background:var(--card);color:var(--txt)}
+.ni.on{background:var(--gold3);color:var(--gold)}
+.ni svg{width:16px;height:16px;flex-shrink:0}
+.sb-bottom{padding:12px 8px;border-top:1px solid var(--brd)}
+.signout-btn{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;color:var(--txt3);cursor:pointer;font-size:13px;font-weight:500;transition:all .15s;width:100%;background:none;border:none}
+.signout-btn:hover{background:rgba(239,68,68,.1);color:var(--red)}
 
 /* MAIN */
 .main{flex:1;overflow-y:auto;background:var(--bg)}
-.topbar{padding:16px 28px;border-bottom:1px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
-.topbar-left .pg-title{font-size:18px;font-weight:700;color:var(--white)}
-.topbar-left .pg-sub{font-size:12px;color:var(--muted);margin-top:2px}
-.btn-new{padding:9px 18px;background:var(--gold);border:none;color:#000;border-radius:var(--radius);font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:background .2s}
+.topbar{padding:16px 28px;border-bottom:1px solid var(--brd);background:var(--surface);position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between}
+.topbar-left h1{font-size:18px;font-weight:600}
+.topbar-left p{font-size:12px;color:var(--txt3);margin-top:2px}
+.btn-new{display:flex;align-items:center;gap:6px;padding:8px 16px;background:var(--gold);border:none;border-radius:8px;color:#000;font-size:13px;font-weight:600;cursor:pointer;transition:background .2s}
 .btn-new:hover{background:var(--gold2)}
-.content{padding:28px}
+.content{padding:24px 28px}
 
 /* PAGES */
-.pg{display:none;animation:fadeIn .25s ease}
+.pg{display:none;animation:fi .25s ease}
 .pg.on{display:block}
-@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 
-/* STATS ROW */
-.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
-.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius2);padding:20px;position:relative;overflow:hidden}
-.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
-.stat-card.gold::before{background:linear-gradient(90deg,var(--gold),var(--gold2))}
-.stat-card.green::before{background:var(--green)}
-.stat-card.blue::before{background:var(--blue)}
-.stat-card.orange::before{background:var(--orange)}
-.stat-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-bottom:8px}
-.stat-value{font-size:28px;font-weight:700;color:var(--white);line-height:1}
-.stat-sub{font-size:11px;color:var(--muted);margin-top:4px}
+/* STATS GRID */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.stat-card{background:var(--surface);border:1px solid var(--brd);border-radius:var(--r);padding:20px}
+.stat-card .sc-label{font-size:11px;font-weight:500;color:var(--txt3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.stat-card .sc-val{font-size:28px;font-weight:700;color:var(--txt)}
+.stat-card .sc-val.gold{color:var(--gold)}
+.stat-card .sc-sub{font-size:11px;color:var(--txt3);margin-top:4px}
 
-/* SECTION HEADER */
-.sec-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
-.sec-title{font-size:15px;font-weight:600;color:var(--white)}
-.sec-link{font-size:12px;color:var(--gold);cursor:pointer;background:none;border:none;font-family:'Inter',sans-serif}
-.sec-link:hover{text-decoration:underline}
+/* SECTION */
+.section{background:var(--surface);border:1px solid var(--brd);border-radius:var(--r);margin-bottom:20px;overflow:hidden}
+.section-head{padding:16px 20px;border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between}
+.section-head h3{font-size:14px;font-weight:600}
+.section-head p{font-size:12px;color:var(--txt3)}
+.section-body{padding:20px}
 
-/* CARD */
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius2);padding:20px;margin-bottom:20px}
-
-/* RELEASE TABLE */
-.rel-table{width:100%;border-collapse:collapse}
-.rel-table th{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);text-align:left;padding:10px 12px;border-bottom:1px solid var(--border)}
-.rel-table td{padding:14px 12px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle}
-.rel-table tr:last-child td{border-bottom:none}
-.rel-table tr:hover td{background:rgba(255,255,255,.02)}
-.rel-title{font-size:14px;font-weight:500;color:var(--white)}
-.rel-meta{font-size:11px;color:var(--muted);margin-top:2px}
-.rel-thumb{width:40px;height:40px;background:var(--surface2);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:16px}
-
-/* STATUS PILL */
-.pill{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap}
-.pill::before{content:'';width:5px;height:5px;border-radius:50%}
-.pill-pending{background:rgba(249,115,22,.1);color:var(--orange)}.pill-pending::before{background:var(--orange)}
-.pill-review{background:rgba(59,130,246,.1);color:var(--blue)}.pill-review::before{background:var(--blue)}
-.pill-approved{background:rgba(34,197,94,.1);color:var(--green)}.pill-approved::before{background:var(--green)}
-.pill-live{background:rgba(201,168,76,.1);color:var(--gold)}.pill-live::before{background:var(--gold)}
-.pill-rejected{background:rgba(239,68,68,.1);color:var(--red)}.pill-rejected::before{background:var(--red)}
-
-/* EMPTY STATE */
-.empty{text-align:center;padding:56px 20px}
-.empty-icon{font-size:40px;opacity:.2;margin-bottom:12px}
-.empty-title{font-size:15px;font-weight:600;color:var(--muted);margin-bottom:4px}
-.empty-sub{font-size:13px;color:var(--muted2)}
-.btn-empty{margin-top:16px;padding:10px 24px;background:var(--gold);border:none;color:#000;border-radius:var(--radius);font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer}
-.btn-empty:hover{background:var(--gold2)}
+/* RELEASE ITEM */
+.r-item{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--brd)}
+.r-item:last-child{border-bottom:none}
+.r-art{width:44px;height:44px;border-radius:8px;background:var(--card);border:1px solid var(--brd);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.r-info{flex:1}
+.r-title{font-size:14px;font-weight:500}
+.r-meta{font-size:12px;color:var(--txt3);margin-top:2px}
+.badge{font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px;white-space:nowrap}
+.b-pending{background:rgba(249,115,22,.12);color:#fb923c}
+.b-review{background:rgba(59,130,246,.12);color:#60a5fa}
+.b-approved{background:rgba(34,197,94,.12);color:#4ade80}
+.b-live{background:rgba(201,168,76,.12);color:var(--gold)}
+.b-rejected{background:rgba(239,68,68,.12);color:#f87171}
 
 /* FORM */
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .form-full{grid-column:1/-1}
-.form-section{grid-column:1/-1;padding:16px 0 8px;border-top:1px solid var(--border);margin-top:8px}
-.form-section:first-child{border-top:none;padding-top:0;margin-top:0}
-.form-section-title{font-size:13px;font-weight:700;color:var(--white);margin-bottom:4px}
-.form-section-sub{font-size:12px;color:var(--muted)}
+.form-sec{grid-column:1/-1;font-size:11px;font-weight:600;color:var(--txt3);text-transform:uppercase;letter-spacing:1.5px;padding-top:8px;padding-bottom:8px;border-bottom:1px solid var(--brd);margin-top:4px}
+.form-sec:first-child{margin-top:0}
+.fg label{display:block;font-size:11px;font-weight:500;color:var(--txt2);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.fg input,.fg select,.fg textarea{width:100%;background:var(--card);border:1px solid var(--brd);border-radius:8px;color:var(--txt);padding:10px 13px;font-family:'Inter',sans-serif;font-size:14px;outline:none;transition:border-color .2s}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--gold)}
+.fg select option{background:#1a1a1e}
+.fg textarea{resize:vertical;min-height:90px}
+.btn-submit{padding:11px 32px;background:var(--gold);border:none;border-radius:8px;color:#000;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:background .2s}
+.btn-submit:hover{background:var(--gold2)}
+.btn-submit:disabled{background:#4a3d1c;color:#888;cursor:not-allowed}
+.btn-sec{padding:11px 20px;background:var(--card);border:1px solid var(--brd);border-radius:8px;color:var(--txt2);font-family:'Inter',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s}
+.btn-sec:hover{border-color:var(--gold);color:var(--gold)}
 
 /* UPLOAD ZONE */
-.upload-zone{grid-column:1/-1;border:2px dashed var(--border2);border-radius:var(--radius2);padding:40px;text-align:center;cursor:pointer;transition:all .2s;background:rgba(255,255,255,.01)}
-.upload-zone:hover{border-color:var(--gold);background:rgba(201,168,76,.03)}
-.uz-icon{font-size:32px;margin-bottom:10px}
-.uz-title{font-size:15px;font-weight:600;color:var(--white);margin-bottom:4px}
-.uz-sub{font-size:12px;color:var(--muted)}
-.uz-btn{margin-top:12px;display:inline-block;padding:8px 20px;background:var(--gold);color:#000;border-radius:var(--radius);font-size:13px;font-weight:600}
+.upload-zone{grid-column:1/-1;border:1.5px dashed var(--brd);border-radius:10px;padding:32px;text-align:center;cursor:pointer;transition:all .2s;background:rgba(201,168,76,.02)}
+.upload-zone:hover{border-color:var(--gold);background:var(--gold3)}
+.upload-zone .uz-icon{font-size:28px;margin-bottom:8px}
+.upload-zone .uz-title{font-size:14px;font-weight:500;color:var(--txt)}
+.upload-zone .uz-sub{font-size:12px;color:var(--txt3);margin-top:4px}
 
 /* NOTICE */
-.notice{background:rgba(201,168,76,.07);border:1px solid rgba(201,168,76,.2);border-radius:var(--radius);padding:12px 16px;font-size:13px;color:var(--text);line-height:1.7;margin-bottom:20px}
+.notice{background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.2);border-radius:8px;padding:12px 16px;font-size:13px;color:var(--txt2);line-height:1.6;margin-bottom:20px}
 .notice strong{color:var(--gold)}
-
-/* STEP INDICATOR */
-.steps{display:flex;gap:0;margin-bottom:28px}
-.step{flex:1;display:flex;flex-direction:column;align-items:center;position:relative}
-.step:not(:last-child)::after{content:'';position:absolute;top:14px;left:50%;width:100%;height:2px;background:var(--border)}
-.step.done::after,.step.active::after{background:var(--gold)}
-.step-num{width:28px;height:28px;border-radius:50%;background:var(--surface2);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--muted);z-index:1;position:relative}
-.step.done .step-num{background:var(--gold);border-color:var(--gold);color:#000}
-.step.active .step-num{border-color:var(--gold);color:var(--gold)}
-.step-label{font-size:10px;font-weight:600;color:var(--muted);margin-top:6px;text-transform:uppercase;letter-spacing:.5px}
-.step.active .step-label{color:var(--gold)}
+.alert{padding:10px 14px;border-radius:8px;font-size:12px;margin-bottom:14px;display:none}
+.alert.on{display:block}
+.alert-e{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);color:#fca5a5}
+.alert-s{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2);color:#86efac}
 
 /* ROYALTIES */
-.royalty-header{background:linear-gradient(135deg,var(--surface),var(--surface2));border:1px solid var(--border);border-radius:var(--radius2);padding:28px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between}
-.royalty-total-label{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-bottom:8px}
-.royalty-total-amount{font-size:36px;font-weight:700;color:var(--white)}
-.royalty-total-sub{font-size:12px;color:var(--muted);margin-top:4px}
-.royalty-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px}
-.royalty-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius2);padding:18px}
-.royalty-card-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:8px}
-.royalty-card-value{font-size:22px;font-weight:700;color:var(--white)}
-.royalty-card-sub{font-size:11px;color:var(--muted);margin-top:4px}
-.payout-row{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border)}
-.payout-row:last-child{border-bottom:none}
-.payout-info .payout-title{font-size:13px;font-weight:500;color:var(--white)}
-.payout-info .payout-date{font-size:11px;color:var(--muted);margin-top:2px}
-.payout-amount{font-size:14px;font-weight:600;color:var(--green)}
-.platform-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border)}
-.platform-row:last-child{border-bottom:none}
-.platform-name{font-size:13px;font-weight:500;color:var(--white)}
-.platform-bar-wrap{flex:1;margin:0 16px;height:4px;background:var(--surface2);border-radius:2px}
-.platform-bar{height:100%;background:var(--gold);border-radius:2px}
-.platform-amount{font-size:13px;font-weight:600;color:var(--muted);min-width:60px;text-align:right}
+.roy-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
+.roy-row{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--brd)}
+.roy-row:last-child{border-bottom:none}
+.roy-platform{font-size:13px;font-weight:500}
+.roy-period{font-size:11px;color:var(--txt3);margin-top:2px}
+.roy-amount{font-size:14px;font-weight:600;color:var(--gold);font-family:'DM Mono',monospace}
 
-/* PROFILE */
-.profile-header{display:flex;align-items:center;gap:20px;margin-bottom:24px}
-.profile-avatar-big{width:72px;height:72px;background:linear-gradient(135deg,var(--gold),var(--gold2));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:#000;flex-shrink:0}
+/* SUPPORT TICKETS */
+.ticket-item{padding:16px;border-bottom:1px solid var(--brd);cursor:pointer;transition:background .15s}
+.ticket-item:last-child{border-bottom:none}
+.ticket-item:hover{background:var(--card)}
+.ticket-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.ticket-subject{font-size:13px;font-weight:500}
+.ticket-body{font-size:12px;color:var(--txt3);line-height:1.5}
+.ticket-meta{font-size:11px;color:var(--txt3);margin-top:6px}
+.ticket-reply{background:var(--card);border:1px solid var(--brd);border-radius:8px;padding:14px;margin-top:12px;font-size:12px;color:var(--txt2);line-height:1.6;display:none}
+.ticket-reply.on{display:block}
+.ticket-reply strong{color:var(--gold);display:block;margin-bottom:4px}
+
+/* CATEGORY PILLS */
+.cat-pills{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.cat-pill{padding:6px 14px;border-radius:20px;border:1px solid var(--brd);background:none;color:var(--txt2);font-size:12px;cursor:pointer;transition:all .2s}
+.cat-pill.on,.cat-pill:hover{border-color:var(--gold);background:var(--gold3);color:var(--gold)}
+
+/* EMPTY */
+.empty{text-align:center;padding:48px 20px;color:var(--txt3)}
+.empty-icon{font-size:36px;opacity:.3;margin-bottom:10px}
+.empty-text{font-size:14px;font-weight:500;color:var(--txt2)}
+.empty-sub{font-size:12px;margin-top:4px}
 
 /* TOAST */
-.toast{position:fixed;bottom:24px;right:24px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 18px;font-size:13px;color:var(--text);z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none;display:flex;align-items:center;gap:8px;box-shadow:0 8px 32px rgba(0,0,0,.4)}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--surface);border:1px solid var(--brd);border-radius:10px;color:var(--txt);font-size:13px;padding:12px 18px;z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none;box-shadow:0 8px 32px rgba(0,0,0,.4)}
 .toast.on{opacity:1}
 
-/* MOBILE */
 @media(max-width:768px){
-  .sidebar{display:none}
-  .stats-row{grid-template-columns:1fr 1fr}
+  .sb{display:none}
+  .stats,.roy-stats{grid-template-columns:1fr 1fr}
   .form-grid{grid-template-columns:1fr}
-  .form-full{grid-column:1}
-  .royalty-cards{grid-template-columns:1fr}
-  .auth-right{display:none}
+  .form-full,.form-sec,.upload-zone{grid-column:1}
   .content{padding:16px}
-  .topbar{padding:12px 16px}
+  .auth-left{display:none}
+  .auth-right{width:100%}
 }
 </style>
 </head>
@@ -268,69 +222,31 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-
 <div id="auth">
   <div class="auth-wrap">
     <div class="auth-left">
-      <div class="auth-box">
-        <div class="auth-brand">
-          <div class="logo">T·I·R</div>
-          <div class="dot"></div>
-          <span style="font-size:12px;color:var(--muted);font-weight:500">Artist Portal</span>
-        </div>
-        <div class="auth-h1">Welcome back</div>
-        <div class="auth-sub">Sign in to manage your releases</div>
-
-        <div class="tabs">
-          <button class="tab on" id="tl" onclick="switchTab('login')">Sign In</button>
-          <button class="tab" id="tr" onclick="switchTab('reg')">Create Account</button>
-        </div>
-
-        <div class="alert alert-e" id="ae"></div>
-        <div class="alert alert-s" id="as_"></div>
-
-        <!-- LOGIN -->
-        <div id="fl">
-          <div class="fg"><label>Email Address</label>
-            <input type="email" id="le" placeholder="your@email.com" onkeydown="if(event.key==='Enter')doLogin()"/></div>
-          <div class="fg"><label>Password</label>
-            <input type="password" id="lp" placeholder="Enter your password" onkeydown="if(event.key==='Enter')doLogin()"/></div>
-          <button class="btn-primary" id="blg" onclick="doLogin()">Sign In</button>
-        </div>
-
-        <!-- REGISTER -->
-        <div id="fr" style="display:none">
-          <div class="fg"><label>Artist / Stage Name *</label>
-            <input type="text" id="rn" placeholder="Your artist name"/></div>
-          <div class="fg"><label>Email Address *</label>
-            <input type="email" id="re" placeholder="your@email.com"/></div>
-          <div class="fg"><label>Password * <span style="font-weight:400;color:var(--muted2)">(min 6 characters)</span></label>
-            <input type="password" id="rp" placeholder="Create a password"/></div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-            <div class="fg"><label>Genre</label>
-              <select id="rg">
-                <option value="">Select genre</option>
-                <option>Hip Hop / Trap</option><option>UK Drill</option>
-                <option>R&amp;B / Soul</option><option>Pop</option>
-                <option>Electronic / EDM</option><option>Lofi / Chillhop</option>
-                <option>Nasheed / Islamic</option><option>Devotional</option>
-                <option>Instrumental</option><option>Folk / Acoustic</option>
-                <option>Other</option>
-              </select></div>
-            <div class="fg"><label>Country</label>
-              <input type="text" id="rc" placeholder="e.g. India"/></div>
-          </div>
-          <button class="btn-primary" id="brg" onclick="doRegister()">Create Artist Account</button>
-        </div>
+      <div class="brand">THE IMAGINARY<br>RECORDS</div>
+      <div class="brand-sub">Artist Portal</div>
+      <div class="tagline">Distribute your music to<br>200+ platforms worldwide.</div>
+      <div class="features">
+        <div class="feat"><span></span> Spotify, Apple Music, JioSaavn & more</div>
+        <div class="feat"><span></span> Submit releases with one form</div>
+        <div class="feat"><span></span> Track your release status in real time</div>
+        <div class="feat"><span></span> Royalty statements every quarter</div>
+        <div class="feat"><span></span> Direct support from TIR team</div>
       </div>
     </div>
-
     <div class="auth-right">
-      <div class="auth-right-logo">T·I·R</div>
-      <div class="auth-right-tag">The Imaginary Records</div>
-      <ul class="auth-features">
-        <li><div class="ic">🌍</div>Distribute to 200+ platforms worldwide</li>
-        <li><div class="ic">📊</div>Track your releases & royalties</li>
-        <li><div class="ic">⚡</div>Fast review — 3 to 5 business days</li>
-        <li><div class="ic">🎵</div>Professional label support</li>
-        <li><div class="ic">💰</div>Quarterly royalty payouts via PayPal</li>
-      </ul>
+      <h2>Welcome back</h2>
+      <p>Sign in to your artist account</p>
+      <div class="err-box" id="aerr"></div>
+      <div class="inp-wrap">
+        <label>Email Address</label>
+        <input type="email" id="lem" placeholder="your@email.com" onkeydown="if(event.key==='Enter')doLogin()"/>
+      </div>
+      <div class="inp-wrap">
+        <label>Password</label>
+        <input type="password" id="lpw" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"/>
+      </div>
+      <button class="btn-main" id="blg" onclick="doLogin()">Sign In</button>
+      <div class="auth-note">Don't have an account? Contact TIR at<br>theimaginaryrecords@gmail.com</div>
     </div>
   </div>
 </div>
@@ -338,439 +254,312 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-
 <!-- DASHBOARD -->
 <div id="dash">
   <div class="layout">
-
-    <!-- SIDEBAR -->
-    <div class="sidebar">
-      <div class="sb-header">
-        <div class="sb-logo">T·I·R</div>
-        <div class="sb-tagline">Artist Portal</div>
+    <div class="sb">
+      <div class="sb-top">
+        <div class="sb-brand">T·I·R</div>
+        <div class="sb-sub">Artist Portal</div>
       </div>
-      <div class="sb-nav">
-        <div class="sb-section">Main</div>
-        <div class="sb-item on" onclick="goPage('home',this)"><span class="ic">⊞</span> Dashboard</div>
-        <div class="sb-item" onclick="goPage('releases',this)"><span class="ic">♪</span> My Releases <span class="badge-count" id="rel-count" style="display:none">0</span></div>
-        <div class="sb-section">Distribution</div>
-        <div class="sb-item" onclick="goPage('submit',this)"><span class="ic">↑</span> Submit Release</div>
-        <div class="sb-section">Finance</div>
-        <div class="sb-item" onclick="goPage('royalties',this)"><span class="ic">◇</span> Royalties</div>
-        <div class="sb-section">Account</div>
-        <div class="sb-item" onclick="goPage('profile',this)"><span class="ic">◎</span> My Profile</div>
-      </div>
-      <div class="sb-footer">
-        <div class="sb-user">
-          <div class="sb-avatar" id="sb-av">A</div>
-          <div class="sb-user-info">
-            <div class="name" id="sb-name">Artist</div>
-            <div class="email" id="sb-email">—</div>
-          </div>
+      <div class="sb-artist">
+        <div class="av" id="av-init">A</div>
+        <div>
+          <div class="av-name" id="av-name">Artist</div>
+          <div class="av-role">Recording Artist</div>
         </div>
-        <button class="btn-signout" onclick="doSignOut()">Sign Out</button>
+      </div>
+      <nav>
+        <div class="nav-sec">Main</div>
+        <div class="ni on" onclick="goPage('home',this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          Overview
+        </div>
+        <div class="ni" onclick="goPage('releases',this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
+          My Releases
+        </div>
+        <div class="ni" onclick="goPage('submit',this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7-7 7 7"/></svg>
+          Submit Release
+        </div>
+        <div class="nav-sec">Finance</div>
+        <div class="ni" onclick="goPage('royalties',this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          Royalties
+        </div>
+        <div class="nav-sec">Support</div>
+        <div class="ni" onclick="goPage('support',this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          Support Tickets
+        </div>
+        <div class="nav-sec">Account</div>
+        <div class="ni" onclick="goPage('profile',this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          My Profile
+        </div>
+      </nav>
+      <div class="sb-bottom">
+        <button class="signout-btn" onclick="doSignOut()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16,17 21,12 16,7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Sign Out
+        </button>
       </div>
     </div>
 
-    <!-- MAIN -->
     <div class="main">
       <div class="topbar">
         <div class="topbar-left">
-          <div class="pg-title" id="pgt">Dashboard</div>
-          <div class="pg-sub" id="pgs">Welcome back.</div>
+          <h1 id="pg-title">Overview</h1>
+          <p id="pg-sub">Welcome back.</p>
         </div>
-        <button class="btn-new" onclick="goPage('submit',null)">+ Submit Release</button>
+        <button class="btn-new" onclick="goPage('submit',null)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12l7-7 7 7"/></svg>
+          New Release
+        </button>
       </div>
 
       <div class="content">
 
         <!-- HOME -->
         <div class="pg on" id="page-home">
-          <div class="stats-row">
-            <div class="stat-card gold">
-              <div class="stat-label">Total Releases</div>
-              <div class="stat-value" id="st0">0</div>
-              <div class="stat-sub">All submissions</div>
+          <div class="stats">
+            <div class="stat-card">
+              <div class="sc-label">Total Releases</div>
+              <div class="sc-val gold" id="st0">0</div>
+              <div class="sc-sub">All time</div>
             </div>
-            <div class="stat-card orange">
-              <div class="stat-label">Pending Review</div>
-              <div class="stat-value" id="st1">0</div>
-              <div class="stat-sub">Awaiting TIR review</div>
+            <div class="stat-card">
+              <div class="sc-label">Pending Review</div>
+              <div class="sc-val" id="st1">0</div>
+              <div class="sc-sub">Awaiting TIR</div>
             </div>
-            <div class="stat-card green">
-              <div class="stat-label">Live Releases</div>
-              <div class="stat-value" id="st2">0</div>
-              <div class="stat-sub">Currently distributing</div>
+            <div class="stat-card">
+              <div class="sc-label">Live Now</div>
+              <div class="sc-val" id="st2">0</div>
+              <div class="sc-sub">On platforms</div>
             </div>
-            <div class="stat-card blue">
-              <div class="stat-label">Total Earnings</div>
-              <div class="stat-value">₹0</div>
-              <div class="stat-sub">Updated quarterly</div>
+            <div class="stat-card">
+              <div class="sc-label">Total Earnings</div>
+              <div class="sc-val">₹0</div>
+              <div class="sc-sub">Updated quarterly</div>
             </div>
           </div>
 
-          <div class="card">
-            <div class="sec-header">
-              <div class="sec-title">Recent Releases</div>
-              <button class="sec-link" onclick="goPage('releases',null)">View all →</button>
+          <div class="section">
+            <div class="section-head"><h3>Recent Releases</h3></div>
+            <div class="section-body" id="home-r">
+              <div class="empty"><div class="empty-icon">🎵</div><div class="empty-text">No releases yet</div><div class="empty-sub">Submit your first release to get started</div></div>
             </div>
-            <div id="home-r"></div>
           </div>
 
-          <div class="card">
-            <div class="sec-header"><div class="sec-title">Announcements</div></div>
-            <div style="display:flex;flex-direction:column;gap:12px">
-              <div style="display:flex;gap:12px;padding:12px;background:var(--surface2);border-radius:var(--radius);border-left:3px solid var(--gold)">
-                <div style="font-size:18px">📢</div>
-                <div>
-                  <div style="font-size:13px;font-weight:600;color:var(--white);margin-bottom:3px">TIR distributes to 200+ platforms</div>
-                  <div style="font-size:12px;color:var(--muted)">Spotify, Apple Music, JioSaavn, Gaana, YouTube Music, Amazon Music, Tidal and more.</div>
-                </div>
-              </div>
-              <div style="display:flex;gap:12px;padding:12px;background:var(--surface2);border-radius:var(--radius);border-left:3px solid var(--blue)">
-                <div style="font-size:18px">⏱</div>
-                <div>
-                  <div style="font-size:13px;font-weight:600;color:var(--white);margin-bottom:3px">Review takes 3–5 business days</div>
-                  <div style="font-size:12px;color:var(--muted)">After your release is approved, distribution takes another 2–7 days to go live.</div>
-                </div>
-              </div>
-              <div style="display:flex;gap:12px;padding:12px;background:var(--surface2);border-radius:var(--radius);border-left:3px solid var(--green)">
-                <div style="font-size:18px">🎵</div>
-                <div>
-                  <div style="font-size:13px;font-weight:600;color:var(--white);margin-bottom:3px">Audio requirements</div>
-                  <div style="font-size:12px;color:var(--muted)">WAV or FLAC format · 44.1kHz / 16-bit minimum · Artwork 3000×3000px JPG or PNG.</div>
-                </div>
+          <div class="section">
+            <div class="section-head"><h3>Announcements</h3></div>
+            <div class="section-body" style="font-size:13px;color:var(--txt2);line-height:1.9">
+              <div style="display:flex;flex-direction:column;gap:8px">
+                <div style="display:flex;gap:10px;align-items:flex-start"><span style="color:var(--gold);margin-top:2px">→</span><span>TIR distributes to <strong style="color:var(--txt)">200+ platforms</strong> — Spotify, Apple Music, JioSaavn, Gaana, YouTube Music, Amazon Music and more.</span></div>
+                <div style="display:flex;gap:10px;align-items:flex-start"><span style="color:var(--gold);margin-top:2px">→</span><span>Release review takes <strong style="color:var(--txt)">3–5 business days</strong>. You will be notified of any updates.</span></div>
+                <div style="display:flex;gap:10px;align-items:flex-start"><span style="color:var(--gold);margin-top:2px">→</span><span>Audio must be <strong style="color:var(--txt)">WAV or FLAC</strong> format, minimum 44.1kHz / 16-bit.</span></div>
+                <div style="display:flex;gap:10px;align-items:flex-start"><span style="color:var(--gold);margin-top:2px">→</span><span>Artwork must be <strong style="color:var(--txt)">3000×3000px JPG or PNG</strong>. No logos or social handles.</span></div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- MY RELEASES -->
+        <!-- RELEASES -->
         <div class="pg" id="page-releases">
-          <div class="card">
-            <div class="sec-header">
-              <div class="sec-title">All My Releases</div>
-              <button class="btn-new" onclick="goPage('submit',null)" style="font-size:12px;padding:7px 14px">+ New</button>
+          <div class="section">
+            <div class="section-head"><h3>All Releases</h3><p id="rel-count">0 releases</p></div>
+            <div class="section-body" id="all-r">
+              <div class="empty"><div class="empty-icon">🎵</div><div class="empty-text">No releases yet</div></div>
             </div>
-            <div id="all-r"></div>
           </div>
         </div>
 
-        <!-- SUBMIT RELEASE -->
+        <!-- SUBMIT -->
         <div class="pg" id="page-submit">
-          <div class="notice">
-            <strong>How it works:</strong> Fill in all your release details below. For audio and artwork files — click the upload button to open our Google Drive folder, upload your files there, then copy the sharing link and paste it in the fields below. We will review your submission within 3–5 business days.
-          </div>
-
-          <div class="alert alert-e" id="se"></div>
-          <div class="alert alert-s" id="ss"></div>
-
-          <div class="card">
-            <div class="sec-title" style="margin-bottom:20px">Release Submission</div>
-
-            <div class="form-grid">
-
-              <!-- RELEASE INFO -->
-              <div class="form-section form-full">
-                <div class="form-section-title">Release Info</div>
-                <div class="form-section-sub">Basic information about your release</div>
+          <div class="notice"><strong>How to submit:</strong> Fill in all details below. For audio and artwork, click the upload button to open the TIR Google Drive folder — upload your files there, copy the link, and paste it below. We review all submissions within 3–5 business days.</div>
+          <div class="alert alert-e" id="sub-e"></div>
+          <div class="alert alert-s" id="sub-s"></div>
+          <div class="section">
+            <div class="section-head"><h3>Release Submission</h3><p>Fill all required fields</p></div>
+            <div class="section-body">
+              <div class="form-grid">
+                <div class="form-sec">Release Information</div>
+                <div class="fg"><label>Release Title *</label><input type="text" id="s0" placeholder="Song or album name"/></div>
+                <div class="fg"><label>Release Type *</label><select id="s1"><option value="">— Select —</option><option>Single</option><option>EP</option><option>Album</option><option>Mixtape</option></select></div>
+                <div class="fg"><label>Primary Artist *</label><input type="text" id="s2"/></div>
+                <div class="fg"><label>Featured Artists</label><input type="text" id="s3" placeholder="ft. Name (optional)"/></div>
+                <div class="fg"><label>Primary Genre *</label><select id="s4"><option value="">— Select —</option><option>Hip Hop / Trap</option><option>UK Drill</option><option>R&amp;B / Soul</option><option>Pop</option><option>Electronic / EDM</option><option>Lofi / Chillhop</option><option>Nasheed / Islamic</option><option>Devotional</option><option>Instrumental</option><option>Folk / Acoustic</option><option>Other</option></select></div>
+                <div class="fg"><label>Sub Genre</label><input type="text" id="s5" placeholder="e.g. Dark Trap"/></div>
+                <div class="fg"><label>Language *</label><select id="s6"><option value="">— Select —</option><option>English</option><option>Hindi / Urdu</option><option>Kashmiri</option><option>Arabic</option><option>Punjabi</option><option>Instrumental (No Lyrics)</option><option>Other</option></select></div>
+                <div class="fg"><label>Desired Release Date *</label><input type="date" id="s7"/></div>
+                <div class="form-sec">Rights &amp; Credits</div>
+                <div class="fg"><label>Explicit Content?</label><select id="s8"><option value="no">No — Clean</option><option value="yes">Yes — Explicit</option></select></div>
+                <div class="fg"><label>Copyright Year</label><input type="number" id="s9" value="2025" min="2000" max="2030"/></div>
+                <div class="fg"><label>Label Name</label><input type="text" id="s10" value="The Imaginary Records"/></div>
+                <div class="fg"><label>UPC / ISRC (optional)</label><input type="text" id="s11" placeholder="Leave blank to auto-assign"/></div>
+                <div class="fg form-full"><label>Songwriter(s) / Composer(s) *</label><input type="text" id="s12" placeholder="Full legal names of all writers"/></div>
+                <div class="fg form-full"><label>Producer(s)</label><input type="text" id="s13" placeholder="Producer credit names"/></div>
+                <div class="form-sec">Distribution</div>
+                <div class="fg"><label>Platforms</label><select id="s14"><option value="all">All Platforms (Recommended)</option><option value="streaming">Streaming Only</option><option value="india">India Platforms Only</option></select></div>
+                <div class="fg"><label>Territories</label><select id="s15"><option value="worldwide">Worldwide</option><option value="india">India Only</option></select></div>
+                <div class="fg form-full"><label>Lyrics (optional)</label><textarea id="s16" placeholder="Paste full song lyrics here..."></textarea></div>
+                <div class="fg form-full"><label>Notes for TIR</label><textarea id="s17" placeholder="Anything else we should know..." style="min-height:70px"></textarea></div>
+                <div class="form-sec">Audio &amp; Artwork</div>
+                <div class="upload-zone" onclick="window.open(DRIVE,'_blank')">
+                  <div class="uz-icon">📁</div>
+                  <div class="uz-title">Open TIR Google Drive Upload Folder</div>
+                  <div class="uz-sub">Upload audio (WAV/FLAC) and artwork (3000×3000 JPG/PNG) → copy the link → paste below</div>
+                </div>
+                <div class="fg form-full"><label>Google Drive Link — Audio File *</label><input type="url" id="s18" placeholder="Paste shareable Drive link to your audio file"/></div>
+                <div class="fg form-full"><label>Google Drive Link — Cover Artwork</label><input type="url" id="s19" placeholder="Paste shareable Drive link to your artwork"/></div>
+                <div class="form-full" style="display:flex;gap:12px;margin-top:4px">
+                  <button class="btn-submit" id="bsub" onclick="submitRelease()">Submit Release</button>
+                  <button class="btn-sec" onclick="goPage('home',null)">Cancel</button>
+                </div>
               </div>
-
-              <div class="fg"><label>Release Title *</label>
-                <input type="text" id="s0" placeholder="Song or Album name"/></div>
-              <div class="fg"><label>Release Type *</label>
-                <select id="s1">
-                  <option value="">Select type</option>
-                  <option>Single</option><option>EP</option>
-                  <option>Album</option><option>Mixtape</option>
-                </select></div>
-              <div class="fg"><label>Primary Artist *</label>
-                <input type="text" id="s2"/></div>
-              <div class="fg"><label>Featured Artists</label>
-                <input type="text" id="s3" placeholder="ft. Artist Name (optional)"/></div>
-              <div class="fg"><label>Primary Genre *</label>
-                <select id="s4">
-                  <option value="">Select genre</option>
-                  <option>Hip Hop / Trap</option><option>UK Drill</option>
-                  <option>R&amp;B / Soul</option><option>Pop</option>
-                  <option>Electronic / EDM</option><option>Lofi / Chillhop</option>
-                  <option>Nasheed / Islamic</option><option>Devotional</option>
-                  <option>Instrumental</option><option>Folk / Acoustic</option>
-                  <option>Other</option>
-                </select></div>
-              <div class="fg"><label>Sub Genre</label>
-                <input type="text" id="s5" placeholder="e.g. Dark Trap, Emo Rap"/></div>
-              <div class="fg"><label>Language *</label>
-                <select id="s6">
-                  <option value="">Select language</option>
-                  <option>English</option><option>Hindi / Urdu</option>
-                  <option>Kashmiri</option><option>Arabic</option>
-                  <option>Punjabi</option><option>Instrumental (No Lyrics)</option>
-                  <option>Other</option>
-                </select></div>
-              <div class="fg"><label>Desired Release Date *</label>
-                <input type="date" id="s7"/></div>
-
-              <!-- RIGHTS -->
-              <div class="form-section form-full">
-                <div class="form-section-title">Rights & Credits</div>
-                <div class="form-section-sub">Legal information required for distribution</div>
-              </div>
-
-              <div class="fg"><label>Explicit Content?</label>
-                <select id="s8">
-                  <option value="no">No — Clean</option>
-                  <option value="yes">Yes — Explicit</option>
-                </select></div>
-              <div class="fg"><label>Copyright Year</label>
-                <input type="number" id="s9" value="2025" min="2000" max="2030"/></div>
-              <div class="fg"><label>Label Name</label>
-                <input type="text" id="s10" value="The Imaginary Records"/></div>
-              <div class="fg"><label>UPC / ISRC <span style="font-weight:400;color:var(--muted2)">(leave blank to auto-assign)</span></label>
-                <input type="text" id="s11" placeholder="Optional"/></div>
-              <div class="fg form-full"><label>Songwriter(s) / Composer(s) *</label>
-                <input type="text" id="s12" placeholder="Full legal names of all writers"/></div>
-              <div class="fg form-full"><label>Producer(s)</label>
-                <input type="text" id="s13" placeholder="Producer credits (optional)"/></div>
-
-              <!-- DISTRIBUTION -->
-              <div class="form-section form-full">
-                <div class="form-section-title">Distribution Settings</div>
-                <div class="form-section-sub">Where and how your music will be distributed</div>
-              </div>
-
-              <div class="fg"><label>Platforms</label>
-                <select id="s14">
-                  <option value="all">All Platforms (Recommended)</option>
-                  <option value="streaming">Streaming Only</option>
-                  <option value="india">India Platforms Only</option>
-                </select></div>
-              <div class="fg"><label>Territories</label>
-                <select id="s15">
-                  <option value="worldwide">Worldwide</option>
-                  <option value="india">India Only</option>
-                </select></div>
-              <div class="fg form-full"><label>Lyrics <span style="font-weight:400;color:var(--muted2)">(optional — helps with Genius, Spotify Lyrics)</span></label>
-                <textarea id="s16" placeholder="Paste full song lyrics here..."></textarea></div>
-              <div class="fg form-full"><label>Additional Notes for TIR</label>
-                <textarea id="s17" placeholder="Any special instructions or information for us..."></textarea></div>
-
-              <!-- FILES -->
-              <div class="form-section form-full">
-                <div class="form-section-title">Audio & Artwork Files</div>
-                <div class="form-section-sub">Upload your files to our Google Drive, then paste the sharing links below</div>
-              </div>
-
-              <div class="upload-zone" onclick="window.open(DRIVE_LINK,'_blank')">
-                <div class="uz-icon">📁</div>
-                <div class="uz-title">Open TIR Google Drive Upload Folder</div>
-                <div class="uz-sub">Upload your audio (WAV/FLAC) and artwork (3000×3000px JPG/PNG)</div>
-                <div class="uz-btn">Open Drive Folder →</div>
-              </div>
-
-              <div class="fg form-full"><label>Google Drive Link — Audio File *</label>
-                <input type="url" id="s18" placeholder="Paste the shareable Google Drive link to your audio file here"/></div>
-              <div class="fg form-full"><label>Google Drive Link — Cover Artwork</label>
-                <input type="url" id="s19" placeholder="Paste the shareable Google Drive link to your cover art here"/></div>
-
-              <div class="form-full" style="padding-top:8px;display:flex;gap:12px;align-items:center">
-                <button class="btn-primary" id="bsub" style="width:auto;padding:12px 36px" onclick="submitRelease()">Submit Release</button>
-                <span style="font-size:12px;color:var(--muted)">We will review within 3–5 business days</span>
-              </div>
-
             </div>
           </div>
         </div>
 
         <!-- ROYALTIES -->
         <div class="pg" id="page-royalties">
-          <div class="royalty-header">
-            <div>
-              <div class="royalty-total-label">Total Earnings to Date</div>
-              <div class="royalty-total-amount">₹0.00</div>
-              <div class="royalty-total-sub">Payouts via PayPal · Updated quarterly</div>
-            </div>
-            <div style="text-align:right">
-              <div style="font-size:12px;color:var(--muted);margin-bottom:4px">Payout threshold</div>
-              <div style="font-size:20px;font-weight:700;color:var(--white)">₹500</div>
-              <div style="font-size:11px;color:var(--muted);margin-top:2px">Minimum to receive payout</div>
+          <div class="roy-stats">
+            <div class="stat-card"><div class="sc-label">Current Balance</div><div class="sc-val gold">₹0.00</div><div class="sc-sub">Available for payout</div></div>
+            <div class="stat-card"><div class="sc-label">Total Revenue</div><div class="sc-val">₹0.00</div><div class="sc-sub">All time</div></div>
+            <div class="stat-card"><div class="sc-label">Last Payout</div><div class="sc-val">₹0.00</div><div class="sc-sub">Paid via PayPal</div></div>
+          </div>
+          <div class="section">
+            <div class="section-head"><h3>Earnings by Platform</h3><p>Updated quarterly</p></div>
+            <div class="section-body">
+              <div class="notice" style="margin-bottom:0">Royalty statements are updated every quarter. Minimum payout threshold is <strong>₹500</strong>. Make sure your PayPal email is set in your profile to receive payments.</div>
             </div>
           </div>
-
-          <div class="royalty-cards">
-            <div class="royalty-card">
-              <div class="royalty-card-label">Current Balance</div>
-              <div class="royalty-card-value">₹0.00</div>
-              <div class="royalty-card-sub">Available for payout</div>
-            </div>
-            <div class="royalty-card">
-              <div class="royalty-card-label">Pending</div>
-              <div class="royalty-card-value">₹0.00</div>
-              <div class="royalty-card-sub">Being processed</div>
-            </div>
-            <div class="royalty-card">
-              <div class="royalty-card-label">Total Paid Out</div>
-              <div class="royalty-card-value">₹0.00</div>
-              <div class="royalty-card-sub">Lifetime earnings paid</div>
+          <div class="section">
+            <div class="section-head"><h3>Transaction History</h3></div>
+            <div class="section-body">
+              <div class="empty"><div class="empty-icon">💰</div><div class="empty-text">No transactions yet</div><div class="empty-sub">Earnings will appear here after your first live release</div></div>
             </div>
           </div>
+        </div>
 
-          <div class="card">
-            <div class="sec-title" style="margin-bottom:16px">Earnings by Platform</div>
-            <div id="platform-list">
-              <div class="empty">
-                <div class="empty-icon">◇</div>
-                <div class="empty-title">No earnings yet</div>
-                <div class="empty-sub">Earnings will appear here after your first live release generates streams</div>
+        <!-- SUPPORT -->
+        <div class="pg" id="page-support">
+          <div class="section" style="margin-bottom:20px">
+            <div class="section-head"><h3>Open New Ticket</h3><p>We respond within 24–48 hours</p></div>
+            <div class="section-body">
+              <div class="alert alert-e" id="tkt-e"></div>
+              <div class="alert alert-s" id="tkt-s"></div>
+              <div class="form-grid">
+                <div class="fg"><label>Category *</label>
+                  <select id="t0">
+                    <option value="">— Select Category —</option>
+                    <option>Release Issue</option>
+                    <option>Distribution Problem</option>
+                    <option>Royalty / Payment</option>
+                    <option>ISRC / UPC Request</option>
+                    <option>Takedown Request</option>
+                    <option>Artwork Issue</option>
+                    <option>Account Problem</option>
+                    <option>General Inquiry</option>
+                    <option>Other</option>
+                  </select>
+                </div>
+                <div class="fg"><label>Priority</label>
+                  <select id="t1">
+                    <option value="normal">Normal</option>
+                    <option value="urgent">Urgent</option>
+                  </select>
+                </div>
+                <div class="fg form-full"><label>Subject *</label><input type="text" id="t2" placeholder="Brief description of your issue"/></div>
+                <div class="fg form-full"><label>Message *</label><textarea id="t3" placeholder="Describe your issue in detail..." style="min-height:120px"></textarea></div>
+                <div class="form-full">
+                  <button class="btn-submit" id="btkt" onclick="submitTicket()">Submit Ticket</button>
+                </div>
               </div>
             </div>
           </div>
 
-          <div class="card">
-            <div class="sec-header">
-              <div class="sec-title">Transaction History</div>
-              <div style="font-size:12px;color:var(--muted)">Statements · Overview · Payees</div>
+          <div class="section">
+            <div class="section-head"><h3>My Tickets</h3><p id="tkt-count">0 tickets</p></div>
+            <div id="tkt-list">
+              <div class="empty" style="padding:32px"><div class="empty-icon">💬</div><div class="empty-text">No tickets yet</div></div>
             </div>
-            <div class="empty">
-              <div class="empty-icon">📄</div>
-              <div class="empty-title">No transactions yet</div>
-              <div class="empty-sub">Your payout history will appear here</div>
-            </div>
-          </div>
-
-          <div class="notice" style="margin-top:16px">
-            <strong>Payout Info:</strong> Royalties are paid quarterly via PayPal. Make sure your PayPal email is set in your profile. Minimum payout threshold is ₹500. Contact <strong>support@theimaginaryrecords.in</strong> for any payout questions.
           </div>
         </div>
 
         <!-- PROFILE -->
         <div class="pg" id="page-profile">
-          <div class="alert alert-s" id="po"></div>
-          <div class="card">
-            <div class="profile-header">
-              <div class="profile-avatar-big" id="pav">A</div>
-              <div>
-                <div style="font-size:18px;font-weight:700;color:var(--white)" id="p-display-name">Artist</div>
-                <div style="font-size:13px;color:var(--muted);margin-top:3px" id="p-display-email">—</div>
-                <div style="margin-top:8px"><span class="pill pill-approved">✓ Active Artist</span></div>
-              </div>
-            </div>
-
-            <div class="form-grid">
-              <div class="fg"><label>Artist / Stage Name</label><input type="text" id="p0"/></div>
-              <div class="fg"><label>Email <span style="color:var(--muted2);font-weight:400">(cannot change)</span></label><input type="email" id="p1" disabled/></div>
-              <div class="fg"><label>Genre</label>
-                <select id="p2">
-                  <option>Hip Hop / Trap</option><option>UK Drill</option>
-                  <option>R&amp;B / Soul</option><option>Nasheed / Islamic</option>
-                  <option>Lofi / Chillhop</option><option>Instrumental</option><option>Other</option>
-                </select></div>
-              <div class="fg"><label>Country</label><input type="text" id="p3"/></div>
-              <div class="fg form-full"><label>Bio</label><textarea id="p4" placeholder="Tell the world about yourself and your music..."></textarea></div>
-
-              <div class="form-section form-full">
-                <div class="form-section-title">Payment Info</div>
-                <div class="form-section-sub">Required to receive royalty payouts</div>
-              </div>
-              <div class="fg form-full"><label>PayPal Email Address</label><input type="email" id="p5" placeholder="your.paypal@email.com"/></div>
-
-              <div class="form-section form-full">
-                <div class="form-section-title">Social & Streaming Links</div>
-                <div class="form-section-sub">Help us find your profiles on platforms</div>
-              </div>
-              <div class="fg"><label>Spotify Artist ID</label><input type="text" id="p6" placeholder="spotify:artist:..."/></div>
-              <div class="fg"><label>Apple Music Artist ID</label><input type="text" id="p7" placeholder="Optional"/></div>
-              <div class="fg"><label>Instagram Handle</label><input type="text" id="p8" placeholder="@yourhandle"/></div>
-              <div class="fg"><label>YouTube Channel</label><input type="text" id="p9" placeholder="Channel URL or handle"/></div>
-
-              <div class="form-full" style="padding-top:4px">
-                <button class="btn-primary" style="width:auto;padding:11px 32px" onclick="saveProfile()">Save Profile</button>
+          <div class="alert alert-s" id="p-ok"></div>
+          <div class="section">
+            <div class="section-head"><h3>Artist Profile</h3></div>
+            <div class="section-body">
+              <div class="form-grid">
+                <div class="fg"><label>Artist / Stage Name</label><input type="text" id="p0"/></div>
+                <div class="fg"><label>Email (cannot change)</label><input type="email" id="p1" disabled/></div>
+                <div class="fg"><label>Genre</label><select id="p2"><option>Hip Hop / Trap</option><option>UK Drill</option><option>R&amp;B / Soul</option><option>Nasheed / Islamic</option><option>Lofi / Chillhop</option><option>Instrumental</option><option>Other</option></select></div>
+                <div class="fg"><label>Country</label><input type="text" id="p3"/></div>
+                <div class="fg form-full"><label>Bio</label><textarea id="p4" placeholder="Tell the world about yourself..."></textarea></div>
+                <div class="fg"><label>PayPal Email (for royalties)</label><input type="email" id="p5" placeholder="paypal@email.com"/></div>
+                <div class="fg"><label>Spotify Artist ID</label><input type="text" id="p6" placeholder="spotify:artist:..."/></div>
+                <div class="fg"><label>Instagram</label><input type="text" id="p7" placeholder="@handle"/></div>
+                <div class="fg"><label>YouTube</label><input type="text" id="p8" placeholder="Channel URL"/></div>
+                <div class="form-full"><button class="btn-submit" onclick="saveProfile()">Save Profile</button></div>
               </div>
             </div>
           </div>
         </div>
 
-      </div><!-- /content -->
-    </div><!-- /main -->
-  </div><!-- /layout -->
-</div><!-- /dash -->
+      </div>
+    </div>
+  </div>
+</div>
 
-<div class="toast" id="toast">✓ <span id="toast-msg"></span></div>
+<div class="toast" id="toast"></div>
 
 <script>
-let CU = null, AD = {};
+let CU=null, AD={};
 
-// AUTH STATE
-auth.onAuthStateChanged(async function(user) {
-  document.getElementById('ld').style.display = 'none';
-  if (user) {
-    CU = user;
-    document.getElementById('auth').style.display = 'none';
-    document.getElementById('dash').style.display = 'block';
-    const initials = (user.displayName||'A').charAt(0).toUpperCase();
-    document.getElementById('sb-av').textContent = initials;
-    document.getElementById('pav').textContent = initials;
-    document.getElementById('sb-name').textContent = user.displayName || 'Artist';
-    document.getElementById('sb-email').textContent = user.email;
-    document.getElementById('pgs').textContent = 'Welcome back, ' + (user.displayName||'Artist') + '.';
+auth.onAuthStateChanged(async function(user){
+  document.getElementById('ld').style.display='none';
+  if(user){
+    CU=user;
+    document.getElementById('auth').style.display='none';
+    document.getElementById('dash').style.display='block';
+    const init=(user.displayName||'A')[0].toUpperCase();
+    document.getElementById('av-init').textContent=init;
+    document.getElementById('av-name').textContent=user.displayName||'Artist';
+    document.getElementById('pg-sub').textContent='Welcome back, '+(user.displayName||'Artist')+'.';
     await loadProfile();
     await loadReleases();
+    await loadTickets();
   } else {
-    CU = null;
-    document.getElementById('auth').style.display = 'block';
-    document.getElementById('dash').style.display = 'none';
+    CU=null;
+    document.getElementById('auth').style.display='flex';
+    document.getElementById('dash').style.display='none';
   }
 });
 
-// LOGIN
-async function doLogin() {
-  const email = document.getElementById('le').value.trim();
-  const pass  = document.getElementById('lp').value;
-  const btn   = document.getElementById('blg');
-  clrAl();
-  if (!email||!pass) return showErr('ae','Please enter your email and password.');
-  btn.disabled=true; btn.textContent='Signing in...';
-  try {
-    await auth.signInWithEmailAndPassword(email, pass);
-  } catch(e) {
+async function doLogin(){
+  const em=document.getElementById('lem').value.trim();
+  const pw=document.getElementById('lpw').value;
+  const btn=document.getElementById('blg');
+  const err=document.getElementById('aerr');
+  err.classList.remove('on');
+  if(!em||!pw){err.textContent='Please enter your email and password.';err.classList.add('on');return;}
+  btn.disabled=true;btn.textContent='Signing in...';
+  try{await auth.signInWithEmailAndPassword(em,pw);}
+  catch(e){
     let m='Login failed. ';
-    if(e.code==='auth/user-not-found'||e.code==='auth/invalid-credential') m+='Wrong email or password.';
-    else if(e.code==='auth/wrong-password') m+='Wrong password.';
-    else if(e.code==='auth/invalid-email') m+='Invalid email address.';
+    if(e.code==='auth/user-not-found'||e.code==='auth/invalid-credential')m+='Wrong email or password.';
+    else if(e.code==='auth/wrong-password')m+='Wrong password.';
+    else if(e.code==='auth/invalid-email')m+='Invalid email.';
     else m+=e.message;
-    showErr('ae',m);
-    btn.disabled=false; btn.textContent='Sign In';
-  }
-}
-
-// REGISTER
-async function doRegister() {
-  const name=document.getElementById('rn').value.trim();
-  const email=document.getElementById('re').value.trim();
-  const pass=document.getElementById('rp').value;
-  const genre=document.getElementById('rg').value;
-  const country=document.getElementById('rc').value.trim();
-  const btn=document.getElementById('brg');
-  clrAl();
-  if(!name||!email||!pass) return showErr('ae','Please fill in all required fields.');
-  if(pass.length<6) return showErr('ae','Password must be at least 6 characters.');
-  btn.disabled=true; btn.textContent='Creating account...';
-  try {
-    const cred=await auth.createUserWithEmailAndPassword(email,pass);
-    await cred.user.updateProfile({displayName:name});
-    await db.collection('users').doc(cred.user.uid).set({
-      name,email,genre,country,bio:'',paypal:'',spotify:'',apple:'',instagram:'',youtube:'',
-      createdAt:new Date().toISOString()
-    });
-  } catch(e) {
-    let m='Registration failed. ';
-    if(e.code==='auth/email-already-in-use') m+='This email is already registered. Please sign in.';
-    else if(e.code==='auth/invalid-email') m+='Invalid email address.';
-    else m+=e.message;
-    showErr('ae',m);
-    btn.disabled=false; btn.textContent='Create Artist Account';
+    err.textContent=m;err.classList.add('on');
+    btn.disabled=false;btn.textContent='Sign In';
   }
 }
 
 function doSignOut(){auth.signOut();}
 
-// PROFILE
 async function loadProfile(){
   try{
     const snap=await db.collection('users').doc(CU.uid).get();
@@ -782,56 +571,37 @@ async function loadProfile(){
       document.getElementById('p4').value=AD.bio||'';
       document.getElementById('p5').value=AD.paypal||'';
       document.getElementById('p6').value=AD.spotify||'';
-      document.getElementById('p7').value=AD.apple||'';
-      document.getElementById('p8').value=AD.instagram||'';
-      document.getElementById('p9').value=AD.youtube||'';
+      document.getElementById('p7').value=AD.instagram||'';
+      document.getElementById('p8').value=AD.youtube||'';
       if(AD.genre)document.getElementById('p2').value=AD.genre;
-      document.getElementById('p-display-name').textContent=AD.name||CU.displayName||'Artist';
-      document.getElementById('p-display-email').textContent=CU.email;
       document.getElementById('s2').value=AD.name||CU.displayName||'';
     }
   }catch(e){console.log('Profile:',e);}
 }
 
 async function saveProfile(){
-  const data={
-    name:document.getElementById('p0').value.trim(),
-    email:CU.email,
-    genre:document.getElementById('p2').value,
-    country:document.getElementById('p3').value.trim(),
-    bio:document.getElementById('p4').value.trim(),
-    paypal:document.getElementById('p5').value.trim(),
-    spotify:document.getElementById('p6').value.trim(),
-    apple:document.getElementById('p7').value.trim(),
-    instagram:document.getElementById('p8').value.trim(),
-    youtube:document.getElementById('p9').value.trim()
-  };
+  const data={name:document.getElementById('p0').value.trim(),email:CU.email,genre:document.getElementById('p2').value,country:document.getElementById('p3').value.trim(),bio:document.getElementById('p4').value.trim(),paypal:document.getElementById('p5').value.trim(),spotify:document.getElementById('p6').value.trim(),instagram:document.getElementById('p7').value.trim(),youtube:document.getElementById('p8').value.trim()};
   try{
     await db.collection('users').doc(CU.uid).set(data,{merge:true});
     AD={...AD,...data};
-    document.getElementById('sb-name').textContent=data.name;
-    document.getElementById('p-display-name').textContent=data.name;
-    showOk('po','✓ Profile saved successfully.');
-    setTimeout(()=>document.getElementById('po').classList.remove('on'),3000);
-    toast('Profile saved');
+    document.getElementById('av-name').textContent=data.name;
+    document.getElementById('av-init').textContent=(data.name||'A')[0].toUpperCase();
+    showOk('p-ok','✓ Profile saved successfully.');
+    setTimeout(()=>document.getElementById('p-ok').classList.remove('on'),3000);
+    toast('Profile saved ✓');
   }catch(e){toast('Error: '+e.message);}
 }
 
-// RELEASES
 async function loadReleases(){
   try{
     const snap=await db.collection('releases').where('userId','==',CU.uid).get();
     const list=[];
     snap.forEach(d=>list.push({id:d.id,...d.data()}));
     list.sort((a,b)=>new Date(b.submittedAt||0)-new Date(a.submittedAt||0));
-    const total=list.length;
-    const pending=list.filter(r=>r.status==='pending'||r.status==='review').length;
-    const live=list.filter(r=>r.status==='live').length;
-    document.getElementById('st0').textContent=total;
-    document.getElementById('st1').textContent=pending;
-    document.getElementById('st2').textContent=live;
-    const rc=document.getElementById('rel-count');
-    if(total>0){rc.style.display='';rc.textContent=total;}
+    document.getElementById('st0').textContent=list.length;
+    document.getElementById('st1').textContent=list.filter(r=>r.status==='pending'||r.status==='review').length;
+    document.getElementById('st2').textContent=list.filter(r=>r.status==='live').length;
+    document.getElementById('rel-count').textContent=list.length+' release'+(list.length!==1?'s':'');
     renderReleases('home-r',list.slice(0,5));
     renderReleases('all-r',list);
   }catch(e){console.log('Releases:',e);}
@@ -839,120 +609,121 @@ async function loadReleases(){
 
 function renderReleases(id,list){
   const el=document.getElementById(id);
-  if(!list.length){
-    el.innerHTML=`<div class="empty">
-      <div class="empty-icon">♪</div>
-      <div class="empty-title">No releases yet</div>
-      <div class="empty-sub">Submit your first release to get started</div>
-      <button class="btn-empty" onclick="goPage('submit',null)">Submit Release</button>
-    </div>`;
-    return;
-  }
-  const pillClass={pending:'pill-pending',review:'pill-review',approved:'pill-approved',live:'pill-live',rejected:'pill-rejected'};
-  el.innerHTML=`<table class="rel-table">
-    <thead><tr>
-      <th style="width:40px"></th>
-      <th>Title</th><th>Type</th><th>Genre</th>
-      <th>Release Date</th><th>Submitted</th><th>Status</th>
-    </tr></thead>
-    <tbody>${list.map(r=>`<tr>
-      <td><div class="rel-thumb">♪</div></td>
-      <td>
-        <div class="rel-title">${r.title||'—'}</div>
-        <div class="rel-meta">${r.artistName||r.primaryArtist||'—'}</div>
-      </td>
-      <td style="color:var(--muted);font-size:13px">${r.type||'—'}</td>
-      <td style="color:var(--muted);font-size:13px">${r.genre||'—'}</td>
-      <td style="color:var(--muted);font-size:12px">${r.releaseDate||'—'}</td>
-      <td style="color:var(--muted);font-size:12px">${r.submittedAt?r.submittedAt.substring(0,10):'—'}</td>
-      <td><span class="pill ${pillClass[r.status]||'pill-pending'}">${r.status||'pending'}</span></td>
-    </tr>`).join('')}</tbody>
-  </table>`;
+  if(!list.length){el.innerHTML='<div class="empty"><div class="empty-icon">🎵</div><div class="empty-text">No releases yet</div><div class="empty-sub">Click Submit Release to get started</div></div>';return;}
+  const bc={pending:'b-pending',review:'b-review',approved:'b-approved',live:'b-live',rejected:'b-rejected'};
+  el.innerHTML=list.map(r=>`
+    <div class="r-item">
+      <div class="r-art">🎵</div>
+      <div class="r-info">
+        <div class="r-title">${r.title||'—'}</div>
+        <div class="r-meta">${r.type||'Single'} · ${r.genre||'—'} · ${r.releaseDate||'—'}</div>
+      </div>
+      <span class="badge ${bc[r.status]||'b-pending'}">${(r.status||'pending').charAt(0).toUpperCase()+(r.status||'pending').slice(1)}</span>
+    </div>`).join('');
 }
 
-// SUBMIT
 async function submitRelease(){
   const v=id=>document.getElementById(id).value.trim();
-  const title=v('s0'),type=v('s1'),artist=v('s2'),genre=v('s4'),lang=v('s6'),date=v('s7'),writers=v('s12'),audio=v('s18');
-  document.getElementById('se').classList.remove('on');
-  document.getElementById('ss').classList.remove('on');
-  if(!title) return showErr('se','Please enter a release title.');
-  if(!type)  return showErr('se','Please select a release type.');
-  if(!artist)return showErr('se','Please enter the primary artist name.');
-  if(!genre) return showErr('se','Please select a genre.');
-  if(!lang)  return showErr('se','Please select a language.');
-  if(!date)  return showErr('se','Please select a release date.');
-  if(!writers)return showErr('se','Please enter songwriter name(s).');
-  if(!audio) return showErr('se','Please paste your Google Drive audio file link.');
+  const [title,type,artist,genre,lang,date,writers,audio]=[v('s0'),v('s1'),v('s2'),v('s4'),v('s6'),v('s7'),v('s12'),v('s18')];
+  document.getElementById('sub-e').classList.remove('on');
+  document.getElementById('sub-s').classList.remove('on');
+  if(!title)return showErr('sub-e','Please enter a release title.');
+  if(!type)return showErr('sub-e','Please select a release type.');
+  if(!artist)return showErr('sub-e','Please enter the primary artist name.');
+  if(!genre)return showErr('sub-e','Please select a genre.');
+  if(!lang)return showErr('sub-e','Please select a language.');
+  if(!date)return showErr('sub-e','Please select a release date.');
+  if(!writers)return showErr('sub-e','Please enter songwriter name(s).');
+  if(!audio)return showErr('sub-e','Please paste your Google Drive audio file link.');
   const btn=document.getElementById('bsub');
-  btn.disabled=true; btn.textContent='Submitting...';
-  const data={
-    userId:CU.uid,artistName:AD.name||CU.displayName||artist,
-    title,type,primaryArtist:artist,featuredArtists:v('s3'),genre,
-    subGenre:v('s5'),language:lang,releaseDate:date,
-    explicit:document.getElementById('s8').value,
-    copyrightYear:v('s9'),label:v('s10'),upc:v('s11'),
-    writers,producers:v('s13'),
-    platforms:document.getElementById('s14').value,
-    territories:document.getElementById('s15').value,
-    lyrics:v('s16'),notes:v('s17'),
-    audioLink:audio,artworkLink:v('s19'),
-    status:'pending',submittedAt:new Date().toISOString()
-  };
+  btn.disabled=true;btn.textContent='Submitting...';
+  const data={userId:CU.uid,artistName:AD.name||CU.displayName||artist,title,type,primaryArtist:artist,featuredArtists:v('s3'),genre,subGenre:v('s5'),language:lang,releaseDate:date,explicit:document.getElementById('s8').value,copyrightYear:v('s9'),label:v('s10'),upc:v('s11'),writers,producers:v('s13'),platforms:document.getElementById('s14').value,territories:document.getElementById('s15').value,lyrics:v('s16'),notes:v('s17'),audioLink:audio,artworkLink:v('s19'),status:'pending',submittedAt:new Date().toISOString()};
   try{
     await db.collection('releases').add(data);
-    try{
-      await emailjs.send(EJS_SERVICE,EJS_TEMPLATE,{
-        artist_name:data.artistName,release_title:title,release_type:type,
-        genre,release_date:date,audio_link:audio,artwork_link:v('s19')||'Not provided'
-      });
-    }catch(ee){console.log('Email skipped:',ee);}
+    try{await emailjs.send('service_3bit5yi','eg3omh9',{artist_name:data.artistName,release_title:title,release_type:type,genre,release_date:date,audio_link:audio,artwork_link:v('s19')||'Not provided'});}catch(ee){console.log('Email:',ee);}
     ['s0','s3','s5','s11','s12','s13','s16','s17','s18','s19'].forEach(id=>document.getElementById(id).value='');
     ['s1','s4','s6'].forEach(id=>document.getElementById(id).value='');
     document.getElementById('s10').value='The Imaginary Records';
-    showOk('ss','✓ Release submitted successfully! We will review within 3–5 business days.');
+    showOk('sub-s','✓ Release submitted! We will review within 3–5 business days.');
     await loadReleases();
-    toast('Release submitted!');
-  }catch(e){showErr('se','Submission failed: '+e.message);}
-  btn.disabled=false; btn.textContent='Submit Release';
+    toast('Release submitted ✓');
+  }catch(e){showErr('sub-e','Submission failed: '+e.message);}
+  btn.disabled=false;btn.textContent='Submit Release';
 }
 
-// NAV
+// SUPPORT TICKETS
+async function loadTickets(){
+  try{
+    const snap=await db.collection('tickets').where('userId','==',CU.uid).get();
+    const list=[];
+    snap.forEach(d=>list.push({id:d.id,...d.data()}));
+    list.sort((a,b)=>new Date(b.createdAt||0)-new Date(a.createdAt||0));
+    document.getElementById('tkt-count').textContent=list.length+' ticket'+(list.length!==1?'s':'');
+    renderTickets(list);
+  }catch(e){console.log('Tickets:',e);}
+}
+
+function renderTickets(list){
+  const el=document.getElementById('tkt-list');
+  if(!list.length){el.innerHTML='<div class="empty" style="padding:32px"><div class="empty-icon">💬</div><div class="empty-text">No tickets yet</div></div>';return;}
+  const bc={open:'b-pending',pending:'b-review',resolved:'b-approved',closed:'b-rejected'};
+  el.innerHTML=list.map(t=>`
+    <div class="ticket-item" onclick="toggleTicket('t${t.id}')">
+      <div class="ticket-top">
+        <div class="ticket-subject">${t.subject||'—'}</div>
+        <span class="badge ${bc[t.status]||'b-pending'}">${t.status||'Open'}</span>
+      </div>
+      <div class="ticket-body">${(t.message||'').substring(0,120)}${(t.message||'').length>120?'...':''}</div>
+      <div class="ticket-meta">Category: ${t.category||'—'} · Priority: ${t.priority||'Normal'} · ${t.createdAt?t.createdAt.substring(0,10):'—'}</div>
+      ${t.reply?`<div class="ticket-reply on" id="t${t.id}"><strong>TIR Response:</strong>${t.reply}</div>`:`<div class="ticket-reply" id="t${t.id}"><strong>TIR Response:</strong>We have received your ticket and will respond within 24–48 hours.</div>`}
+    </div>`).join('');
+}
+
+function toggleTicket(id){
+  const el=document.getElementById(id);
+  if(el)el.classList.toggle('on');
+}
+
+async function submitTicket(){
+  const cat=document.getElementById('t0').value;
+  const pri=document.getElementById('t1').value;
+  const sub=document.getElementById('t2').value.trim();
+  const msg=document.getElementById('t3').value.trim();
+  document.getElementById('tkt-e').classList.remove('on');
+  document.getElementById('tkt-s').classList.remove('on');
+  if(!cat)return showErr('tkt-e','Please select a category.');
+  if(!sub)return showErr('tkt-e','Please enter a subject.');
+  if(!msg)return showErr('tkt-e','Please describe your issue.');
+  const btn=document.getElementById('btkt');
+  btn.disabled=true;btn.textContent='Submitting...';
+  try{
+    await db.collection('tickets').add({userId:CU.uid,artistName:AD.name||CU.displayName,artistEmail:CU.email,category:cat,priority:pri,subject:sub,message:msg,status:'open',reply:'',createdAt:new Date().toISOString()});
+    document.getElementById('t0').value='';
+    document.getElementById('t2').value='';
+    document.getElementById('t3').value='';
+    document.getElementById('t1').value='normal';
+    showOk('tkt-s','✓ Ticket submitted! We will respond within 24–48 hours.');
+    await loadTickets();
+    toast('Ticket submitted ✓');
+  }catch(e){showErr('tkt-e','Failed: '+e.message);}
+  btn.disabled=false;btn.textContent='Submit Ticket';
+}
+
 function goPage(name,el){
   document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
-  document.querySelectorAll('.sb-item').forEach(n=>n.classList.remove('on'));
-  document.getElementById('page-'+name).classList.add('on');
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));
+  const pg=document.getElementById('page-'+name);
+  if(pg)pg.classList.add('on');
   if(el)el.classList.add('on');
-  const m={
-    home:['Dashboard','Your releases at a glance.'],
-    releases:['My Releases','All your submitted releases.'],
-    submit:['Submit Release','Fill in all release details carefully.'],
-    royalties:['Royalties','Your earnings overview.'],
-    profile:['My Profile','Manage your artist information.']
-  };
-  const[t,s]=m[name]||['Dashboard',''];
-  document.getElementById('pgt').textContent=t;
-  document.getElementById('pgs').textContent=s;
-  window.scrollTo(0,0);
+  const m={home:['Overview','Your label dashboard.'],releases:['My Releases','All submitted releases.'],submit:['Submit Release','Fill in all details carefully.'],royalties:['Royalties','Your earnings overview.'],support:['Support Tickets','Get help from TIR.'],profile:['My Profile','Update your artist info.']};
+  const [t,s]=m[name]||['Dashboard',''];
+  document.getElementById('pg-title').textContent=t;
+  document.getElementById('pg-sub').textContent=s;
 }
 
-function switchTab(t){
-  clrAl();
-  document.getElementById('tl').classList.toggle('on',t==='login');
-  document.getElementById('tr').classList.toggle('on',t==='reg');
-  document.getElementById('fl').style.display=t==='login'?'block':'none';
-  document.getElementById('fr').style.display=t==='reg'?'block':'none';
-}
-
-function showErr(id,m){const e=document.getElementById(id);e.textContent=m;e.classList.add('on')}
-function showOk(id,m){const e=document.getElementById(id);e.textContent=m;e.classList.add('on')}
-function clrAl(){['ae','as_'].forEach(id=>document.getElementById(id).classList.remove('on'))}
-function toast(m){
-  document.getElementById('toast-msg').textContent=m;
-  const t=document.getElementById('toast');
-  t.classList.add('on');
-  setTimeout(()=>t.classList.remove('on'),3000);
-}
+function showErr(id,m){const e=document.getElementById(id);e.textContent=m;e.classList.add('on');}
+function showOk(id,m){const e=document.getElementById(id);e.textContent=m;e.classList.add('on');}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),3000);}
 </script>
 </body>
 </html>

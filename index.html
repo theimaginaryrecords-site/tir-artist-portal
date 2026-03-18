@@ -271,7 +271,7 @@ nav{flex:1;padding:16px 12px}
             <div style="font-size:16px;font-weight:700;color:#fff;margin-bottom:8px">Invite Only</div>
             <div style="font-size:13px;color:#888;line-height:1.7;margin-bottom:20px">The Imaginary Records is an invite-only label. Artist accounts are created by our team after approval.</div>
             <div style="font-size:13px;color:#aaa;margin-bottom:20px">Want to join TIR? Reach out to us:</div>
-            <a href="mailto:support@theimaginaryrecords.in" style="display:block;padding:11px;background:#fff;color:#000;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;margin-bottom:10px">✉ support@theimaginaryrecords.in</a>
+            <a href="/cdn-cgi/l/email-protection#95e6e0e5e5fae7e1d5e1fdf0fcf8f4f2fcfbf4e7ece7f0f6fae7f1e6bbfcfb" style="display:block;padding:11px;background:#fff;color:#000;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;margin-bottom:10px">✉ <span class="__cf_email__" data-cfemail="176462676778656357637f727e7a76707e7976656e65727478657364397e79">[email&#160;protected]</span></a>
             <a href="https://instagram.com/theimaginaryrecords" target="_blank" style="display:block;padding:11px;background:#1a1a1a;color:#e8e8e8;border:1px solid #2a2a2a;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none">📸 @theimaginaryrecords</a>
           </div>
         </div>
@@ -639,8 +639,16 @@ nav{flex:1;padding:16px 12px}
 
 <div class="toast" id="toast"></div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 let CU = null, AD = {};
+
+// Safety timeout — show auth if Firebase takes too long
+setTimeout(function() {
+  if (document.getElementById('ld').style.display !== 'none') {
+    document.getElementById('ld').style.display = 'none';
+    document.getElementById('auth').style.display = 'block';
+  }
+}, 5000);
 
 auth.onAuthStateChanged(async function(user) {
   document.getElementById('ld').style.display = 'none';
@@ -867,9 +875,4 @@ function switchTab(t) {
   document.getElementById('fl').style.display=t==='login'?'block':'none';
   document.getElementById('fr').style.display=t==='reg'?'block':'none';
   document.getElementById('auth-title').textContent=t==='login'?'Welcome back':'Invite Only';
-  document.getElementById('auth-sub').textContent=t==='login'?'Sign in to your artist account':'Artist accounts are created by TIR team only.';
-}
-
-function showErr(id,m){const e=document.getElementById(id);e.textContent=m;e.classList.add('on')}
-function showOk(id,m){const e=document.getElementById(id);e.textContent=m;e.classList.add('on')}
-function clrAl(){['ae','
+  document.getElementById('auth-sub').textContent=t==='login'?'Sign in to your artist account':'Artis

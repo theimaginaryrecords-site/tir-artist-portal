@@ -43,6 +43,7 @@ body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;min-he
 @keyframes countUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 @keyframes glow{0%,100%{box-shadow:0 0 0 0 rgba(201,168,76,0)}50%{box-shadow:0 0 20px 2px rgba(201,168,76,.15)}}
 @keyframes spin{to{transform:rotate(360deg)}}
+@keyframes slideRight{from{transform:translateX(-100%)}to{transform:translateX(0)}}
 
 .animate-fade-up{animation:fadeUp .5s ease forwards}
 .animate-fade-up-d1{animation:fadeUp .5s .1s ease both}
@@ -110,6 +111,31 @@ nav{flex:1;padding:8px}
 .so-btn{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;color:var(--txt3);cursor:pointer;font-size:13px;width:100%;background:none;border:none;transition:all .15s}
 .so-btn:hover{background:rgba(239,68,68,.1);color:var(--red)}
 
+/* MOBILE DRAWER OVERLAY */
+.mob-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;backdrop-filter:blur(2px)}
+.mob-overlay.on{display:block;animation:fadeIn .2s ease}
+
+/* MOBILE DRAWER SIDEBAR */
+.mob-drawer{display:none;position:fixed;left:0;top:0;bottom:0;width:280px;background:var(--surface);border-right:1px solid var(--brd);z-index:1001;flex-direction:column;overflow-y:auto;transform:translateX(-100%);transition:transform .3s ease}
+.mob-drawer.on{transform:translateX(0)}
+
+/* MOBILE TOP BAR */
+.mob-topbar{display:none;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--surface);border-bottom:1px solid var(--brd);position:sticky;top:0;z-index:100}
+.mob-topbar-brand{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:4px;color:var(--gold)}
+.mob-menu-btn{background:none;border:1px solid var(--brd);border-radius:8px;color:var(--txt2);width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s}
+.mob-menu-btn:hover{border-color:var(--gold);color:var(--gold)}
+.mob-new-btn{background:var(--gold);border:none;border-radius:8px;color:#000;font-size:12px;font-weight:700;padding:8px 12px;cursor:pointer;display:flex;align-items:center;gap:5px}
+
+/* MOBILE BOTTOM NAV */
+.mob-bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--brd);z-index:200;padding:0 4px;padding-bottom:env(safe-area-inset-bottom)}
+.mob-nav-items{display:flex;justify-content:space-around;align-items:stretch}
+.mob-ni{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 2px 6px;cursor:pointer;color:var(--txt3);transition:color .2s;position:relative;gap:3px;min-width:0}
+.mob-ni.on{color:var(--gold)}
+.mob-ni svg{width:20px;height:20px;flex-shrink:0}
+.mob-ni-label{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+.mob-ni .m-badge{position:absolute;top:6px;right:50%;transform:translateX(10px);background:var(--red);color:#fff;font-size:9px;font-weight:700;padding:1px 4px;border-radius:8px;animation:pulse 2s ease infinite}
+.mob-ni.on::after{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:28px;height:2px;background:var(--gold);border-radius:0 0 2px 2px}
+
 /* MAIN */
 .main{flex:1;overflow-y:auto}
 .topbar{padding:16px 28px;border-bottom:1px solid var(--brd);background:var(--surface);position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;backdrop-filter:blur(10px)}
@@ -149,10 +175,10 @@ nav{flex:1;padding:8px}
 .ri:hover{background:rgba(255,255,255,.02)}
 .r-art{width:44px;height:44px;border-radius:8px;background:var(--card);border:1px solid var(--brd);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;transition:transform .2s}
 .ri:hover .r-art{transform:scale(1.05)}
-.r-info{flex:1}
-.r-title{font-size:14px;font-weight:600}
-.r-meta{font-size:12px;color:var(--txt3);margin-top:2px}
-.badge{font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;white-space:nowrap}
+.r-info{flex:1;min-width:0}
+.r-title{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.r-meta{font-size:12px;color:var(--txt3);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.badge{font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;white-space:nowrap;flex-shrink:0}
 .b-pending{background:rgba(249,115,22,.12);color:#fb923c}
 .b-review{background:rgba(59,130,246,.12);color:#60a5fa}
 .b-approved{background:rgba(34,197,94,.12);color:#4ade80}
@@ -259,15 +285,73 @@ nav{flex:1;padding:8px}
 ::-webkit-scrollbar-thumb{background:var(--brd);border-radius:2px}
 ::-webkit-scrollbar-thumb:hover{background:var(--txt3)}
 
+/* =====================
+   MOBILE RESPONSIVE
+   ===================== */
 @media(max-width:768px){
+  /* Hide desktop sidebar and topbar */
   .sb{display:none}
-  .stats,.roy-stats{grid-template-columns:1fr 1fr}
-  .fg2{grid-template-columns:1fr}
-  .full,.fsec,.uz{grid-column:1}
-  .content{padding:16px}
+  .topbar{display:none}
+
+  /* Show mobile elements */
+  .mob-topbar{display:flex}
+  .mob-bottom-nav{display:block}
+  .mob-drawer{display:flex}
+
+  /* Content area - add bottom padding for nav bar */
+  .content{padding:16px 14px 90px}
+
+  /* Auth - hide left panel */
   .auth-left{display:none}
-  .auth-right{width:100%}
+  .auth-right{width:100%;padding:36px 28px}
+
+  /* Stats grid: 2 columns on mobile */
+  .stats{grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+  .sc{padding:14px}
+  .sc-val{font-size:22px}
+  .sc-icon{font-size:26px}
+
+  /* Royalty stats: stack on mobile */
+  .roy-stats{grid-template-columns:1fr 1fr;gap:10px}
+
+  /* Forms: single column */
+  .fg2{grid-template-columns:1fr}
+  .full{grid-column:1}
+  .fsec{grid-column:1}
+  .uz{grid-column:1;padding:20px}
+
+  /* Blog grid: single column */
   .blog-grid{grid-template-columns:1fr}
+
+  /* Royalty table - make scrollable */
+  .section{overflow-x:auto}
+  .roy-table{min-width:400px}
+
+  /* Section headers */
+  .sh{padding:12px 14px}
+  .sb2{padding:14px}
+
+  /* Buttons full width on mobile */
+  .full .btn-sub,.full .btn-sec2{width:100%}
+  .full > div{flex-direction:column}
+
+  /* Notice smaller */
+  .notice{font-size:12px;padding:10px 12px}
+
+  /* Toast bottom offset for nav */
+  .toast{bottom:76px;right:14px;left:14px;text-align:center}
+
+  /* Blog modal padding */
+  .blog-modal{padding:16px 10px}
+  .blog-modal-head{padding:18px}
+  .blog-modal-body{padding:18px;font-size:13px}
+}
+
+@media(max-width:380px){
+  .stats{grid-template-columns:1fr 1fr}
+  .sc-val{font-size:18px}
+  .mob-ni-label{display:none}
+  .mob-ni{padding:10px 2px}
 }
 </style>
 </head>
@@ -316,7 +400,8 @@ nav{flex:1;padding:8px}
 <!-- DASHBOARD -->
 <div id="dash">
   <div class="layout">
-    <!-- SIDEBAR -->
+
+    <!-- DESKTOP SIDEBAR -->
     <div class="sb">
       <div class="sb-top">
         <div class="sb-brand">T·I·R</div>
@@ -364,12 +449,24 @@ nav{flex:1;padding:8px}
       </div>
     </div>
 
-    <!-- MAIN -->
+    <!-- MAIN CONTENT -->
     <div class="main">
+      <!-- DESKTOP TOPBAR -->
       <div class="topbar">
         <div><h1 id="pgt">Overview</h1><p id="pgs">Welcome back.</p></div>
         <button class="btn-new" onclick="goPage('submit',null)">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12l7-7 7 7"/></svg>New Release
+        </button>
+      </div>
+
+      <!-- MOBILE TOPBAR -->
+      <div class="mob-topbar">
+        <button class="mob-menu-btn" onclick="openDrawer()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <div class="mob-topbar-brand">T·I·R</div>
+        <button class="mob-new-btn" onclick="goPage('submit',null)">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12l7-7 7 7"/></svg>Submit
         </button>
       </div>
 
@@ -379,9 +476,9 @@ nav{flex:1;padding:8px}
         <div class="pg on" id="page-home">
           <div class="stats animate-fade-up">
             <div class="sc animate-fade-up-d1"><div class="sc-icon">🎵</div><div class="sc-label">Total Releases</div><div class="sc-val gold" id="st0">0</div><div class="sc-sub">All time</div></div>
-            <div class="sc animate-fade-up-d2"><div class="sc-icon">⏳</div><div class="sc-label">Pending Review</div><div class="sc-val" id="st1">0</div><div class="sc-sub">Awaiting TIR</div></div>
+            <div class="sc animate-fade-up-d2"><div class="sc-icon">⏳</div><div class="sc-label">Pending</div><div class="sc-val" id="st1">0</div><div class="sc-sub">Awaiting TIR</div></div>
             <div class="sc animate-fade-up-d3"><div class="sc-icon">🟢</div><div class="sc-label">Live Now</div><div class="sc-val" id="st2">0</div><div class="sc-sub">On platforms</div></div>
-            <div class="sc animate-fade-up-d4"><div class="sc-icon">💰</div><div class="sc-label">Total Earnings</div><div class="sc-val gold" id="st3">₹0</div><div class="sc-sub">Updated quarterly</div></div>
+            <div class="sc animate-fade-up-d4"><div class="sc-icon">💰</div><div class="sc-label">Earnings</div><div class="sc-val gold" id="st3">₹0</div><div class="sc-sub">Quarterly</div></div>
           </div>
           <div class="section animate-fade-up-d2">
             <div class="sh"><h3>Recent Releases</h3><span style="font-size:12px;color:var(--txt3)" id="rel-count2"></span></div>
@@ -443,7 +540,7 @@ nav{flex:1;padding:8px}
                 </div>
                 <div class="fg full"><label>Google Drive Link — Audio File *</label><input type="url" id="s18" placeholder="Paste shareable Drive link to audio file"/></div>
                 <div class="fg full"><label>Google Drive Link — Cover Artwork</label><input type="url" id="s19" placeholder="Paste shareable Drive link to artwork"/></div>
-                <div class="full" style="display:flex;gap:12px;margin-top:4px">
+                <div class="full" style="display:flex;gap:12px;margin-top:4px;flex-wrap:wrap">
                   <button class="btn-sub" id="bsub" onclick="submitRelease()">Submit Release</button>
                   <button class="btn-sec2" onclick="goPage('home',null)">Cancel</button>
                 </div>
@@ -460,35 +557,17 @@ nav{flex:1;padding:8px}
             <div class="sc"><div class="sc-label">Last Payout</div><div class="sc-val" id="roy-last">₹0.00</div><div class="sc-sub">Via PayPal</div></div>
           </div>
           <div class="notice">Royalty statements are updated every quarter by TIR. Minimum payout threshold is <strong>₹500</strong>. Make sure your PayPal email is set in your profile.</div>
-
-          <!-- PER PLATFORM -->
           <div class="section" style="margin-bottom:16px">
             <div class="sh"><h3>Earnings by Platform</h3><p id="roy-period-lbl">—</p></div>
-            <div class="sb2">
-              <div id="roy-platforms">
-                <div class="empty"><div class="empty-icon">📊</div><div class="empty-text">No earnings yet</div><div class="empty-sub">Appears after your first live release</div></div>
-              </div>
-            </div>
+            <div class="sb2"><div id="roy-platforms"><div class="empty"><div class="empty-icon">📊</div><div class="empty-text">No earnings yet</div><div class="empty-sub">Appears after your first live release</div></div></div></div>
           </div>
-
-          <!-- PER RELEASE -->
           <div class="section" style="margin-bottom:16px">
             <div class="sh"><h3>Earnings by Release</h3></div>
-            <div class="sb2">
-              <div id="roy-releases">
-                <div class="empty"><div class="empty-icon">🎵</div><div class="empty-text">No release earnings yet</div></div>
-              </div>
-            </div>
+            <div class="sb2"><div id="roy-releases"><div class="empty"><div class="empty-icon">🎵</div><div class="empty-text">No release earnings yet</div></div></div></div>
           </div>
-
-          <!-- HISTORY -->
           <div class="section">
             <div class="sh"><h3>Payout History</h3></div>
-            <div class="sb2">
-              <div id="roy-history">
-                <div class="empty"><div class="empty-icon">💸</div><div class="empty-text">No payouts yet</div><div class="empty-sub">Payouts processed every quarter via PayPal</div></div>
-              </div>
-            </div>
+            <div class="sb2"><div id="roy-history"><div class="empty"><div class="empty-icon">💸</div><div class="empty-text">No payouts yet</div><div class="empty-sub">Payouts processed every quarter via PayPal</div></div></div></div>
           </div>
         </div>
 
@@ -568,10 +647,95 @@ nav{flex:1;padding:8px}
           </div>
         </div>
 
+      </div><!-- /content -->
+    </div><!-- /main -->
+  </div><!-- /layout -->
+
+  <!-- MOBILE DRAWER OVERLAY -->
+  <div class="mob-overlay" id="mob-overlay" onclick="closeDrawer()"></div>
+
+  <!-- MOBILE DRAWER -->
+  <div class="mob-drawer" id="mob-drawer">
+    <div class="sb-top" style="display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div class="sb-brand">T·I·R</div>
+        <div class="sb-lbl">Artist Portal</div>
+      </div>
+      <button class="mob-menu-btn" onclick="closeDrawer()" style="flex-shrink:0">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="sb-artist">
+      <div class="av" id="av-i-m">A</div>
+      <div><div class="av-name" id="av-n-m">Artist</div><div class="av-role">Recording Artist</div></div>
+    </div>
+    <nav>
+      <div class="ns">Main</div>
+      <div class="ni on" onclick="goPage('home',this);closeDrawer()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Overview
+      </div>
+      <div class="ni" onclick="goPage('releases',this);closeDrawer()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>My Releases
+      </div>
+      <div class="ni" onclick="goPage('submit',this);closeDrawer()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7-7 7 7"/></svg>Submit Release
+      </div>
+      <div class="ns">Finance</div>
+      <div class="ni" onclick="goPage('royalties',this);closeDrawer()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Royalties
+      </div>
+      <div class="ns">Community</div>
+      <div class="ni" onclick="goPage('blog',this);closeDrawer()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Music Blog
+      </div>
+      <div class="ns">Support</div>
+      <div class="ni" onclick="goPage('support',this);closeDrawer()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Support Hub
+      </div>
+      <div class="ni" onclick="goPage('tickets',this);closeDrawer()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>My Tickets <span class="badge-cnt" id="tkt-cnt-m" style="display:none">!</span>
+      </div>
+      <div class="ns">Account</div>
+      <div class="ni" onclick="goPage('profile',this);closeDrawer()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>My Profile
+      </div>
+    </nav>
+    <div class="sb-bottom">
+      <button class="so-btn" onclick="doSignOut()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16,17 21,12 16,7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign Out
+      </button>
+    </div>
+  </div>
+
+  <!-- MOBILE BOTTOM NAV -->
+  <div class="mob-bottom-nav">
+    <div class="mob-nav-items">
+      <div class="mob-ni on" id="mni-home" onclick="goPage('home',null);setMobNav('home')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        <span class="mob-ni-label">Home</span>
+      </div>
+      <div class="mob-ni" id="mni-releases" onclick="goPage('releases',null);setMobNav('releases')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
+        <span class="mob-ni-label">Releases</span>
+      </div>
+      <div class="mob-ni" id="mni-submit" onclick="goPage('submit',null);setMobNav('submit')" style="color:var(--gold)">
+        <div style="width:44px;height:44px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;margin-top:-16px;box-shadow:0 4px 16px rgba(201,168,76,.4)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5"><path d="M12 5v14M5 12l7-7 7 7"/></svg>
+        </div>
+        <span class="mob-ni-label" style="color:var(--txt3)">Submit</span>
+      </div>
+      <div class="mob-ni" id="mni-royalties" onclick="goPage('royalties',null);setMobNav('royalties')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        <span class="mob-ni-label">Royalties</span>
+      </div>
+      <div class="mob-ni" id="mni-more" onclick="openDrawer()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1" fill="currentColor"/><circle cx="12" cy="12" r="1" fill="currentColor"/><circle cx="12" cy="19" r="1" fill="currentColor"/></svg>
+        <span class="mob-ni-label">More</span>
       </div>
     </div>
   </div>
-</div>
+
+</div><!-- /dash -->
 
 <!-- BLOG MODAL -->
 <div class="blog-modal" id="blog-modal">
@@ -610,6 +774,25 @@ const FAQS=[
   {cat:'Account',q:'What if I forget my password?',a:'Use the "Forgot Password" feature on the login page, or contact TIR at theimaginaryrecords@gmail.com and we will reset it for you within 24 hours.'},
 ];
 
+// MOBILE DRAWER
+function openDrawer(){
+  document.getElementById('mob-drawer').classList.add('on');
+  document.getElementById('mob-overlay').classList.add('on');
+  document.body.style.overflow='hidden';
+}
+function closeDrawer(){
+  document.getElementById('mob-drawer').classList.remove('on');
+  document.getElementById('mob-overlay').classList.remove('on');
+  document.body.style.overflow='';
+}
+
+// MOBILE BOTTOM NAV ACTIVE STATE
+function setMobNav(name){
+  document.querySelectorAll('.mob-ni').forEach(n=>n.classList.remove('on'));
+  const el=document.getElementById('mni-'+name);
+  if(el)el.classList.add('on');
+}
+
 // AUTH
 auth.onAuthStateChanged(async function(user){
   document.getElementById('ld').style.display='none';
@@ -620,6 +803,8 @@ auth.onAuthStateChanged(async function(user){
     const init=(user.displayName||'A')[0].toUpperCase();
     document.getElementById('av-i').textContent=init;
     document.getElementById('av-n').textContent=user.displayName||'Artist';
+    document.getElementById('av-i-m').textContent=init;
+    document.getElementById('av-n-m').textContent=user.displayName||'Artist';
     document.getElementById('pgs').textContent='Welcome back, '+(user.displayName||'Artist')+'.';
     await loadProfile();
     await loadReleases();
@@ -681,7 +866,9 @@ async function saveProfile(){
     await db.collection('users').doc(CU.uid).set(data,{merge:true});
     AD={...AD,...data};
     document.getElementById('av-n').textContent=data.name;
+    document.getElementById('av-n-m').textContent=data.name;
     document.getElementById('av-i').textContent=(data.name||'A')[0].toUpperCase();
+    document.getElementById('av-i-m').textContent=(data.name||'A')[0].toUpperCase();
     showOk('p-ok','✓ Profile saved successfully.');
     setTimeout(()=>document.getElementById('p-ok').classList.remove('on'),3000);
     toast('Profile saved ✓');
@@ -762,40 +949,34 @@ async function loadRoyalties(){
       totalAll+=Number(r.totalAmount||0);
       if(r.isCurrent)totalQ+=Number(r.totalAmount||0);
       if(r.type==='payout')history.push(r);
-      // platforms
       if(r.platforms){Object.entries(r.platforms).forEach(([k,v])=>{platforms[k]=(platforms[k]||0)+Number(v||0);})}
-      // releases
       if(r.releaseTitle){releases[r.releaseTitle]=(releases[r.releaseTitle]||0)+Number(r.totalAmount||0);}
       royData=r;
     });
-    // Update stats
     document.getElementById('st3').textContent='₹'+totalAll.toFixed(2);
     document.getElementById('roy-total').textContent='₹'+totalAll.toFixed(2);
     document.getElementById('roy-quarter').textContent='₹'+totalQ.toFixed(2);
     if(history.length)document.getElementById('roy-last').textContent='₹'+Math.max(...history.map(h=>Number(h.amount||0))).toFixed(2);
     if(royData.period)document.getElementById('roy-period-lbl').textContent=royData.period;
-    // Render platforms
     const platEl=document.getElementById('roy-platforms');
     const platEntries=Object.entries(platforms);
     if(platEntries.length){
       const icons={Spotify:'🎧','Apple Music':'🍎','Amazon Music':'📦','YouTube Music':'▶️',JioSaavn:'🎵',Gaana:'🎶',Tidal:'🌊',Deezer:'🎸'};
-      platEl.innerHTML=`<table class="roy-table"><thead><tr><th>Platform</th><th>Streams</th><th>Earnings</th></tr></thead><tbody>
+      platEl.innerHTML=`<div style="overflow-x:auto"><table class="roy-table"><thead><tr><th>Platform</th><th>Streams</th><th>Earnings</th></tr></thead><tbody>
         ${platEntries.map(([p,amt])=>`<tr><td><span class="platform-icon">${icons[p]||'🎵'}</span>${p}</td><td style="color:var(--txt3);font-size:12px">—</td><td class="roy-amount">₹${Number(amt).toFixed(2)}</td></tr>`).join('')}
-      </tbody></table>`;
+      </tbody></table></div>`;
     }
-    // Render releases
     const relEl=document.getElementById('roy-releases');
     const relEntries=Object.entries(releases);
     if(relEntries.length){
-      relEl.innerHTML=`<table class="roy-table"><thead><tr><th>Release</th><th>Earnings</th></tr></thead><tbody>
+      relEl.innerHTML=`<div style="overflow-x:auto"><table class="roy-table"><thead><tr><th>Release</th><th>Earnings</th></tr></thead><tbody>
         ${relEntries.map(([t,amt])=>`<tr><td style="font-weight:500">🎵 ${t}</td><td class="roy-amount">₹${Number(amt).toFixed(2)}</td></tr>`).join('')}
-      </tbody></table>`;
+      </tbody></table></div>`;
     }
-    // History
     if(history.length){
-      document.getElementById('roy-history').innerHTML=`<table class="roy-table"><thead><tr><th>Period</th><th>Amount</th><th>Method</th><th>Status</th></tr></thead><tbody>
+      document.getElementById('roy-history').innerHTML=`<div style="overflow-x:auto"><table class="roy-table"><thead><tr><th>Period</th><th>Amount</th><th>Method</th><th>Status</th></tr></thead><tbody>
         ${history.map(h=>`<tr><td>${h.period||'—'}</td><td class="roy-amount">₹${Number(h.amount||0).toFixed(2)}</td><td style="color:var(--txt3)">PayPal</td><td><span class="badge b-live">Paid</span></td></tr>`).join('')}
-      </tbody></table>`;
+      </tbody></table></div>`;
     }
   }catch(e){console.log('Royalties:',e);}
 }
@@ -885,7 +1066,14 @@ async function loadTickets(){
     document.getElementById('tkt-count').textContent=list.length+' ticket'+(list.length!==1?'s':'');
     const open=list.filter(t=>t.status==='open'||t.status==='pending').length;
     const cntEl=document.getElementById('tkt-cnt');
-    if(open>0){cntEl.textContent=open;cntEl.style.display='inline';}else{cntEl.style.display='none';}
+    const cntElM=document.getElementById('tkt-cnt-m');
+    if(open>0){
+      cntEl.textContent=open;cntEl.style.display='inline';
+      cntElM.textContent=open;cntElM.style.display='inline';
+    }else{
+      cntEl.style.display='none';
+      cntElM.style.display='none';
+    }
     renderTickets(list);
   }catch(e){console.log('Tickets:',e);}
 }
@@ -948,6 +1136,8 @@ function goPage(name,el){
   document.getElementById('pgs').textContent=s;
   if(name==='royalties')loadRoyalties();
   if(name==='blog')loadBlog();
+  // Scroll to top on mobile
+  window.scrollTo(0,0);
 }
 
 // HELPERS

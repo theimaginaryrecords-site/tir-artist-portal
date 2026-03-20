@@ -20,7 +20,8 @@ firebase.initializeApp({
 });
 const auth=firebase.auth();
 const db=firebase.firestore();
-emailjs.init({publicKey:"O_glA7q-_LOyfl0AS"});
+const DRIVE='https://drive.google.com/drive/folders/156B6lBrUKOlyrvSuoAtFGw0LKmWZ9Srl?usp=sharing';
+emailjs.init({publicKey:'O_glA7q-_LOyfl0AS'});
 </script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -31,48 +32,58 @@ emailjs.init({publicKey:"O_glA7q-_LOyfl0AS"});
   --grn:#22c55e;--red:#ef4444;--blu:#3b82f6;--org:#f97316;
   --r:10px;
 }
-body{background:var(--bg);color:var(--txt);font-family:"Inter",sans-serif;min-height:100vh;font-size:14px;overflow-x:hidden}
+body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;min-height:100vh;font-size:14px;overflow-x:hidden}
+
+/* ANIMATIONS */
 @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideIn{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
 @keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
 @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+@keyframes countUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes glow{0%,100%{box-shadow:0 0 0 0 rgba(201,168,76,0)}50%{box-shadow:0 0 20px 2px rgba(201,168,76,.15)}}
 @keyframes spin{to{transform:rotate(360deg)}}
-.fade-up{animation:fadeUp .5s ease forwards}
-.fade-up-1{animation:fadeUp .5s .1s ease both}
-.fade-up-2{animation:fadeUp .5s .2s ease both}
-.fade-up-3{animation:fadeUp .5s .3s ease both}
-.fade-up-4{animation:fadeUp .5s .4s ease both}
+@keyframes slideRight{from{transform:translateX(-100%)}to{transform:translateX(0)}}
+
+.animate-fade-up{animation:fadeUp .5s ease forwards}
+.animate-fade-up-d1{animation:fadeUp .5s .1s ease both}
+.animate-fade-up-d2{animation:fadeUp .5s .2s ease both}
+.animate-fade-up-d3{animation:fadeUp .5s .3s ease both}
+.animate-fade-up-d4{animation:fadeUp .5s .4s ease both}
+.animate-slide{animation:slideIn .4s ease forwards}
 
 /* LOADING */
 #ld{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column;gap:20px}
-.ld-logo{font-family:"Bebas Neue",sans-serif;font-size:36px;letter-spacing:8px;color:var(--gold);animation:pulse 1.5s ease infinite}
+.ld-logo{font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:8px;color:var(--gold);animation:pulse 1.5s ease infinite}
 .ld-bar{width:140px;height:2px;background:var(--brd);border-radius:2px;overflow:hidden}
 .ld-fill{height:100%;background:linear-gradient(90deg,transparent,var(--gold),transparent);background-size:200% 100%;animation:shimmer 1.2s ease infinite}
 
 /* AUTH */
 #auth{min-height:100vh;display:none;align-items:center;justify-content:center;position:relative;overflow:hidden}
-#auth::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(201,168,76,.06) 0%,transparent 70%);pointer-events:none}
-#auth::after{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.015) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.015) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;mask-image:linear-gradient(to bottom,transparent,black 30%,black 70%,transparent)}
+#auth::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(201,168,76,.06) 0%,transparent 70%);pointer-events:none}
+#auth::after{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.015) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.015) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;mask-image:linear-gradient(to bottom,transparent,black 30%,black 70%,transparent)}
 .auth-wrap{display:flex;width:920px;max-width:98vw;min-height:540px;border:1px solid var(--brd);border-radius:16px;overflow:hidden;box-shadow:0 32px 100px rgba(0,0,0,.7);position:relative;z-index:1;animation:fadeUp .6s ease}
 .auth-left{flex:1;background:linear-gradient(135deg,#0d0d10 0%,#131318 100%);padding:56px 48px;display:flex;flex-direction:column;justify-content:center;border-right:1px solid var(--brd)}
-.auth-left .brand{font-family:"Bebas Neue",sans-serif;font-size:52px;letter-spacing:6px;color:var(--gold);line-height:1;margin-bottom:4px}
-.auth-left .brand-sub{font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--txt3);margin-bottom:36px}
-.auth-left .tagline{font-size:22px;font-weight:300;color:var(--txt);line-height:1.5;margin-bottom:28px}
-.feats{display:flex;flex-direction:column;gap:12px}
-.feat{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--txt2)}
+.auth-left .brand{font-family:'Bebas Neue',sans-serif;font-size:52px;letter-spacing:6px;color:var(--gold);line-height:1;margin-bottom:4px;animation:fadeUp .6s .1s ease both}
+.auth-left .brand-sub{font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--txt3);margin-bottom:36px;animation:fadeUp .6s .15s ease both}
+.auth-left .tagline{font-size:22px;font-weight:300;color:var(--txt);line-height:1.5;margin-bottom:28px;animation:fadeUp .6s .2s ease both}
+.auth-left .feats{display:flex;flex-direction:column;gap:12px;animation:fadeUp .6s .25s ease both}
+.auth-left .feat{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--txt2);transition:color .2s}
+.auth-left .feat:hover{color:var(--txt)}
 .feat-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);flex-shrink:0;box-shadow:0 0 6px rgba(201,168,76,.5)}
 .auth-right{width:400px;background:var(--surface);padding:52px 44px;display:flex;flex-direction:column;justify-content:center}
-.auth-right h2{font-size:24px;font-weight:700;margin-bottom:6px}
-.auth-right p{font-size:13px;color:var(--txt2);margin-bottom:32px}
-.iw{margin-bottom:16px}
+.auth-right h2{font-size:24px;font-weight:700;margin-bottom:6px;animation:fadeUp .6s .1s ease both}
+.auth-right p{font-size:13px;color:var(--txt2);margin-bottom:32px;animation:fadeUp .6s .15s ease both}
+.iw{margin-bottom:16px;animation:fadeUp .6s .2s ease both}
 .iw label{display:block;font-size:11px;font-weight:600;color:var(--txt2);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
-.iw input{width:100%;background:var(--card);border:1px solid var(--brd);border-radius:8px;color:var(--txt);padding:12px 14px;font-family:"Inter",sans-serif;font-size:14px;outline:none;transition:all .2s}
+.iw input{width:100%;background:var(--card);border:1px solid var(--brd);border-radius:8px;color:var(--txt);padding:12px 14px;font-family:'Inter',sans-serif;font-size:14px;outline:none;transition:border-color .2s,box-shadow .2s}
 .iw input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,.1)}
-.btn-main{width:100%;padding:13px;background:var(--gold);border:none;border-radius:8px;color:#000;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;letter-spacing:.5px}
-.btn-main:hover{background:var(--gold2);transform:translateY(-1px)}
-.btn-main:disabled{background:#4a3d1c;color:#666;cursor:not-allowed;transform:none}
+.btn-main{width:100%;padding:13px;background:var(--gold);border:none;border-radius:8px;color:#000;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;margin-top:4px;animation:fadeUp .6s .25s ease both;letter-spacing:.5px}
+.btn-main:hover{background:var(--gold2);transform:translateY(-1px);box-shadow:0 4px 16px rgba(201,168,76,.3)}
+.btn-main:active{transform:translateY(0)}
+.btn-main:disabled{background:#4a3d1c;color:#666;cursor:not-allowed;transform:none;box-shadow:none}
 .err-box{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);border-radius:8px;color:#fca5a5;font-size:12px;padding:10px 13px;margin-bottom:14px;display:none}
-.err-box.on{display:block}
+.err-box.on{display:block;animation:fadeIn .3s ease}
 .auth-note{font-size:11px;color:var(--txt3);text-align:center;margin-top:18px;line-height:1.6}
 
 /* LAYOUT */
@@ -80,43 +91,50 @@ body{background:var(--bg);color:var(--txt);font-family:"Inter",sans-serif;min-he
 .layout{display:flex;min-height:100vh}
 
 /* SIDEBAR */
-.sb{width:240px;min-width:240px;background:var(--surface);border-right:1px solid var(--brd);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sb{width:240px;min-width:240px;background:var(--surface);border-right:1px solid var(--brd);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;transition:transform .3s}
 .sb-top{padding:22px 18px 18px;border-bottom:1px solid var(--brd)}
-.sb-brand{font-family:"Bebas Neue",sans-serif;font-size:22px;letter-spacing:4px;color:var(--gold)}
+.sb-brand{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:4px;color:var(--gold);text-shadow:0 0 20px rgba(201,168,76,.3)}
 .sb-lbl{font-size:10px;color:var(--txt3);letter-spacing:1.5px;margin-top:1px}
 .sb-artist{display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--brd)}
-.av{width:38px;height:38px;border-radius:50%;background:var(--gold3);border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:var(--gold);flex-shrink:0}
-.av-name{font-size:13px;font-weight:600}
+.av{width:38px;height:38px;border-radius:50%;background:var(--gold3);border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:var(--gold);flex-shrink:0;box-shadow:0 0 12px rgba(201,168,76,.2)}
+.av-name{font-size:13px;font-weight:600;color:var(--txt)}
 .av-role{font-size:10px;color:var(--txt3)}
 nav{flex:1;padding:8px}
 .ns{font-size:10px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:2px;padding:14px 10px 5px}
 .ni{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;color:var(--txt2);cursor:pointer;font-size:13px;font-weight:500;transition:all .15s;margin-bottom:1px;position:relative}
 .ni:hover{background:var(--card);color:var(--txt)}
 .ni.on{background:var(--gold3);color:var(--gold);font-weight:600}
-.ni.on::before{content:"";position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:60%;background:var(--gold);border-radius:0 2px 2px 0}
+.ni.on::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:60%;background:var(--gold);border-radius:0 2px 2px 0}
 .ni svg{width:16px;height:16px;flex-shrink:0}
-.badge-cnt{margin-left:auto;background:var(--red);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px}
+.ni .badge-cnt{margin-left:auto;background:var(--red);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;animation:pulse 2s ease infinite}
 .sb-bottom{padding:10px 8px;border-top:1px solid var(--brd)}
 .so-btn{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;color:var(--txt3);cursor:pointer;font-size:13px;width:100%;background:none;border:none;transition:all .15s}
 .so-btn:hover{background:rgba(239,68,68,.1);color:var(--red)}
 
-/* MOBILE */
+/* MOBILE DRAWER OVERLAY */
 .mob-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;backdrop-filter:blur(2px)}
-.mob-overlay.on{display:block}
+.mob-overlay.on{display:block;animation:fadeIn .2s ease}
+
+/* MOBILE DRAWER SIDEBAR */
 .mob-drawer{display:none;position:fixed;left:0;top:0;bottom:0;width:280px;background:var(--surface);border-right:1px solid var(--brd);z-index:1001;flex-direction:column;overflow-y:auto;transform:translateX(-100%);transition:transform .3s ease}
 .mob-drawer.on{transform:translateX(0)}
+
+/* MOBILE TOP BAR */
 .mob-topbar{display:none;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--surface);border-bottom:1px solid var(--brd);position:sticky;top:0;z-index:100}
-.mob-topbar-brand{font-family:"Bebas Neue",sans-serif;font-size:20px;letter-spacing:4px;color:var(--gold)}
-.mob-menu-btn{background:none;border:1px solid var(--brd);border-radius:8px;color:var(--txt2);width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer}
-.mob-new-btn{background:var(--gold);border:none;border-radius:8px;color:#000;font-size:12px;font-weight:700;padding:8px 12px;cursor:pointer}
+.mob-topbar-brand{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:4px;color:var(--gold)}
+.mob-menu-btn{background:none;border:1px solid var(--brd);border-radius:8px;color:var(--txt2);width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s}
+.mob-menu-btn:hover{border-color:var(--gold);color:var(--gold)}
+.mob-new-btn{background:var(--gold);border:none;border-radius:8px;color:#000;font-size:12px;font-weight:700;padding:8px 12px;cursor:pointer;display:flex;align-items:center;gap:5px}
+
+/* MOBILE BOTTOM NAV */
 .mob-bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--brd);z-index:200;padding:0 4px;padding-bottom:env(safe-area-inset-bottom)}
 .mob-nav-items{display:flex;justify-content:space-around;align-items:stretch}
-.mob-ni{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 2px 6px;cursor:pointer;color:var(--txt3);gap:3px;min-width:0}
+.mob-ni{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 2px 6px;cursor:pointer;color:var(--txt3);transition:color .2s;position:relative;gap:3px;min-width:0}
 .mob-ni.on{color:var(--gold)}
-.mob-ni svg{width:20px;height:20px}
+.mob-ni svg{width:20px;height:20px;flex-shrink:0}
 .mob-ni-label{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
-.mob-ni.on::after{content:"";position:absolute;top:0;left:50%;transform:translateX(-50%);width:28px;height:2px;background:var(--gold);border-radius:0 0 2px 2px}
-.mob-ni{position:relative}
+.mob-ni .m-badge{position:absolute;top:6px;right:50%;transform:translateX(10px);background:var(--red);color:#fff;font-size:9px;font-weight:700;padding:1px 4px;border-radius:8px;animation:pulse 2s ease infinite}
+.mob-ni.on::after{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:28px;height:2px;background:var(--gold);border-radius:0 0 2px 2px}
 
 /* MAIN */
 .main{flex:1;overflow-y:auto}
@@ -124,7 +142,7 @@ nav{flex:1;padding:8px}
 .topbar h1{font-size:18px;font-weight:700}
 .topbar p{font-size:12px;color:var(--txt3);margin-top:2px}
 .btn-new{display:flex;align-items:center;gap:6px;padding:9px 18px;background:var(--gold);border:none;border-radius:8px;color:#000;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s}
-.btn-new:hover{background:var(--gold2)}
+.btn-new:hover{background:var(--gold2);transform:translateY(-1px);box-shadow:0 4px 16px rgba(201,168,76,.3)}
 .content{padding:24px 28px}
 
 /* PAGES */
@@ -133,168 +151,86 @@ nav{flex:1;padding:8px}
 
 /* STAT CARDS */
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
-.sc{background:var(--surface);border:1px solid var(--brd);border-radius:var(--r);padding:20px;position:relative;overflow:hidden;transition:all .2s}
-.sc:hover{border-color:rgba(201,168,76,.3);transform:translateY(-2px)}
-.sc::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:0;transition:opacity .3s}
+.sc{background:var(--surface);border:1px solid var(--brd);border-radius:var(--r);padding:20px;position:relative;overflow:hidden;transition:all .2s;cursor:default}
+.sc:hover{border-color:rgba(201,168,76,.3);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.3)}
+.sc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:0;transition:opacity .3s}
 .sc:hover::before{opacity:1}
 .sc-label{font-size:11px;font-weight:600;color:var(--txt3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px}
-.sc-val{font-size:30px;font-weight:800;color:var(--txt);line-height:1}
+.sc-val{font-size:30px;font-weight:800;color:var(--txt);line-height:1;transition:color .3s}
 .sc-val.gold{color:var(--gold)}
 .sc-sub{font-size:11px;color:var(--txt3);margin-top:5px}
 .sc-icon{position:absolute;right:16px;top:16px;opacity:.06;font-size:36px}
 
 /* SECTION */
-.section{background:var(--surface);border:1px solid var(--brd);border-radius:var(--r);margin-bottom:20px;overflow:hidden}
+.section{background:var(--surface);border:1px solid var(--brd);border-radius:var(--r);margin-bottom:20px;overflow:hidden;transition:border-color .2s}
+.section:hover{border-color:rgba(255,255,255,.08)}
 .sh{padding:16px 20px;border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between}
 .sh h3{font-size:14px;font-weight:700}
 .sh p{font-size:12px;color:var(--txt3)}
 .sb2{padding:20px}
 
-/* RELEASE ITEM — with artwork */
+/* RELEASE ITEM */
 .ri{display:flex;align-items:center;gap:14px;padding:13px 0;border-bottom:1px solid var(--brd);transition:background .15s;border-radius:6px;padding-left:4px;padding-right:4px}
 .ri:last-child{border-bottom:none}
 .ri:hover{background:rgba(255,255,255,.02)}
-.r-art{width:52px;height:52px;border-radius:8px;background:var(--card);border:1px solid var(--brd);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;overflow:hidden}
-.r-art img{width:100%;height:100%;object-fit:cover;border-radius:7px}
+.r-art{width:44px;height:44px;border-radius:8px;background:var(--card);border:1px solid var(--brd);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;transition:transform .2s}
+.ri:hover .r-art{transform:scale(1.05)}
 .r-info{flex:1;min-width:0}
 .r-title{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.r-meta{font-size:12px;color:var(--txt3);margin-top:2px}
-.badge{font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;white-space:nowrap}
+.r-meta{font-size:12px;color:var(--txt3);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.badge{font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;white-space:nowrap;flex-shrink:0}
 .b-pending{background:rgba(249,115,22,.12);color:#fb923c}
 .b-review{background:rgba(59,130,246,.12);color:#60a5fa}
 .b-approved{background:rgba(34,197,94,.12);color:#4ade80}
 .b-live{background:rgba(201,168,76,.15);color:var(--gold)}
 .b-rejected{background:rgba(239,68,68,.12);color:#f87171}
 
-/* ═══════════════════════════════
-   AMUSE-STYLE SUBMIT FLOW
-   ═══════════════════════════════ */
-.submit-flow{max-width:800px;margin:0 auto}
-
-/* Steps Progress Bar */
-.flow-steps{display:flex;align-items:center;justify-content:center;margin-bottom:40px;gap:0}
-.flow-step{display:flex;flex-direction:column;align-items:center;gap:8px;position:relative;flex:1;max-width:160px}
-.flow-step:not(:last-child)::after{content:"";position:absolute;top:16px;left:60%;width:80%;height:2px;background:var(--brd);z-index:0}
-.flow-step.done:not(:last-child)::after{background:var(--gold)}
-.step-circle{width:32px;height:32px;border-radius:50%;border:2px solid var(--brd);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--txt3);background:var(--bg);z-index:1;transition:all .3s;position:relative}
-.flow-step.active .step-circle{border-color:var(--gold);color:var(--gold);background:rgba(201,168,76,.1)}
-.flow-step.done .step-circle{border-color:var(--gold);background:var(--gold);color:#000}
-.step-label{font-size:11px;color:var(--txt3);text-align:center;letter-spacing:.5px;font-weight:500}
-.flow-step.active .step-label{color:var(--gold);font-weight:600}
-.flow-step.done .step-label{color:var(--txt2)}
-
-/* Step Pages */
-.step-page{display:none;animation:fadeUp .4s ease}
-.step-page.on{display:block}
-
-/* Step Card */
-.step-card{background:var(--surface);border:1px solid var(--brd);border-radius:16px;overflow:hidden}
-.step-card-head{padding:24px 28px 0}
-.step-card-head h2{font-size:22px;font-weight:700;margin-bottom:6px}
-.step-card-head p{font-size:13px;color:var(--txt3);margin-bottom:24px}
-.step-card-body{padding:0 28px 28px}
-.step-card-foot{padding:20px 28px;border-top:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between;gap:12px;background:rgba(0,0,0,.15)}
-
-/* Notice Banner (like Amuse's "You'll need a paid plan") */
-.notice-banner{background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.2);border-radius:10px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;gap:16px}
-.notice-banner-txt{font-size:13px;color:var(--txt2);line-height:1.5}
-.notice-banner-txt strong{color:var(--gold)}
-.notice-banner-icon{font-size:20px;flex-shrink:0}
-
-/* Form Fields */
-.fg{display:flex;flex-direction:column;gap:6px;margin-bottom:18px}
-.fg label{font-size:12px;font-weight:600;color:var(--txt2);text-transform:uppercase;letter-spacing:1px}
-.fg label .hint{font-size:11px;color:var(--txt3);font-weight:400;text-transform:none;letter-spacing:0;margin-left:4px}
-.fg label .req{color:var(--gold);margin-left:2px}
-.fg input,.fg select,.fg textarea{width:100%;background:var(--card);border:1px solid var(--brd);border-radius:10px;color:var(--txt);padding:12px 16px;font-family:"Inter",sans-serif;font-size:14px;outline:none;transition:all .2s}
+/* FORM */
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.full{grid-column:1/-1}
+.fsec{grid-column:1/-1;font-size:11px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:2px;padding:8px 0;border-bottom:1px solid var(--brd);margin-top:8px}
+.fsec:first-child{margin-top:0}
+.fg label{display:block;font-size:11px;font-weight:600;color:var(--txt2);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.fg input,.fg select,.fg textarea{width:100%;background:var(--card);border:1px solid var(--brd);border-radius:8px;color:var(--txt);padding:10px 13px;font-family:'Inter',sans-serif;font-size:14px;outline:none;transition:all .2s}
 .fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,.08)}
 .fg select option{background:#1a1a1e}
-.fg textarea{resize:vertical;min-height:90px;line-height:1.5}
-.fg input[readonly]{background:var(--bg);color:var(--txt3);cursor:not-allowed;border-style:dashed}
-.fg input.has-value{border-color:rgba(34,197,94,.4)}
+.fg textarea{resize:vertical;min-height:90px}
+.btn-sub{padding:12px 32px;background:var(--gold);border:none;border-radius:8px;color:#000;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;letter-spacing:.3px}
+.btn-sub:hover{background:var(--gold2);transform:translateY(-1px);box-shadow:0 4px 16px rgba(201,168,76,.3)}
+.btn-sub:disabled{background:#4a3d1c;color:#666;cursor:not-allowed;transform:none;box-shadow:none}
+.btn-sec2{padding:12px 20px;background:var(--card);border:1px solid var(--brd);border-radius:8px;color:var(--txt2);font-size:13px;cursor:pointer;transition:all .2s}
+.btn-sec2:hover{border-color:var(--gold);color:var(--gold)}
 
-/* Grid form */
-.fg2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.fg2 .fg{margin-bottom:0}
-.full{grid-column:1/-1}
-.fsec{grid-column:1/-1;font-size:10px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:2px;padding:8px 0;border-bottom:1px solid var(--brd);margin:10px 0 4px}
+/* UPLOAD ZONE */
+.uz{grid-column:1/-1;border:1.5px dashed var(--brd);border-radius:10px;padding:32px;text-align:center;cursor:pointer;transition:all .2s;background:rgba(201,168,76,.02)}
+.uz:hover{border-color:var(--gold);background:var(--gold3);transform:scale(1.005)}
+.uz-icon{font-size:28px;margin-bottom:8px}
+.uz-title{font-size:14px;font-weight:600}
+.uz-sub{font-size:12px;color:var(--txt3);margin-top:4px}
 
-/* URL Input with preview */
-.url-input-wrap{position:relative}
-.url-input-wrap input{padding-right:44px}
-.url-check{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:16px;pointer-events:none;transition:all .2s}
-
-/* Artwork Preview Block */
-.artwork-preview-block{border:2px dashed var(--brd);border-radius:12px;padding:28px 20px;text-align:center;transition:all .3s;cursor:default;background:rgba(201,168,76,.02)}
-.artwork-preview-block.has-art{border-color:rgba(201,168,76,.4);border-style:solid;background:transparent;padding:0;text-align:left;display:flex;align-items:center;gap:16px}
-.artwork-preview-block.has-art .art-img{width:100px;height:100px;object-fit:cover;border-radius:10px;flex-shrink:0}
-.artwork-preview-block .art-placeholder-icon{font-size:36px;margin-bottom:10px}
-.artwork-preview-block .art-placeholder-title{font-size:15px;font-weight:600;margin-bottom:4px}
-.artwork-preview-block .art-placeholder-sub{font-size:12px;color:var(--txt3);line-height:1.6}
-.artwork-info{flex:1;min-width:0}
-.artwork-info h4{font-size:14px;font-weight:600;margin-bottom:4px}
-.artwork-info p{font-size:12px;color:var(--txt3)}
-
-/* Audio Track Display */
-.track-display{background:var(--card);border:1px solid var(--brd);border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:14px;margin-top:8px}
-.track-num{width:32px;height:32px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#000;flex-shrink:0}
-.track-info{flex:1;min-width:0}
-.track-title{font-size:14px;font-weight:600}
-.track-sub{font-size:12px;color:var(--txt3);margin-top:2px}
-.track-status{font-size:11px;color:var(--grn);display:flex;align-items:center;gap:5px}
-
-/* Video URL block */
-.video-block{background:linear-gradient(135deg,rgba(59,130,246,.05) 0%,rgba(99,102,241,.05) 100%);border:1px solid rgba(59,130,246,.2);border-radius:12px;padding:20px}
-.video-block-title{font-size:14px;font-weight:700;color:#93c5fd;margin-bottom:4px;display:flex;align-items:center;gap:8px}
-.video-block-sub{font-size:12px;color:var(--txt3);margin-bottom:16px;line-height:1.6}
-
-/* Review page */
-.review-grid{display:grid;grid-template-columns:auto 1fr;gap:24px;align-items:start;margin-bottom:24px}
-.review-art{width:160px;height:160px;border-radius:12px;background:var(--card);border:1px solid var(--brd);overflow:hidden;flex-shrink:0}
-.review-art img{width:100%;height:100%;object-fit:cover}
-.review-art-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:48px}
-.review-details h2{font-family:"Bebas Neue",sans-serif;font-size:32px;letter-spacing:2px;margin-bottom:8px}
-.review-detail-row{display:flex;gap:8px;margin-bottom:6px;font-size:13px}
-.review-detail-label{color:var(--txt3);min-width:80px;flex-shrink:0}
-.review-detail-val{color:var(--txt);font-weight:500}
-.review-bullets{list-style:none;margin-top:16px;display:flex;flex-direction:column;gap:6px}
-.review-bullets li{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--txt2)}
-.review-bullets li::before{content:"•";color:var(--gold)}
-.review-ready{background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);border-radius:10px;padding:16px;margin-top:20px}
-.review-ready h4{font-size:14px;font-weight:700;color:var(--grn);margin-bottom:6px}
-.review-ready p{font-size:13px;color:var(--txt2);line-height:1.6}
-
-/* ISRC/UPC admin-only badge */
-.admin-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.2);border-radius:6px;padding:4px 10px;font-size:11px;color:var(--gold);margin-bottom:8px}
-
-/* Step nav buttons */
-.btn-step-next{padding:12px 32px;background:var(--gold);border:none;border-radius:10px;color:#000;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s}
-.btn-step-next:hover{background:var(--gold2)}
-.btn-step-next:disabled{background:#4a3d1c;color:#666;cursor:not-allowed}
-.btn-step-back{padding:12px 24px;background:var(--card);border:1px solid var(--brd);border-radius:10px;color:var(--txt2);font-size:14px;cursor:pointer;transition:all .2s}
-.btn-step-back:hover{border-color:var(--gold);color:var(--gold)}
-.btn-submit-final{padding:14px 40px;background:var(--gold);border:none;border-radius:10px;color:#000;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:10px}
-.btn-submit-final:hover{background:var(--gold2)}
-.btn-submit-final:disabled{background:#4a3d1c;color:#666;cursor:not-allowed}
-
-/* Inline error/success */
-.al{padding:11px 14px;border-radius:8px;font-size:12px;margin-bottom:14px;display:none;line-height:1.5}
-.al.on{display:block}
+/* NOTICE */
+.notice{background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.2);border-radius:8px;padding:12px 16px;font-size:13px;color:var(--txt2);line-height:1.6;margin-bottom:20px}
+.notice strong{color:var(--gold)}
+.al{padding:11px 14px;border-radius:8px;font-size:12px;margin-bottom:14px;display:none}
+.al.on{display:block;animation:fadeIn .3s ease}
 .al-e{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);color:#fca5a5}
 .al-s{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2);color:#86efac}
 
 /* ROYALTIES */
 .roy-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px}
+.roy-period{font-size:11px;color:var(--txt3);margin-top:2px}
 .roy-table{width:100%;border-collapse:collapse}
 .roy-table th{font-size:11px;font-weight:600;color:var(--txt3);text-transform:uppercase;letter-spacing:1px;text-align:left;padding:10px 12px;border-bottom:1px solid var(--brd)}
 .roy-table td{padding:13px 12px;font-size:13px;border-bottom:1px solid rgba(255,255,255,.04)}
 .roy-table tr:last-child td{border-bottom:none}
-.roy-amount{font-family:"DM Mono",monospace;font-size:13px;font-weight:600;color:var(--gold)}
+.roy-table tr:hover td{background:rgba(255,255,255,.015)}
+.roy-amount{font-family:'DM Mono',monospace;font-size:13px;font-weight:600;color:var(--gold)}
+.platform-icon{width:28px;height:28px;border-radius:6px;background:var(--card);border:1px solid var(--brd);display:inline-flex;align-items:center;justify-content:center;font-size:12px;margin-right:8px;vertical-align:middle}
 
 /* BLOG */
 .blog-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.blog-card{background:var(--card);border:1px solid var(--brd);border-radius:10px;overflow:hidden;cursor:pointer;transition:all .2s}
-.blog-card:hover{border-color:rgba(201,168,76,.3);transform:translateY(-3px)}
+.blog-card{background:var(--card);border:1px solid var(--brd);border-radius:10px;overflow:hidden;cursor:pointer;transition:all .2s;animation:fadeUp .4s ease both}
+.blog-card:hover{border-color:rgba(201,168,76,.3);transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.3)}
 .blog-img{height:140px;background:linear-gradient(135deg,var(--card),var(--brd));display:flex;align-items:center;justify-content:center;font-size:36px;border-bottom:1px solid var(--brd)}
 .blog-body{padding:16px}
 .blog-cat{font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:2px;margin-bottom:6px}
@@ -302,21 +238,22 @@ nav{flex:1;padding:8px}
 .blog-excerpt{font-size:12px;color:var(--txt3);line-height:1.6;margin-bottom:10px}
 .blog-meta{font-size:11px;color:var(--txt3);display:flex;align-items:center;gap:8px}
 .blog-modal{position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:1000;display:none;align-items:flex-start;justify-content:center;overflow-y:auto;padding:40px 20px}
-.blog-modal.on{display:flex}
-.blog-modal-box{background:var(--surface);border:1px solid var(--brd);border-radius:14px;width:700px;max-width:95vw}
+.blog-modal.on{display:flex;animation:fadeIn .3s ease}
+.blog-modal-box{background:var(--surface);border:1px solid var(--brd);border-radius:14px;width:700px;max-width:95vw;animation:fadeUp .4s ease}
 .blog-modal-head{padding:24px 28px;border-bottom:1px solid var(--brd);display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
 .blog-modal-body{padding:28px;font-size:14px;color:var(--txt2);line-height:1.9;white-space:pre-wrap}
-.close-btn{background:none;border:1px solid var(--brd);border-radius:8px;color:var(--txt2);width:32px;height:32px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.close-btn{background:none;border:1px solid var(--brd);border-radius:8px;color:var(--txt2);width:32px;height:32px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s}
 .close-btn:hover{border-color:var(--red);color:var(--red)}
 
-/* FAQ */
-.faq-item{border:1px solid var(--brd);border-radius:10px;margin-bottom:10px;overflow:hidden}
+/* SUPPORT / FAQ */
+.faq-item{border:1px solid var(--brd);border-radius:10px;margin-bottom:10px;overflow:hidden;transition:border-color .2s}
+.faq-item:hover{border-color:rgba(201,168,76,.2)}
 .faq-q{padding:16px 20px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:600;transition:background .15s}
 .faq-q:hover{background:var(--card)}
 .faq-arrow{transition:transform .3s;color:var(--gold);font-size:12px}
 .faq-item.open .faq-arrow{transform:rotate(180deg)}
 .faq-a{display:none;padding:0 20px 16px;font-size:13px;color:var(--txt2);line-height:1.8}
-.faq-item.open .faq-a{display:block}
+.faq-item.open .faq-a{display:block;animation:fadeIn .3s ease}
 .faq-cat{font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:2px;margin:20px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--brd)}
 
 /* TICKETS */
@@ -328,53 +265,93 @@ nav{flex:1;padding:8px}
 .ticket-preview{font-size:12px;color:var(--txt3);line-height:1.5}
 .ticket-meta{font-size:11px;color:var(--txt3);margin-top:6px}
 .ticket-reply{background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.15);border-radius:8px;padding:12px 16px;margin-top:10px;display:none}
-.ticket-reply.on{display:block}
+.ticket-reply.on{display:block;animation:fadeIn .3s ease}
 .tr-label{font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px}
 .tr-text{font-size:13px;color:var(--txt2);line-height:1.6}
 
 /* EMPTY */
 .empty{text-align:center;padding:52px 20px;color:var(--txt3)}
-.empty-icon{font-size:40px;opacity:.2;margin-bottom:12px}
+.empty-icon{font-size:40px;opacity:.2;margin-bottom:12px;animation:pulse 3s ease infinite}
 .empty-text{font-size:15px;font-weight:600;color:var(--txt2)}
 .empty-sub{font-size:12px;margin-top:5px}
 
-/* PROFILE */
-.btn-sub{padding:12px 32px;background:var(--gold);border:none;border-radius:8px;color:#000;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s}
-.btn-sub:hover{background:var(--gold2)}
-.btn-sec2{padding:12px 20px;background:var(--card);border:1px solid var(--brd);border-radius:8px;color:var(--txt2);font-size:13px;cursor:pointer;transition:all .2s}
-.btn-sec2:hover{border-color:var(--gold);color:var(--gold)}
-
 /* TOAST */
-.toast{position:fixed;bottom:24px;right:24px;background:var(--surface);border:1px solid var(--brd);border-radius:10px;color:var(--txt);font-size:13px;padding:12px 18px;z-index:9999;opacity:0;transition:all .3s;pointer-events:none;box-shadow:0 8px 32px rgba(0,0,0,.4);transform:translateY(8px);max-width:320px}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--surface);border:1px solid var(--brd);border-radius:10px;color:var(--txt);font-size:13px;padding:12px 18px;z-index:9999;opacity:0;transition:all .3s;pointer-events:none;box-shadow:0 8px 32px rgba(0,0,0,.4);transform:translateY(8px)}
 .toast.on{opacity:1;transform:translateY(0)}
 
+/* SCROLLBAR */
 ::-webkit-scrollbar{width:4px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--brd);border-radius:2px}
+::-webkit-scrollbar-thumb:hover{background:var(--txt3)}
 
-/* PORTAL SETTINGS (customizable from admin) */
-.portal-announce{background:var(--card);border-left:3px solid var(--gold);border-radius:0 8px 8px 0;padding:12px 16px;margin-bottom:10px;font-size:13px;color:var(--txt2);line-height:1.7}
-.portal-announce strong{color:var(--txt)}
-
+/* =====================
+   MOBILE RESPONSIVE
+   ===================== */
 @media(max-width:768px){
-  .sb{display:none}.topbar{display:none}.mob-topbar{display:flex}.mob-bottom-nav{display:block}.mob-drawer{display:flex}
+  /* Hide desktop sidebar and topbar */
+  .sb{display:none}
+  .topbar{display:none}
+
+  /* Show mobile elements */
+  .mob-topbar{display:flex}
+  .mob-bottom-nav{display:block}
+  .mob-drawer{display:flex}
+
+  /* Content area - add bottom padding for nav bar */
   .content{padding:16px 14px 90px}
-  .auth-left{display:none}.auth-right{width:100%;padding:36px 28px}
+
+  /* Auth - hide left panel */
+  .auth-left{display:none}
+  .auth-right{width:100%;padding:36px 28px}
+
+  /* Stats grid: 2 columns on mobile */
   .stats{grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
-  .sc{padding:14px}.sc-val{font-size:22px}
+  .sc{padding:14px}
+  .sc-val{font-size:22px}
+  .sc-icon{font-size:26px}
+
+  /* Royalty stats: stack on mobile */
   .roy-stats{grid-template-columns:1fr 1fr;gap:10px}
-  .fg2{grid-template-columns:1fr}.full{grid-column:1}
-  .blog-grid{grid-template-columns:1fr}
-  .section{overflow-x:auto}.roy-table{min-width:400px}
-  .sh{padding:12px 14px}.sb2{padding:14px}
-  .toast{bottom:76px;right:14px;left:14px;text-align:center}
-  .flow-steps{gap:0}.step-label{display:none}
-  .review-grid{grid-template-columns:1fr}.review-art{width:100%;height:200px}
+
+  /* Forms: single column */
   .fg2{grid-template-columns:1fr}
+  .full{grid-column:1}
+  .fsec{grid-column:1}
+  .uz{grid-column:1;padding:20px}
+
+  /* Blog grid: single column */
+  .blog-grid{grid-template-columns:1fr}
+
+  /* Royalty table - make scrollable */
+  .section{overflow-x:auto}
+  .roy-table{min-width:400px}
+
+  /* Section headers */
+  .sh{padding:12px 14px}
+  .sb2{padding:14px}
+
+  /* Buttons full width on mobile */
+  .full .btn-sub,.full .btn-sec2{width:100%}
+  .full > div{flex-direction:column}
+
+  /* Notice smaller */
+  .notice{font-size:12px;padding:10px 12px}
+
+  /* Toast bottom offset for nav */
+  .toast{bottom:76px;right:14px;left:14px;text-align:center}
+
+  /* Blog modal padding */
+  .blog-modal{padding:16px 10px}
+  .blog-modal-head{padding:18px}
+  .blog-modal-body{padding:18px;font-size:13px}
 }
+
 @media(max-width:380px){
-  .stats{grid-template-columns:1fr 1fr}.sc-val{font-size:18px}
-  .mob-ni-label{display:none}.mob-ni{padding:10px 2px}
+  .stats{grid-template-columns:1fr 1fr}
+  .sc-val{font-size:18px}
+  .mob-ni-label{display:none}
+  .mob-ni{padding:10px 2px}
 }
 </style>
 </head>
@@ -394,12 +371,12 @@ nav{flex:1;padding:8px}
       <div class="brand-sub">Artist Portal</div>
       <div class="tagline">Distribute your music to<br>200+ platforms worldwide.</div>
       <div class="feats">
-        <div class="feat"><div class="feat-dot"></div>Spotify, Apple Music, JioSaavn & more</div>
-        <div class="feat"><div class="feat-dot"></div>Submit releases with a guided flow</div>
-        <div class="feat"><div class="feat-dot"></div>Real-time release status tracking</div>
-        <div class="feat"><div class="feat-dot"></div>Detailed royalty statements</div>
-        <div class="feat"><div class="feat-dot"></div>Direct support from TIR team</div>
-        <div class="feat"><div class="feat-dot"></div>Exclusive music industry blog</div>
+        <div class="feat"><div class="feat-dot"></div> Spotify, Apple Music, JioSaavn & more</div>
+        <div class="feat"><div class="feat-dot"></div> Submit releases with one form</div>
+        <div class="feat"><div class="feat-dot"></div> Real-time release status tracking</div>
+        <div class="feat"><div class="feat-dot"></div> Detailed royalty statements</div>
+        <div class="feat"><div class="feat-dot"></div> Direct support from TIR team</div>
+        <div class="feat"><div class="feat-dot"></div> Exclusive music industry blog</div>
       </div>
     </div>
     <div class="auth-right">
@@ -415,581 +392,348 @@ nav{flex:1;padding:8px}
         <input type="password" id="lpw" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"/>
       </div>
       <button class="btn-main" id="blg" onclick="doLogin()">Sign In to Portal</button>
-      <div class="auth-note">Need help? Contact TIR at<br><strong style="color:var(--txt2)">support@theimaginaryrecords.in</strong></div>
+      <div class="auth-note">Don't have an account? Contact TIR at<br><strong style="color:var(--txt2)">theimaginaryrecords@gmail.com</strong></div>
     </div>
   </div>
 </div>
 
 <!-- DASHBOARD -->
 <div id="dash">
-<div class="layout">
+  <div class="layout">
 
-<!-- DESKTOP SIDEBAR -->
-<div class="sb">
-  <div class="sb-top"><div class="sb-brand">T·I·R</div><div class="sb-lbl">Artist Portal</div></div>
-  <div class="sb-artist">
-    <div class="av" id="av-i">A</div>
-    <div><div class="av-name" id="av-n">Artist</div><div class="av-role">Recording Artist</div></div>
-  </div>
-  <nav>
-    <div class="ns">Main</div>
-    <div class="ni on" onclick="goPage('home',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Overview</div>
-    <div class="ni" onclick="goPage('releases',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>My Releases</div>
-    <div class="ni" onclick="goPage('submit',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7-7 7 7"/></svg>Submit Release</div>
-    <div class="ns">Finance</div>
-    <div class="ni" onclick="goPage('royalties',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Royalties</div>
-    <div class="ns">Community</div>
-    <div class="ni" onclick="goPage('blog',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Music Blog</div>
-    <div class="ns">Support</div>
-    <div class="ni" onclick="goPage('support',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Support Hub</div>
-    <div class="ni" onclick="goPage('tickets',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>My Tickets <span class="badge-cnt" id="tkt-cnt" style="display:none">!</span></div>
-    <div class="ns">Account</div>
-    <div class="ni" onclick="goPage('profile',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>My Profile</div>
-  </nav>
-  <div class="sb-bottom">
-    <button class="so-btn" onclick="doSignOut()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16,17 21,12 16,7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign Out</button>
-  </div>
-</div>
-
-<!-- MAIN -->
-<div class="main">
-  <!-- DESKTOP TOPBAR -->
-  <div class="topbar">
-    <div><h1 id="pgt">Overview</h1><p id="pgs">Welcome back.</p></div>
-    <button class="btn-new" onclick="goPage('submit',null);resetSubmitFlow()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12l7-7 7 7"/></svg>New Release</button>
-  </div>
-  <!-- MOBILE TOPBAR -->
-  <div class="mob-topbar">
-    <button class="mob-menu-btn" onclick="openDrawer()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-    <div class="mob-topbar-brand">T·I·R</div>
-    <button class="mob-new-btn" onclick="goPage('submit',null);resetSubmitFlow()">+ Submit</button>
-  </div>
-
-  <div class="content">
-
-    <!-- HOME -->
-    <div class="pg on" id="page-home">
-      <div class="stats fade-up">
-        <div class="sc fade-up-1"><div class="sc-icon">🎵</div><div class="sc-label">Total Releases</div><div class="sc-val gold" id="st0">0</div><div class="sc-sub">All time</div></div>
-        <div class="sc fade-up-2"><div class="sc-icon">⏳</div><div class="sc-label">Pending</div><div class="sc-val" id="st1">0</div><div class="sc-sub">Awaiting TIR</div></div>
-        <div class="sc fade-up-3"><div class="sc-icon">🟢</div><div class="sc-label">Live Now</div><div class="sc-val" id="st2">0</div><div class="sc-sub">On platforms</div></div>
-        <div class="sc fade-up-4"><div class="sc-icon">💰</div><div class="sc-label">Earnings</div><div class="sc-val gold" id="st3">₹0</div><div class="sc-sub">Quarterly</div></div>
+    <!-- DESKTOP SIDEBAR -->
+    <div class="sb">
+      <div class="sb-top">
+        <div class="sb-brand">T·I·R</div>
+        <div class="sb-lbl">Artist Portal</div>
       </div>
-      <div class="section fade-up-2">
-        <div class="sh"><h3>Recent Releases</h3><span style="font-size:12px;color:var(--txt3)" id="rel-count2"></span></div>
-        <div class="sb2" id="home-r"><div class="empty"><div class="empty-icon">🎵</div><div class="empty-text">No releases yet</div><div class="empty-sub">Submit your first release to get started</div></div></div>
+      <div class="sb-artist">
+        <div class="av" id="av-i">A</div>
+        <div><div class="av-name" id="av-n">Artist</div><div class="av-role">Recording Artist</div></div>
       </div>
-      <div class="section fade-up-3">
-        <div class="sh"><h3>Announcements from TIR</h3></div>
-        <div class="sb2" id="home-announcements">
-          <div class="portal-announce"><strong>→</strong> TIR distributes to <strong>200+ platforms</strong> — Spotify, Apple Music, JioSaavn, Gaana, YouTube Music, Amazon Music and more.</div>
-          <div class="portal-announce"><strong>→</strong> Release review takes <strong>3–5 business days</strong>. You will be notified of updates via email.</div>
-          <div class="portal-announce"><strong>→</strong> Audio: <strong>WAV or FLAC</strong>, 44.1kHz / 16-bit minimum. Artwork: <strong>3000×3000px JPG or PNG</strong>.</div>
+      <nav>
+        <div class="ns">Main</div>
+        <div class="ni on" onclick="goPage('home',this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Overview
         </div>
+        <div class="ni" onclick="goPage('releases',this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>My Releases
+        </div>
+        <div class="ni" onclick="goPage('submit',this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7-7 7 7"/></svg>Submit Release
+        </div>
+        <div class="ns">Finance</div>
+        <div class="ni" onclick="goPage('royalties',this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Royalties
+        </div>
+        <div class="ns">Community</div>
+        <div class="ni" onclick="goPage('blog',this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Music Blog
+        </div>
+        <div class="ns">Support</div>
+        <div class="ni" onclick="goPage('support',this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Support Hub
+        </div>
+        <div class="ni" onclick="goPage('tickets',this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>My Tickets <span class="badge-cnt" id="tkt-cnt" style="display:none">!</span>
+        </div>
+        <div class="ns">Account</div>
+        <div class="ni" onclick="goPage('profile',this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>My Profile
+        </div>
+      </nav>
+      <div class="sb-bottom">
+        <button class="so-btn" onclick="doSignOut()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16,17 21,12 16,7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign Out
+        </button>
       </div>
     </div>
 
-    <!-- MY RELEASES -->
-    <div class="pg" id="page-releases">
-      <div class="section">
-        <div class="sh"><h3>All My Releases</h3><p id="rel-count">0 releases</p></div>
-        <div class="sb2" id="all-r"><div class="empty"><div class="empty-icon">🎵</div><div class="empty-text">No releases yet</div></div></div>
+    <!-- MAIN CONTENT -->
+    <div class="main">
+      <!-- DESKTOP TOPBAR -->
+      <div class="topbar">
+        <div><h1 id="pgt">Overview</h1><p id="pgs">Welcome back.</p></div>
+        <button class="btn-new" onclick="goPage('submit',null)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12l7-7 7 7"/></svg>New Release
+        </button>
       </div>
-    </div>
 
-    <!-- SUBMIT RELEASE — AMUSE-STYLE MULTI-STEP -->
-    <div class="pg" id="page-submit">
-      <div class="submit-flow">
+      <!-- MOBILE TOPBAR -->
+      <div class="mob-topbar">
+        <button class="mob-menu-btn" onclick="openDrawer()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <div class="mob-topbar-brand">T·I·R</div>
+        <button class="mob-new-btn" onclick="goPage('submit',null)">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12l7-7 7 7"/></svg>Submit
+        </button>
+      </div>
 
-        <!-- PROGRESS STEPS -->
-        <div class="flow-steps" id="flow-steps">
-          <div class="flow-step active" id="fstep-1">
-            <div class="step-circle">1</div>
-            <div class="step-label">Details</div>
-          </div>
-          <div class="flow-step" id="fstep-2">
-            <div class="step-circle">2</div>
-            <div class="step-label">Artwork</div>
-          </div>
-          <div class="flow-step" id="fstep-3">
-            <div class="step-circle">3</div>
-            <div class="step-label">Track</div>
-          </div>
-          <div class="flow-step" id="fstep-4">
-            <div class="step-circle">4</div>
-            <div class="step-label">Options</div>
-          </div>
-          <div class="flow-step" id="fstep-5">
-            <div class="step-circle">5</div>
-            <div class="step-label">Review</div>
-          </div>
-        </div>
+      <div class="content">
 
-        <!-- STEP 1: RELEASE DETAILS -->
-        <div class="step-page on" id="spage-1">
-          <div class="step-card">
-            <div class="step-card-head">
-              <h2>Release Details</h2>
-              <p>Tell us about your release</p>
+        <!-- HOME -->
+        <div class="pg on" id="page-home">
+          <div class="stats animate-fade-up">
+            <div class="sc animate-fade-up-d1"><div class="sc-icon">🎵</div><div class="sc-label">Total Releases</div><div class="sc-val gold" id="st0">0</div><div class="sc-sub">All time</div></div>
+            <div class="sc animate-fade-up-d2"><div class="sc-icon">⏳</div><div class="sc-label">Pending</div><div class="sc-val" id="st1">0</div><div class="sc-sub">Awaiting TIR</div></div>
+            <div class="sc animate-fade-up-d3"><div class="sc-icon">🟢</div><div class="sc-label">Live Now</div><div class="sc-val" id="st2">0</div><div class="sc-sub">On platforms</div></div>
+            <div class="sc animate-fade-up-d4"><div class="sc-icon">💰</div><div class="sc-label">Earnings</div><div class="sc-val gold" id="st3">₹0</div><div class="sc-sub">Quarterly</div></div>
+          </div>
+          <div class="section animate-fade-up-d2">
+            <div class="sh"><h3>Recent Releases</h3><span style="font-size:12px;color:var(--txt3)" id="rel-count2"></span></div>
+            <div class="sb2" id="home-r"><div class="empty"><div class="empty-icon">🎵</div><div class="empty-text">No releases yet</div><div class="empty-sub">Submit your first release to get started</div></div></div>
+          </div>
+          <div class="section animate-fade-up-d3">
+            <div class="sh"><h3>Announcements from TIR</h3></div>
+            <div class="sb2" style="display:flex;flex-direction:column;gap:10px">
+              <div style="display:flex;gap:12px;align-items:flex-start;padding:12px;background:var(--card);border-radius:8px;border:1px solid var(--brd)"><span style="color:var(--gold);font-size:16px;margin-top:1px">→</span><span style="font-size:13px;color:var(--txt2);line-height:1.7">TIR distributes to <strong style="color:var(--txt)">200+ platforms</strong> — Spotify, Apple Music, JioSaavn, Gaana, YouTube Music, Amazon Music and more.</span></div>
+              <div style="display:flex;gap:12px;align-items:flex-start;padding:12px;background:var(--card);border-radius:8px;border:1px solid var(--brd)"><span style="color:var(--gold);font-size:16px;margin-top:1px">→</span><span style="font-size:13px;color:var(--txt2);line-height:1.7">Release review takes <strong style="color:var(--txt)">3–5 business days</strong>. You will be notified of any updates via email.</span></div>
+              <div style="display:flex;gap:12px;align-items:flex-start;padding:12px;background:var(--card);border-radius:8px;border:1px solid var(--brd)"><span style="color:var(--gold);font-size:16px;margin-top:1px">→</span><span style="font-size:13px;color:var(--txt2);line-height:1.7">Audio: <strong style="color:var(--txt)">WAV or FLAC</strong>, 44.1kHz / 16-bit minimum. Artwork: <strong style="color:var(--txt)">3000×3000px JPG or PNG</strong>.</span></div>
             </div>
-            <div class="step-card-body">
-              <div class="notice-banner">
-                <div class="notice-banner-icon">ℹ️</div>
-                <div class="notice-banner-txt"><strong>ISRC & UPC codes</strong> will be assigned by TIR after submission. You do not need to provide these.</div>
-              </div>
-              <div class="al al-e" id="sub-e-1"></div>
-              <div class="fg">
-                <label>Release Title <span class="req">*</span></label>
-                <input type="text" id="s0" placeholder="e.g. Ghazi Tapes"/>
-              </div>
+          </div>
+        </div>
+
+        <!-- RELEASES -->
+        <div class="pg" id="page-releases">
+          <div class="section">
+            <div class="sh"><h3>All My Releases</h3><p id="rel-count">0 releases</p></div>
+            <div class="sb2" id="all-r"><div class="empty"><div class="empty-icon">🎵</div><div class="empty-text">No releases yet</div></div></div>
+          </div>
+        </div>
+
+        <!-- SUBMIT -->
+        <div class="pg" id="page-submit">
+          <div class="notice"><strong>How to submit:</strong> Fill all details below. For audio & artwork — click the upload button to open TIR Google Drive, upload your files, copy the link, paste below. We review within 3–5 business days.</div>
+          <div class="al al-e" id="sub-e"></div>
+          <div class="al al-s" id="sub-s"></div>
+          <div class="section">
+            <div class="sh"><h3>Release Submission</h3><p>All * fields required</p></div>
+            <div class="sb2">
               <div class="fg2">
-                <div class="fg">
-                  <label>Release Type <span class="req">*</span></label>
-                  <select id="s1">
-                    <option value="">— Select —</option>
-                    <option>Single</option><option>EP</option><option>Album</option><option>Mixtape</option>
-                  </select>
+                <div class="fsec">Release Information</div>
+                <div class="fg"><label>Release Title *</label><input type="text" id="s0" placeholder="Song or album name"/></div>
+                <div class="fg"><label>Release Type *</label><select id="s1"><option value="">— Select —</option><option>Single</option><option>EP</option><option>Album</option><option>Mixtape</option></select></div>
+                <div class="fg"><label>Primary Artist *</label><input type="text" id="s2"/></div>
+                <div class="fg"><label>Featured Artists</label><input type="text" id="s3" placeholder="ft. Name (optional)"/></div>
+                <div class="fg"><label>Primary Genre *</label><select id="s4"><option value="">— Select —</option><option>Hip Hop / Trap</option><option>UK Drill</option><option>R&amp;B / Soul</option><option>Pop</option><option>Electronic / EDM</option><option>Lofi / Chillhop</option><option>Nasheed / Islamic</option><option>Devotional</option><option>Instrumental</option><option>Folk / Acoustic</option><option>Other</option></select></div>
+                <div class="fg"><label>Sub Genre</label><input type="text" id="s5" placeholder="e.g. Dark Trap"/></div>
+                <div class="fg"><label>Language *</label><select id="s6"><option value="">— Select —</option><option>English</option><option>Hindi / Urdu</option><option>Kashmiri</option><option>Arabic</option><option>Punjabi</option><option>Instrumental (No Lyrics)</option><option>Other</option></select></div>
+                <div class="fg"><label>Desired Release Date *</label><input type="date" id="s7"/></div>
+                <div class="fsec">Rights &amp; Credits</div>
+                <div class="fg"><label>Explicit?</label><select id="s8"><option value="no">No — Clean</option><option value="yes">Yes — Explicit</option></select></div>
+                <div class="fg"><label>Copyright Year</label><input type="number" id="s9" value="2025" min="2000" max="2030"/></div>
+                <div class="fg"><label>Label Name</label><input type="text" id="s10" value="The Imaginary Records"/></div>
+                <div class="fg"><label>UPC / ISRC (optional)</label><input type="text" id="s11" placeholder="Leave blank to auto-assign"/></div>
+                <div class="fg full"><label>Songwriter(s) / Composer(s) *</label><input type="text" id="s12" placeholder="Full legal names of all writers"/></div>
+                <div class="fg full"><label>Producer(s)</label><input type="text" id="s13" placeholder="Producer credits"/></div>
+                <div class="fsec">Distribution</div>
+                <div class="fg"><label>Platforms</label><select id="s14"><option value="all">All Platforms (Recommended)</option><option value="streaming">Streaming Only</option><option value="india">India Only</option></select></div>
+                <div class="fg"><label>Territories</label><select id="s15"><option value="worldwide">Worldwide</option><option value="india">India Only</option></select></div>
+                <div class="fg full"><label>Lyrics (optional)</label><textarea id="s16" placeholder="Paste full lyrics here..."></textarea></div>
+                <div class="fg full"><label>Notes for TIR</label><textarea id="s17" placeholder="Anything else..." style="min-height:70px"></textarea></div>
+                <div class="fsec">Audio &amp; Artwork</div>
+                <div class="uz" onclick="window.open(DRIVE,'_blank')">
+                  <div class="uz-icon">📁</div>
+                  <div class="uz-title">Open TIR Google Drive Upload Folder</div>
+                  <div class="uz-sub">Upload audio (WAV/FLAC) & artwork (3000×3000 JPG/PNG) → copy link → paste below</div>
                 </div>
-                <div class="fg">
-                  <label>Primary Genre <span class="req">*</span></label>
-                  <select id="s4">
-                    <option value="">— Select —</option>
-                    <option>Hip Hop / Trap</option><option>UK Drill</option><option>R&B / Soul</option>
-                    <option>Pop</option><option>Electronic / EDM</option><option>Lofi / Chillhop</option>
-                    <option>Nasheed / Islamic</option><option>Devotional</option><option>Instrumental</option>
-                    <option>Folk / Acoustic</option><option>Other</option>
-                  </select>
-                </div>
-                <div class="fg">
-                  <label>Language <span class="req">*</span></label>
-                  <select id="s6">
-                    <option value="">— Select —</option>
-                    <option>English</option><option>Hindi</option><option>Hindi / Urdu</option>
-                    <option>Kashmiri</option><option>Arabic</option><option>Punjabi</option>
-                    <option>Tamil</option><option>Telugu</option><option>Afrikaans</option>
-                    <option>Instrumental (No Lyrics)</option><option>Other</option>
-                  </select>
-                </div>
-                <div class="fg">
-                  <label>Sub Genre <span class="hint">(optional)</span></label>
-                  <input type="text" id="s5" placeholder="e.g. Dark Trap"/>
-                </div>
-                <div class="fg">
-                  <label>Primary Artist <span class="req">*</span></label>
-                  <input type="text" id="s2"/>
-                </div>
-                <div class="fg">
-                  <label>Featured Artists <span class="hint">(optional)</span></label>
-                  <input type="text" id="s3" placeholder="ft. Name"/>
-                </div>
-                <div class="fg">
-                  <label>Desired Release Date <span class="req">*</span></label>
-                  <input type="date" id="s7"/>
-                </div>
-                <div class="fg">
-                  <label>Explicit Content?</label>
-                  <select id="s8">
-                    <option value="no">Not explicit</option>
-                    <option value="clean">Clean (clean version of explicit)</option>
-                    <option value="yes">Explicit</option>
-                  </select>
-                </div>
-                <div class="fg full">
-                  <label>Label Name</label>
-                  <input type="text" id="s10" value="The Imaginary Records"/>
-                </div>
-                <div class="fg full">
-                  <label>Songwriter(s) / Composer(s) <span class="req">*</span></label>
-                  <input type="text" id="s12" placeholder="Full legal names of all writers"/>
-                </div>
-                <div class="fg full">
-                  <label>Producer(s) <span class="hint">(optional)</span></label>
-                  <input type="text" id="s13" placeholder="Producer credits"/>
+                <div class="fg full"><label>Google Drive Link — Audio File *</label><input type="url" id="s18" placeholder="Paste shareable Drive link to audio file"/></div>
+                <div class="fg full"><label>Google Drive Link — Cover Artwork</label><input type="url" id="s19" placeholder="Paste shareable Drive link to artwork"/></div>
+                <div class="full" style="display:flex;gap:12px;margin-top:4px;flex-wrap:wrap">
+                  <button class="btn-sub" id="bsub" onclick="submitRelease()">Submit Release</button>
+                  <button class="btn-sec2" onclick="goPage('home',null)">Cancel</button>
                 </div>
               </div>
-              <!-- ISRC/UPC — Read Only for Artists -->
-              <div style="margin-top:18px;padding:14px;background:var(--card);border-radius:10px;border:1px solid var(--brd)">
-                <div class="admin-badge">🔒 Admin Only</div>
-                <div style="font-size:12px;color:var(--txt3);margin-bottom:10px;line-height:1.6">ISRC and UPC codes are assigned by TIR after your release is approved. They will appear here once set.</div>
-                <div class="fg2">
-                  <div class="fg">
-                    <label>ISRC Code</label>
-                    <input type="text" id="s-isrc" readonly placeholder="Assigned by TIR"/>
-                  </div>
-                  <div class="fg">
-                    <label>UPC Code</label>
-                    <input type="text" id="s-upc" readonly placeholder="Assigned by TIR"/>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="step-card-foot">
-              <div style="font-size:12px;color:var(--txt3)">Step 1 of 5</div>
-              <button class="btn-step-next" onclick="validateStep1()">Next →</button>
             </div>
           </div>
         </div>
 
-        <!-- STEP 2: ARTWORK -->
-        <div class="step-page" id="spage-2">
-          <div class="step-card">
-            <div class="step-card-head">
-              <h2>Cover Art</h2>
-              <p>Paste a direct link to your cover artwork image</p>
-            </div>
-            <div class="step-card-body">
-              <div style="margin-bottom:20px;padding:16px;background:var(--card);border-radius:10px;border:1px solid var(--brd)">
-                <div style="font-size:13px;font-weight:600;margin-bottom:8px">Cover art requirements:</div>
-                <div style="font-size:12px;color:var(--txt2);line-height:1.8">
-                  • Square image — minimum <strong>1400×1400px</strong>, recommended <strong>3000×3000px</strong><br/>
-                  • Format: <strong>JPG or PNG</strong> only<br/>
-                  • Must be clear and high quality — no blurry or pixelated images<br/>
-                  • You can include artist name and release title — no other logos or social handles<br/>
-                  • Upload to Google Drive (public), Imgur, or any direct image URL
-                </div>
+        <!-- ROYALTIES -->
+        <div class="pg" id="page-royalties">
+          <div class="roy-stats">
+            <div class="sc"><div class="sc-label">Total Earned</div><div class="sc-val gold" id="roy-total">₹0.00</div><div class="sc-sub">All time</div></div>
+            <div class="sc"><div class="sc-label">This Quarter</div><div class="sc-val" id="roy-quarter">₹0.00</div><div class="sc-sub">Current period</div></div>
+            <div class="sc"><div class="sc-label">Last Payout</div><div class="sc-val" id="roy-last">₹0.00</div><div class="sc-sub">Via PayPal</div></div>
+          </div>
+          <div class="notice">Royalty statements are updated every quarter by TIR. Minimum payout threshold is <strong>₹500</strong>. Make sure your PayPal email is set in your profile.</div>
+          <div class="section" style="margin-bottom:16px">
+            <div class="sh"><h3>Earnings by Platform</h3><p id="roy-period-lbl">—</p></div>
+            <div class="sb2"><div id="roy-platforms"><div class="empty"><div class="empty-icon">📊</div><div class="empty-text">No earnings yet</div><div class="empty-sub">Appears after your first live release</div></div></div></div>
+          </div>
+          <div class="section" style="margin-bottom:16px">
+            <div class="sh"><h3>Earnings by Release</h3></div>
+            <div class="sb2"><div id="roy-releases"><div class="empty"><div class="empty-icon">🎵</div><div class="empty-text">No release earnings yet</div></div></div></div>
+          </div>
+          <div class="section">
+            <div class="sh"><h3>Payout History</h3></div>
+            <div class="sb2"><div id="roy-history"><div class="empty"><div class="empty-icon">💸</div><div class="empty-text">No payouts yet</div><div class="empty-sub">Payouts processed every quarter via PayPal</div></div></div></div>
+          </div>
+        </div>
+
+        <!-- BLOG -->
+        <div class="pg" id="page-blog">
+          <div class="section">
+            <div class="sh"><h3>Music Blog</h3><p>Tips, news & insights from TIR</p></div>
+            <div class="sb2">
+              <div class="blog-grid" id="blog-grid">
+                <div class="empty" style="grid-column:1/-1"><div class="empty-icon">📝</div><div class="empty-text">No posts yet</div><div class="empty-sub">TIR will publish music industry tips and updates here</div></div>
               </div>
-              <div class="al al-e" id="sub-e-2"></div>
-              <div class="fg">
-                <label>Cover Artwork URL <span class="req">*</span></label>
-                <div class="url-input-wrap">
-                  <input type="url" id="s19" placeholder="https://... paste direct image link here" oninput="previewArtwork(this.value)"/>
-                  <span class="url-check" id="art-check"></span>
-                </div>
-              </div>
-              <!-- ARTWORK PREVIEW -->
-              <div class="artwork-preview-block" id="artwork-preview-block">
-                <div class="art-placeholder-icon">🖼️</div>
-                <div class="art-placeholder-title">Artwork Preview</div>
-                <div class="art-placeholder-sub">Paste a direct image URL above to see your artwork preview here</div>
-              </div>
-            </div>
-            <div class="step-card-foot">
-              <button class="btn-step-back" onclick="goStep(1)">← Back</button>
-              <button class="btn-step-next" onclick="validateStep2()">Next →</button>
             </div>
           </div>
         </div>
 
-        <!-- STEP 3: TRACK / AUDIO -->
-        <div class="step-page" id="spage-3">
-          <div class="step-card">
-            <div class="step-card-head">
-              <h2>Track List</h2>
-              <p>Provide your audio file link and track details</p>
+        <!-- SUPPORT HUB -->
+        <div class="pg" id="page-support">
+          <div class="section" style="margin-bottom:20px">
+            <div class="sh"><h3>Support Hub</h3><p>Find answers instantly</p></div>
+            <div class="sb2">
+              <div style="margin-bottom:16px">
+                <input type="text" id="faq-search" oninput="searchFAQ(this.value)" placeholder="🔍  Search questions..." style="width:100%;background:var(--card);border:1px solid var(--brd);border-radius:8px;color:var(--txt);padding:11px 14px;font-size:14px;outline:none;transition:border-color .2s"/>
+              </div>
+              <div id="faq-list"></div>
             </div>
-            <div class="step-card-body">
-              <div style="margin-bottom:20px;padding:16px;background:var(--card);border-radius:10px;border:1px solid var(--brd)">
-                <div style="font-size:13px;font-weight:600;margin-bottom:8px">Audio file requirements:</div>
-                <div style="font-size:12px;color:var(--txt2);line-height:1.8">
-                  • Format: <strong>WAV or FLAC</strong> (min. 16-bit, 44.1 kHz)<br/>
-                  • Upload to Google Drive (make it shareable) and paste the link below<br/>
-                  • Must be fully mastered and ready for distribution
-                </div>
-              </div>
-              <div class="al al-e" id="sub-e-3"></div>
-              <div class="fg">
-                <label>Track Title <span class="req">*</span></label>
-                <input type="text" id="s-track-title" placeholder="e.g. Ghazi Tapes"/>
-              </div>
+          </div>
+          <div class="section">
+            <div class="sh"><h3>Still need help?</h3></div>
+            <div class="sb2" style="display:flex;gap:12px;flex-wrap:wrap">
+              <button class="btn-sub" onclick="goPage('tickets',null)">Open Support Ticket</button>
+              <a href="mailto:theimaginaryrecords@gmail.com" style="text-decoration:none"><button class="btn-sec2">Email TIR Directly</button></a>
+            </div>
+          </div>
+        </div>
+
+        <!-- TICKETS -->
+        <div class="pg" id="page-tickets">
+          <div class="section" style="margin-bottom:20px">
+            <div class="sh"><h3>Open New Ticket</h3><p>Response within 24–48 hrs</p></div>
+            <div class="sb2">
+              <div class="al al-e" id="tkt-e"></div>
+              <div class="al al-s" id="tkt-s"></div>
               <div class="fg2">
-                <div class="fg">
-                  <label>Recording Year</label>
-                  <input type="number" id="s9" value="2026" min="2000" max="2030"/>
-                </div>
-                <div class="fg">
-                  <label>Vocals?</label>
-                  <select id="s-vocals">
-                    <option value="yes">Yes — contains vocals</option>
-                    <option value="no">No — instrumental only</option>
-                  </select>
-                </div>
-              </div>
-              <div class="fg">
-                <label>Audio File URL <span class="req">*</span> <span class="hint">(Google Drive shareable link)</span></label>
-                <div class="url-input-wrap">
-                  <input type="url" id="s18" placeholder="https://drive.google.com/..." oninput="checkAudioUrl(this.value)"/>
-                  <span class="url-check" id="audio-check"></span>
-                </div>
-              </div>
-              <!-- Show track preview once URL is filled -->
-              <div id="track-preview-block" style="display:none">
-                <div class="track-display">
-                  <div class="track-num">1</div>
-                  <div class="track-info">
-                    <div class="track-title" id="track-preview-title">—</div>
-                    <div class="track-sub" id="track-preview-sub">—</div>
-                  </div>
-                  <div class="track-status">✓ Ready</div>
-                </div>
-              </div>
-              <!-- Optional: Music Video -->
-              <div style="margin-top:24px">
-                <div class="video-block">
-                  <div class="video-block-title">🎬 Music Video <span style="font-size:11px;font-weight:400;color:var(--txt3)">(Optional)</span></div>
-                  <div class="video-block-sub">Have a music video? Paste the YouTube or Vimeo URL below. TIR will use this for VEVO distribution and YouTube Music.</div>
-                  <div class="fg" style="margin-bottom:0">
-                    <label>Music Video URL</label>
-                    <input type="url" id="s-video-url" placeholder="https://youtube.com/watch?v=... or https://vimeo.com/..."/>
-                  </div>
-                </div>
-              </div>
-              <!-- Lyrics -->
-              <div class="fg" style="margin-top:16px">
-                <label>Lyrics <span class="hint">(optional)</span></label>
-                <textarea id="s16" placeholder="Paste full lyrics here..."></textarea>
+                <div class="fg"><label>Category *</label><select id="t0"><option value="">— Select Category —</option><option>Release Issue</option><option>Distribution Problem</option><option>Royalty / Payment</option><option>ISRC / UPC Request</option><option>Takedown Request</option><option>Artwork Issue</option><option>Account Problem</option><option>General Inquiry</option><option>Other</option></select></div>
+                <div class="fg"><label>Priority</label><select id="t1"><option value="normal">Normal</option><option value="urgent">Urgent</option></select></div>
+                <div class="fg full"><label>Subject *</label><input type="text" id="t2" placeholder="Brief description of your issue"/></div>
+                <div class="fg full"><label>Message *</label><textarea id="t3" placeholder="Describe your issue in detail..." style="min-height:120px"></textarea></div>
+                <div class="full"><button class="btn-sub" id="btkt" onclick="submitTicket()">Submit Ticket</button></div>
               </div>
             </div>
-            <div class="step-card-foot">
-              <button class="btn-step-back" onclick="goStep(2)">← Back</button>
-              <button class="btn-step-next" onclick="validateStep3()">Next →</button>
-            </div>
+          </div>
+          <div class="section">
+            <div class="sh"><h3>My Tickets</h3><p id="tkt-count">0 tickets</p></div>
+            <div id="tkt-list"><div class="empty" style="padding:32px"><div class="empty-icon">💬</div><div class="empty-text">No tickets yet</div></div></div>
           </div>
         </div>
 
-        <!-- STEP 4: DELIVERY OPTIONS -->
-        <div class="step-page" id="spage-4">
-          <div class="step-card">
-            <div class="step-card-head">
-              <h2>Delivery Options</h2>
-              <p>Choose where and how to release your music</p>
-            </div>
-            <div class="step-card-body">
+        <!-- PROFILE -->
+        <div class="pg" id="page-profile">
+          <div class="al al-s" id="p-ok"></div>
+          <div class="section">
+            <div class="sh"><h3>Artist Profile</h3></div>
+            <div class="sb2">
               <div class="fg2">
-                <div class="fg">
-                  <label>Music Stores</label>
-                  <select id="s14">
-                    <option value="all">All available (Recommended)</option>
-                    <option value="streaming">Streaming only</option>
-                    <option value="india">India only</option>
-                  </select>
-                </div>
-                <div class="fg">
-                  <label>Territories</label>
-                  <select id="s15">
-                    <option value="worldwide">All countries (Worldwide)</option>
-                    <option value="india">India only</option>
-                  </select>
-                </div>
-                <div class="fg full">
-                  <label>Notes for TIR <span class="hint">(optional)</span></label>
-                  <textarea id="s17" placeholder="Any special instructions..." style="min-height:70px"></textarea>
-                </div>
-              </div>
-              <div style="background:var(--card);border:1px solid var(--brd);border-radius:10px;padding:16px;margin-top:4px">
-                <div style="font-size:13px;font-weight:600;margin-bottom:10px">Copyright</div>
-                <div class="fg2">
-                  <div class="fg">
-                    <label>Copyright Year</label>
-                    <input type="number" id="s9b" value="2026" min="2000" max="2030"/>
-                  </div>
-                  <div class="fg">
-                    <label>Copyright Owner</label>
-                    <input type="text" id="s-copyright" value="The Imaginary Records"/>
-                  </div>
-                </div>
+                <div class="fg"><label>Artist / Stage Name</label><input type="text" id="p0"/></div>
+                <div class="fg"><label>Email (cannot change)</label><input type="email" id="p1" disabled/></div>
+                <div class="fg"><label>Genre</label><select id="p2"><option>Hip Hop / Trap</option><option>UK Drill</option><option>R&amp;B / Soul</option><option>Nasheed / Islamic</option><option>Lofi / Chillhop</option><option>Instrumental</option><option>Other</option></select></div>
+                <div class="fg"><label>Country</label><input type="text" id="p3"/></div>
+                <div class="fg full"><label>Bio</label><textarea id="p4" placeholder="Tell the world about yourself..."></textarea></div>
+                <div class="fg"><label>PayPal Email (for royalties)</label><input type="email" id="p5" placeholder="paypal@email.com"/></div>
+                <div class="fg"><label>Spotify Artist ID</label><input type="text" id="p6" placeholder="spotify:artist:..."/></div>
+                <div class="fg"><label>Instagram</label><input type="text" id="p7" placeholder="@handle"/></div>
+                <div class="fg"><label>YouTube</label><input type="text" id="p8" placeholder="Channel URL"/></div>
+                <div class="full"><button class="btn-sub" onclick="saveProfile()">Save Profile</button></div>
               </div>
             </div>
-            <div class="step-card-foot">
-              <button class="btn-step-back" onclick="goStep(3)">← Back</button>
-              <button class="btn-step-next" onclick="goStep(5)">Next →</button>
-            </div>
           </div>
         </div>
 
-        <!-- STEP 5: REVIEW & SUBMIT -->
-        <div class="step-page" id="spage-5">
-          <div class="step-card">
-            <div class="step-card-head">
-              <h2>Review</h2>
-              <p>Check your release details before submitting</p>
-            </div>
-            <div class="step-card-body">
-              <div class="al al-e" id="sub-e-5"></div>
-              <div class="al al-s" id="sub-s-5"></div>
+      </div><!-- /content -->
+    </div><!-- /main -->
+  </div><!-- /layout -->
 
-              <div class="review-grid" id="review-grid">
-                <div class="review-art" id="review-art-box">
-                  <div class="review-art-placeholder">🎵</div>
-                </div>
-                <div class="review-details">
-                  <div id="review-title-big" style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;margin-bottom:6px">RELEASE TITLE</div>
-                  <div id="review-artist" style="font-size:14px;color:var(--txt2);margin-bottom:12px"></div>
-                  <div class="review-detail-row"><span class="review-detail-label">Type</span><span class="review-detail-val" id="rv-type">—</span></div>
-                  <div class="review-detail-row"><span class="review-detail-label">Genre</span><span class="review-detail-val" id="rv-genre">—</span></div>
-                  <div class="review-detail-row"><span class="review-detail-label">Language</span><span class="review-detail-val" id="rv-lang">—</span></div>
-                  <div class="review-detail-row"><span class="review-detail-label">Rel. Date</span><span class="review-detail-val" id="rv-date">—</span></div>
-                  <div class="review-detail-row"><span class="review-detail-label">Stores</span><span class="review-detail-val" id="rv-stores">—</span></div>
-                  <ul class="review-bullets">
-                    <li id="rv-tracks">1 track</li>
-                    <li id="rv-territories">Worldwide distribution</li>
-                    <li id="rv-video" style="display:none">Music video included</li>
-                  </ul>
-                </div>
-              </div>
+  <!-- MOBILE DRAWER OVERLAY -->
+  <div class="mob-overlay" id="mob-overlay" onclick="closeDrawer()"></div>
 
-              <div class="review-ready">
-                <h4>🎉 Your release is ready!</h4>
-                <p>Once submitted, TIR will review your release within <strong>3–5 business days</strong>. ISRC and UPC codes will be assigned by TIR. You will be notified by email once your release goes live.</p>
-              </div>
-            </div>
-            <div class="step-card-foot">
-              <button class="btn-step-back" onclick="goStep(4)">← Back</button>
-              <button class="btn-submit-final" id="bsub" onclick="submitRelease()">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12l7-7 7 7"/></svg>
-                Submit Release
-              </button>
-            </div>
-          </div>
-        </div>
-
-      </div><!-- /submit-flow -->
+  <!-- MOBILE DRAWER -->
+  <div class="mob-drawer" id="mob-drawer">
+    <div class="sb-top" style="display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div class="sb-brand">T·I·R</div>
+        <div class="sb-lbl">Artist Portal</div>
+      </div>
+      <button class="mob-menu-btn" onclick="closeDrawer()" style="flex-shrink:0">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
     </div>
-
-    <!-- ROYALTIES -->
-    <div class="pg" id="page-royalties">
-      <div class="roy-stats">
-        <div class="sc"><div class="sc-label">Total Earned</div><div class="sc-val gold" id="roy-total">₹0.00</div><div class="sc-sub">All time</div></div>
-        <div class="sc"><div class="sc-label">This Quarter</div><div class="sc-val" id="roy-quarter">₹0.00</div><div class="sc-sub">Current period</div></div>
-        <div class="sc"><div class="sc-label">Last Payout</div><div class="sc-val" id="roy-last">₹0.00</div><div class="sc-sub">Via PayPal</div></div>
-      </div>
-      <div class="section" style="margin-bottom:16px">
-        <div class="sh"><h3>Earnings by Platform</h3><p id="roy-period-lbl">—</p></div>
-        <div class="sb2"><div id="roy-platforms"><div class="empty"><div class="empty-icon">📊</div><div class="empty-text">No earnings yet</div></div></div></div>
-      </div>
-      <div class="section" style="margin-bottom:16px">
-        <div class="sh"><h3>Earnings by Release</h3></div>
-        <div class="sb2"><div id="roy-releases"><div class="empty"><div class="empty-icon">🎵</div><div class="empty-text">No release earnings yet</div></div></div></div>
-      </div>
-      <div class="section">
-        <div class="sh"><h3>Payout History</h3></div>
-        <div class="sb2"><div id="roy-history"><div class="empty"><div class="empty-icon">💸</div><div class="empty-text">No payouts yet</div></div></div></div>
-      </div>
+    <div class="sb-artist">
+      <div class="av" id="av-i-m">A</div>
+      <div><div class="av-name" id="av-n-m">Artist</div><div class="av-role">Recording Artist</div></div>
     </div>
-
-    <!-- BLOG -->
-    <div class="pg" id="page-blog">
-      <div class="section">
-        <div class="sh"><h3>Music Blog</h3><p>Tips, news & insights from TIR</p></div>
-        <div class="sb2">
-          <div class="blog-grid" id="blog-grid"><div class="empty" style="grid-column:1/-1"><div class="empty-icon">📝</div><div class="empty-text">No posts yet</div></div></div>
-        </div>
+    <nav>
+      <div class="ns">Main</div>
+      <div class="ni on" onclick="goPage('home',this);closeDrawer()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Overview
       </div>
+      <div class="ni" onclick="goPage('releases',this);closeDrawer()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>My Releases
+      </div>
+      <div class="ni" onclick="goPage('submit',this);closeDrawer()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7-7 7 7"/></svg>Submit Release
+      </div>
+      <div class="ns">Finance</div>
+      <div class="ni" onclick="goPage('royalties',this);closeDrawer()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Royalties
+      </div>
+      <div class="ns">Community</div>
+      <div class="ni" onclick="goPage('blog',this);closeDrawer()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Music Blog
+      </div>
+      <div class="ns">Support</div>
+      <div class="ni" onclick="goPage('support',this);closeDrawer()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Support Hub
+      </div>
+      <div class="ni" onclick="goPage('tickets',this);closeDrawer()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>My Tickets <span class="badge-cnt" id="tkt-cnt-m" style="display:none">!</span>
+      </div>
+      <div class="ns">Account</div>
+      <div class="ni" onclick="goPage('profile',this);closeDrawer()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>My Profile
+      </div>
+    </nav>
+    <div class="sb-bottom">
+      <button class="so-btn" onclick="doSignOut()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16,17 21,12 16,7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign Out
+      </button>
     </div>
-
-    <!-- SUPPORT HUB -->
-    <div class="pg" id="page-support">
-      <div class="section" style="margin-bottom:20px">
-        <div class="sh"><h3>Support Hub</h3><p>Find answers instantly</p></div>
-        <div class="sb2">
-          <div style="margin-bottom:16px">
-            <input type="text" id="faq-search" oninput="searchFAQ(this.value)" placeholder="🔍  Search questions..." style="width:100%;background:var(--card);border:1px solid var(--brd);border-radius:8px;color:var(--txt);padding:11px 14px;font-size:14px;outline:none;transition:border-color .2s"/>
-          </div>
-          <div id="faq-list"></div>
-        </div>
-      </div>
-      <div class="section">
-        <div class="sh"><h3>Still need help?</h3></div>
-        <div class="sb2" style="display:flex;gap:12px;flex-wrap:wrap">
-          <button class="btn-sub" onclick="goPage('tickets',null)">Open Support Ticket</button>
-          <a href="mailto:support@theimaginaryrecords.in" style="text-decoration:none"><button class="btn-sec2">Email TIR Support</button></a>
-        </div>
-      </div>
-    </div>
-
-    <!-- TICKETS -->
-    <div class="pg" id="page-tickets">
-      <div class="section" style="margin-bottom:20px">
-        <div class="sh"><h3>Open New Ticket</h3><p>Response within 24–48 hrs</p></div>
-        <div class="sb2">
-          <div class="al al-e" id="tkt-e"></div>
-          <div class="al al-s" id="tkt-s"></div>
-          <div class="fg2">
-            <div class="fg"><label>Category <span class="req">*</span></label><select id="t0"><option value="">— Select Category —</option><option>Release Issue</option><option>Distribution Problem</option><option>Royalty / Payment</option><option>ISRC / UPC Request</option><option>Takedown Request</option><option>Artwork Issue</option><option>Account Problem</option><option>General Inquiry</option><option>Other</option></select></div>
-            <div class="fg"><label>Priority</label><select id="t1"><option value="normal">Normal</option><option value="urgent">Urgent</option></select></div>
-            <div class="fg full"><label>Subject <span class="req">*</span></label><input type="text" id="t2" placeholder="Brief description"/></div>
-            <div class="fg full"><label>Message <span class="req">*</span></label><textarea id="t3" placeholder="Describe your issue in detail..." style="min-height:120px"></textarea></div>
-            <div class="full"><button class="btn-sub" id="btkt" onclick="submitTicket()">Submit Ticket</button></div>
-          </div>
-        </div>
-      </div>
-      <div class="section">
-        <div class="sh"><h3>My Tickets</h3><p id="tkt-count">0 tickets</p></div>
-        <div id="tkt-list"><div class="empty" style="padding:32px"><div class="empty-icon">💬</div><div class="empty-text">No tickets yet</div></div></div>
-      </div>
-    </div>
-
-    <!-- PROFILE -->
-    <div class="pg" id="page-profile">
-      <div class="al al-s" id="p-ok"></div>
-      <div class="section">
-        <div class="sh"><h3>Artist Profile</h3></div>
-        <div class="sb2">
-          <div class="fg2">
-            <div class="fg"><label>Artist / Stage Name</label><input type="text" id="p0"/></div>
-            <div class="fg"><label>Email (cannot change)</label><input type="email" id="p1" disabled/></div>
-            <div class="fg"><label>Genre</label><select id="p2"><option>Hip Hop / Trap</option><option>UK Drill</option><option>R&B / Soul</option><option>Nasheed / Islamic</option><option>Lofi / Chillhop</option><option>Instrumental</option><option>Other</option></select></div>
-            <div class="fg"><label>Country</label><input type="text" id="p3"/></div>
-            <div class="fg full"><label>Bio</label><textarea id="p4" placeholder="Tell the world about yourself..."></textarea></div>
-            <div class="fg"><label>PayPal Email (for royalties)</label><input type="email" id="p5" placeholder="paypal@email.com"/></div>
-            <div class="fg"><label>Spotify Artist URL</label><input type="text" id="p6" placeholder="https://open.spotify.com/artist/..."/></div>
-            <div class="fg"><label>Instagram</label><input type="text" id="p7" placeholder="@handle"/></div>
-            <div class="fg"><label>YouTube</label><input type="text" id="p8" placeholder="Channel URL"/></div>
-            <div class="full"><button class="btn-sub" onclick="saveProfile()">Save Profile</button></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-  </div><!-- /content -->
-</div><!-- /main -->
-</div><!-- /layout -->
-
-<!-- MOBILE OVERLAY -->
-<div class="mob-overlay" id="mob-overlay" onclick="closeDrawer()"></div>
-
-<!-- MOBILE DRAWER -->
-<div class="mob-drawer" id="mob-drawer">
-  <div class="sb-top" style="display:flex;align-items:center;justify-content:space-between">
-    <div><div class="sb-brand">T·I·R</div><div class="sb-lbl">Artist Portal</div></div>
-    <button class="mob-menu-btn" onclick="closeDrawer()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
   </div>
-  <div class="sb-artist">
-    <div class="av" id="av-i-m">A</div>
-    <div><div class="av-name" id="av-n-m">Artist</div><div class="av-role">Recording Artist</div></div>
-  </div>
-  <nav>
-    <div class="ns">Main</div>
-    <div class="ni" onclick="goPage('home',this);closeDrawer()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Overview</div>
-    <div class="ni" onclick="goPage('releases',this);closeDrawer()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>My Releases</div>
-    <div class="ni" onclick="goPage('submit',this);resetSubmitFlow();closeDrawer()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7-7 7 7"/></svg>Submit Release</div>
-    <div class="ns">Finance</div>
-    <div class="ni" onclick="goPage('royalties',this);closeDrawer()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Royalties</div>
-    <div class="ns">Community</div>
-    <div class="ni" onclick="goPage('blog',this);closeDrawer()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Music Blog</div>
-    <div class="ns">Support</div>
-    <div class="ni" onclick="goPage('support',this);closeDrawer()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Support Hub</div>
-    <div class="ni" onclick="goPage('tickets',this);closeDrawer()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>My Tickets</div>
-    <div class="ns">Account</div>
-    <div class="ni" onclick="goPage('profile',this);closeDrawer()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>My Profile</div>
-  </nav>
-  <div class="sb-bottom"><button class="so-btn" onclick="doSignOut()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16,17 21,12 16,7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign Out</button></div>
-</div>
 
-<!-- MOBILE BOTTOM NAV -->
-<div class="mob-bottom-nav">
-  <div class="mob-nav-items">
-    <div class="mob-ni on" id="mni-home" onclick="goPage('home',null);setMobNav('home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg><span class="mob-ni-label">Home</span></div>
-    <div class="mob-ni" id="mni-releases" onclick="goPage('releases',null);setMobNav('releases')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg><span class="mob-ni-label">Releases</span></div>
-    <div class="mob-ni" id="mni-submit" onclick="goPage('submit',null);resetSubmitFlow();setMobNav('submit')" style="color:var(--gold)">
-      <div style="width:44px;height:44px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;margin-top:-16px;box-shadow:0 4px 16px rgba(201,168,76,.4)">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5"><path d="M12 5v14M5 12l7-7 7 7"/></svg>
+  <!-- MOBILE BOTTOM NAV -->
+  <div class="mob-bottom-nav">
+    <div class="mob-nav-items">
+      <div class="mob-ni on" id="mni-home" onclick="goPage('home',null);setMobNav('home')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        <span class="mob-ni-label">Home</span>
       </div>
-      <span class="mob-ni-label" style="color:var(--txt3)">Submit</span>
+      <div class="mob-ni" id="mni-releases" onclick="goPage('releases',null);setMobNav('releases')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
+        <span class="mob-ni-label">Releases</span>
+      </div>
+      <div class="mob-ni" id="mni-submit" onclick="goPage('submit',null);setMobNav('submit')" style="color:var(--gold)">
+        <div style="width:44px;height:44px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;margin-top:-16px;box-shadow:0 4px 16px rgba(201,168,76,.4)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5"><path d="M12 5v14M5 12l7-7 7 7"/></svg>
+        </div>
+        <span class="mob-ni-label" style="color:var(--txt3)">Submit</span>
+      </div>
+      <div class="mob-ni" id="mni-royalties" onclick="goPage('royalties',null);setMobNav('royalties')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        <span class="mob-ni-label">Royalties</span>
+      </div>
+      <div class="mob-ni" id="mni-more" onclick="openDrawer()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1" fill="currentColor"/><circle cx="12" cy="12" r="1" fill="currentColor"/><circle cx="12" cy="19" r="1" fill="currentColor"/></svg>
+        <span class="mob-ni-label">More</span>
+      </div>
     </div>
-    <div class="mob-ni" id="mni-royalties" onclick="goPage('royalties',null);setMobNav('royalties')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg><span class="mob-ni-label">Royalties</span></div>
-    <div class="mob-ni" id="mni-more" onclick="openDrawer()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1" fill="currentColor"/><circle cx="12" cy="12" r="1" fill="currentColor"/><circle cx="12" cy="19" r="1" fill="currentColor"/></svg><span class="mob-ni-label">More</span></div>
   </div>
-</div>
 
 </div><!-- /dash -->
 
@@ -997,7 +741,11 @@ nav{flex:1;padding:8px}
 <div class="blog-modal" id="blog-modal">
   <div class="blog-modal-box">
     <div class="blog-modal-head">
-      <div><div id="bm-cat" style="font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:2px;margin-bottom:4px"></div><div style="font-size:20px;font-weight:700" id="bm-title"></div><div style="font-size:12px;color:var(--txt3);margin-top:6px" id="bm-meta"></div></div>
+      <div>
+        <div class="blog-cat" id="bm-cat"></div>
+        <div style="font-size:20px;font-weight:700" id="bm-title"></div>
+        <div style="font-size:12px;color:var(--txt3);margin-top:6px" id="bm-meta"></div>
+      </div>
       <button class="close-btn" onclick="closeBlog()">✕</button>
     </div>
     <div class="blog-modal-body" id="bm-body"></div>
@@ -1007,406 +755,277 @@ nav{flex:1;padding:8px}
 <div class="toast" id="toast"></div>
 
 <script>
-let CU=null,AD={},allReleases=[],royData={},portalSettings={};
-let currentStep=1;
+let CU=null,AD={},allReleases=[],royData={};
 
-// ─── PORTAL SETTINGS (loaded from Firestore, set by admin) ───
-const DEFAULT_FAQS=[
-  {cat:"Getting Started",q:"How do I submit my first release?",a:"Go to Submit Release, fill in all details about your song, paste your Google Drive audio and artwork links, then follow the 5-step guided flow. We review within 3–5 business days."},
-  {cat:"Getting Started",q:"What audio format do you accept?",a:"We require WAV or FLAC format, minimum 44.1kHz sample rate and 16-bit depth. MP3 is not accepted. Your audio should be fully mastered before submission."},
-  {cat:"Getting Started",q:"What are the artwork requirements?",a:"Cover artwork must be at least 1400×1400 pixels (3000×3000 recommended), in JPG or PNG format. No social media handles, URLs, or streaming logos. Must be owned by you."},
-  {cat:"Distribution",q:"Which platforms do you distribute to?",a:"TIR distributes to 200+ platforms including Spotify, Apple Music, Amazon Music, YouTube Music, JioSaavn, Gaana, Tidal, Deezer, Anghami, and many more."},
-  {cat:"Distribution",q:"How long does it take for my music to go live?",a:"After approval, your music typically goes live within 3–5 business days. Spotify and Apple Music can take up to 7 days. JioSaavn and Gaana usually go live within 24–48 hours."},
-  {cat:"Royalties",q:"How are royalties calculated?",a:"You earn 85% of all royalties. TIR retains 15% as a distribution fee. Royalties are calculated based on streams across all platforms and reported quarterly."},
-  {cat:"Royalties",q:"When do I get paid?",a:"Royalty payouts are processed quarterly. The minimum payout threshold is ₹500. Payments are made via PayPal. Make sure your PayPal email is set in your profile."},
-  {cat:"Rights",q:"Do I keep my rights when distributing through TIR?",a:"Yes, 100%. You retain full ownership of your music and masters. TIR only holds a non-exclusive distribution license."},
-  {cat:"Rights",q:"What is ISRC and who assigns it?",a:"An ISRC (International Standard Recording Code) is a unique identifier for your recording. TIR assigns ISRC codes to all releases — you do not need to provide one. It will appear in your release details once assigned."},
-  {cat:"Account",q:"How do I update my artist profile?",a:"Go to My Profile in the sidebar. You can update your artist name, bio, genre, country, PayPal email, Spotify URL, Instagram, and YouTube links."},
-  {cat:"Account",q:"How do I contact TIR support?",a:"Open a support ticket via My Tickets, or email support@theimaginaryrecords.in. We respond within 24–48 hours."},
+// FAQ DATA
+const FAQS=[
+  {cat:'Getting Started',q:'How do I submit my first release?',a:'Go to "Submit Release" in the sidebar, fill in all required details about your song, upload your audio and artwork to our Google Drive folder (click the upload button), paste the Drive links, and click Submit. We review within 3–5 business days.'},
+  {cat:'Getting Started',q:'What audio format do you accept?',a:'We require WAV or FLAC format, minimum 44.1kHz sample rate and 16-bit depth. MP3 is not accepted for distribution. Your audio should be fully mastered before submission.'},
+  {cat:'Getting Started',q:'What are the artwork requirements?',a:'Cover artwork must be exactly 3000×3000 pixels, in JPG or PNG format. It must not contain any social media handles, website URLs, or logos from streaming platforms. The image must be owned by you.'},
+  {cat:'Distribution',q:'Which platforms do you distribute to?',a:'TIR distributes to 200+ platforms including Spotify, Apple Music, Amazon Music, YouTube Music, JioSaavn, Gaana, Tidal, Deezer, Anghami, and many more regional and global stores.'},
+  {cat:'Distribution',q:'How long does it take for my music to go live?',a:'After approval, your music typically goes live within 3–5 business days on most platforms. Spotify and Apple Music can take up to 7 days. JioSaavn and Gaana usually go live within 24–48 hours.'},
+  {cat:'Distribution',q:'Can I choose specific platforms or territories?',a:'Yes! During submission you can select "Streaming Only", "All Platforms", or "India Only". You can also choose between Worldwide or India-only territory distribution.'},
+  {cat:'Royalties',q:'How are royalties calculated?',a:'You earn 85% of all royalties generated from your music. TIR retains 15% as a distribution fee. Royalties are calculated based on streams, downloads, and sync usage across all platforms and reported to you quarterly.'},
+  {cat:'Royalties',q:'When do I get paid?',a:'Royalty payouts are processed quarterly — every 3 months. The minimum payout threshold is ₹500. Payments are made via PayPal. Make sure your PayPal email is set correctly in your profile.'},
+  {cat:'Royalties',q:'Why does it take time for royalties to appear?',a:'Streaming platforms typically take 2–3 months to report earnings to distributors. So streams from January usually appear in royalty statements by March–April. This delay is standard across all distributors worldwide.'},
+  {cat:'Rights',q:'Do I keep my rights when distributing through TIR?',a:'Yes, 100%. You retain full ownership of your music and masters. TIR only holds a non-exclusive distribution license, which means you are free to distribute elsewhere or sign with a major label at any time.'},
+  {cat:'Rights',q:'What is ISRC and do I need one?',a:'An ISRC (International Standard Recording Code) is a unique identifier for your recording. If you do not have one, TIR will assign one automatically at no charge. If you already have one, enter it in the submission form.'},
+  {cat:'Account',q:'How do I update my artist profile?',a:'Go to "My Profile" in the sidebar. You can update your artist name, bio, genre, country, PayPal email, Spotify ID, Instagram, and YouTube links. Remember to save after making changes.'},
+  {cat:'Account',q:'What if I forget my password?',a:'Use the "Forgot Password" feature on the login page, or contact TIR at theimaginaryrecords@gmail.com and we will reset it for you within 24 hours.'},
 ];
 
-// ─── AUTH ───
+// MOBILE DRAWER
+function openDrawer(){
+  document.getElementById('mob-drawer').classList.add('on');
+  document.getElementById('mob-overlay').classList.add('on');
+  document.body.style.overflow='hidden';
+}
+function closeDrawer(){
+  document.getElementById('mob-drawer').classList.remove('on');
+  document.getElementById('mob-overlay').classList.remove('on');
+  document.body.style.overflow='';
+}
+
+// MOBILE BOTTOM NAV ACTIVE STATE
+function setMobNav(name){
+  document.querySelectorAll('.mob-ni').forEach(n=>n.classList.remove('on'));
+  const el=document.getElementById('mni-'+name);
+  if(el)el.classList.add('on');
+}
+
+// AUTH
 auth.onAuthStateChanged(async function(user){
-  document.getElementById("ld").style.display="none";
+  document.getElementById('ld').style.display='none';
   if(user){
     CU=user;
-    document.getElementById("auth").style.display="none";
-    document.getElementById("dash").style.display="block";
-    const init=(user.displayName||"A")[0].toUpperCase();
-    document.getElementById("av-i").textContent=init;
-    document.getElementById("av-n").textContent=user.displayName||"Artist";
-    document.getElementById("av-i-m").textContent=init;
-    document.getElementById("av-n-m").textContent=user.displayName||"Artist";
-    document.getElementById("pgs").textContent="Welcome back, "+(user.displayName||"Artist")+".";
-    await Promise.all([loadPortalSettings(),loadProfile(),loadReleases(),loadRoyalties(),loadTickets()]);
-    loadFAQ();loadBlog();
+    document.getElementById('auth').style.display='none';
+    document.getElementById('dash').style.display='block';
+    const init=(user.displayName||'A')[0].toUpperCase();
+    document.getElementById('av-i').textContent=init;
+    document.getElementById('av-n').textContent=user.displayName||'Artist';
+    document.getElementById('av-i-m').textContent=init;
+    document.getElementById('av-n-m').textContent=user.displayName||'Artist';
+    document.getElementById('pgs').textContent='Welcome back, '+(user.displayName||'Artist')+'.';
+    await loadProfile();
+    await loadReleases();
+    await loadRoyalties();
+    await loadTickets();
+    loadFAQ();
+    loadBlog();
   } else {
     CU=null;
-    document.getElementById("auth").style.display="flex";
-    document.getElementById("dash").style.display="none";
+    document.getElementById('auth').style.display='flex';
+    document.getElementById('dash').style.display='none';
   }
 });
 
 async function doLogin(){
-  const em=document.getElementById("lem").value.trim();
-  const pw=document.getElementById("lpw").value;
-  const btn=document.getElementById("blg"),err=document.getElementById("aerr");
-  err.classList.remove("on");
-  if(!em||!pw){err.textContent="Please enter your email and password.";err.classList.add("on");return;}
-  btn.disabled=true;btn.textContent="Signing in...";
+  const em=document.getElementById('lem').value.trim();
+  const pw=document.getElementById('lpw').value;
+  const btn=document.getElementById('blg');
+  const err=document.getElementById('aerr');
+  err.classList.remove('on');
+  if(!em||!pw){err.textContent='Please enter your email and password.';err.classList.add('on');return;}
+  btn.disabled=true;btn.textContent='Signing in...';
   try{await auth.signInWithEmailAndPassword(em,pw);}
   catch(e){
-    let m="Login failed. ";
-    if(e.code==="auth/user-not-found"||e.code==="auth/invalid-credential")m+="Wrong email or password.";
-    else if(e.code==="auth/wrong-password")m+="Wrong password.";
+    let m='Login failed. ';
+    if(e.code==='auth/user-not-found'||e.code==='auth/invalid-credential')m+='Wrong email or password.';
+    else if(e.code==='auth/wrong-password')m+='Wrong password.';
     else m+=e.message;
-    err.textContent=m;err.classList.add("on");
-    btn.disabled=false;btn.textContent="Sign In to Portal";
+    err.textContent=m;err.classList.add('on');
+    btn.disabled=false;btn.textContent='Sign In to Portal';
   }
 }
+
 function doSignOut(){auth.signOut();}
 
-// ─── PORTAL SETTINGS (admin customizable) ───
-async function loadPortalSettings(){
-  try{
-    const snap=await db.collection("portal_settings").doc("main").get();
-    if(snap.exists){
-      portalSettings=snap.data();
-      // Apply announcements
-      if(portalSettings.announcements&&portalSettings.announcements.length){
-        const el=document.getElementById("home-announcements");
-        el.innerHTML=portalSettings.announcements.map(a=>`<div class="portal-announce">${a}</div>`).join("");
-      }
-      // Apply distribution info notice if set
-    }
-  }catch(e){console.log("Portal settings:",e);}
-}
-
-// ─── PROFILE ───
+// PROFILE
 async function loadProfile(){
   try{
-    const snap=await db.collection("users").doc(CU.uid).get();
+    const snap=await db.collection('users').doc(CU.uid).get();
     if(snap.exists){
       AD=snap.data();
-      document.getElementById("p0").value=AD.name||"";
-      document.getElementById("p1").value=CU.email||"";
-      document.getElementById("p3").value=AD.country||"";
-      document.getElementById("p4").value=AD.bio||"";
-      document.getElementById("p5").value=AD.paypal||"";
-      document.getElementById("p6").value=AD.spotify||"";
-      document.getElementById("p7").value=AD.instagram||"";
-      document.getElementById("p8").value=AD.youtube||"";
-      if(AD.genre)document.getElementById("p2").value=AD.genre;
-      document.getElementById("s2").value=AD.name||CU.displayName||"";
-      document.getElementById("s-track-title").value=AD.name||CU.displayName||"";
+      document.getElementById('p0').value=AD.name||'';
+      document.getElementById('p1').value=CU.email||'';
+      document.getElementById('p3').value=AD.country||'';
+      document.getElementById('p4').value=AD.bio||'';
+      document.getElementById('p5').value=AD.paypal||'';
+      document.getElementById('p6').value=AD.spotify||'';
+      document.getElementById('p7').value=AD.instagram||'';
+      document.getElementById('p8').value=AD.youtube||'';
+      if(AD.genre)document.getElementById('p2').value=AD.genre;
+      document.getElementById('s2').value=AD.name||CU.displayName||'';
     }
-  }catch(e){console.log("Profile:",e);}
+  }catch(e){console.log('Profile:',e);}
 }
 
 async function saveProfile(){
-  const data={name:document.getElementById("p0").value.trim(),email:CU.email,genre:document.getElementById("p2").value,country:document.getElementById("p3").value.trim(),bio:document.getElementById("p4").value.trim(),paypal:document.getElementById("p5").value.trim(),spotify:document.getElementById("p6").value.trim(),instagram:document.getElementById("p7").value.trim(),youtube:document.getElementById("p8").value.trim()};
+  const data={name:document.getElementById('p0').value.trim(),email:CU.email,genre:document.getElementById('p2').value,country:document.getElementById('p3').value.trim(),bio:document.getElementById('p4').value.trim(),paypal:document.getElementById('p5').value.trim(),spotify:document.getElementById('p6').value.trim(),instagram:document.getElementById('p7').value.trim(),youtube:document.getElementById('p8').value.trim()};
   try{
-    await db.collection("users").doc(CU.uid).set(data,{merge:true});
+    await db.collection('users').doc(CU.uid).set(data,{merge:true});
     AD={...AD,...data};
-    document.getElementById("av-n").textContent=data.name;
-    document.getElementById("av-n-m").textContent=data.name;
-    document.getElementById("av-i").textContent=(data.name||"A")[0].toUpperCase();
-    document.getElementById("av-i-m").textContent=(data.name||"A")[0].toUpperCase();
-    showOk("p-ok","✓ Profile saved successfully.");
-    setTimeout(()=>document.getElementById("p-ok").classList.remove("on"),3000);
-    toast("Profile saved ✓");
-  }catch(e){toast("Error: "+e.message);}
+    document.getElementById('av-n').textContent=data.name;
+    document.getElementById('av-n-m').textContent=data.name;
+    document.getElementById('av-i').textContent=(data.name||'A')[0].toUpperCase();
+    document.getElementById('av-i-m').textContent=(data.name||'A')[0].toUpperCase();
+    showOk('p-ok','✓ Profile saved successfully.');
+    setTimeout(()=>document.getElementById('p-ok').classList.remove('on'),3000);
+    toast('Profile saved ✓');
+  }catch(e){toast('Error: '+e.message);}
 }
 
-// ─── RELEASES ───
+// RELEASES
 async function loadReleases(){
   try{
-    const snap=await db.collection("releases").where("userId","==",CU.uid).get();
+    const snap=await db.collection('releases').where('userId','==',CU.uid).get();
     allReleases=[];
     snap.forEach(d=>allReleases.push({id:d.id,...d.data()}));
     allReleases.sort((a,b)=>new Date(b.submittedAt||0)-new Date(a.submittedAt||0));
-    document.getElementById("st0").textContent=allReleases.length;
-    document.getElementById("st1").textContent=allReleases.filter(r=>r.status==="pending"||r.status==="review").length;
-    document.getElementById("st2").textContent=allReleases.filter(r=>r.status==="live").length;
-    document.getElementById("rel-count").textContent=allReleases.length+" release"+(allReleases.length!==1?"s":"");
-    document.getElementById("rel-count2").textContent=allReleases.length+" total";
-    renderReleases("home-r",allReleases.slice(0,5));
-    renderReleases("all-r",allReleases);
-  }catch(e){console.log("Releases:",e);}
+    document.getElementById('st0').textContent=allReleases.length;
+    document.getElementById('st1').textContent=allReleases.filter(r=>r.status==='pending'||r.status==='review').length;
+    document.getElementById('st2').textContent=allReleases.filter(r=>r.status==='live').length;
+    document.getElementById('rel-count').textContent=allReleases.length+' release'+(allReleases.length!==1?'s':'');
+    document.getElementById('rel-count2').textContent=allReleases.length+' total';
+    renderReleases('home-r',allReleases.slice(0,5));
+    renderReleases('all-r',allReleases);
+  }catch(e){console.log('Releases:',e);}
 }
 
 function renderReleases(id,list){
   const el=document.getElementById(id);
   if(!list.length){el.innerHTML='<div class="empty"><div class="empty-icon">🎵</div><div class="empty-text">No releases yet</div><div class="empty-sub">Click Submit Release to get started</div></div>';return;}
-  const bc={pending:"b-pending",review:"b-review",approved:"b-approved",live:"b-live",rejected:"b-rejected"};
+  const bc={pending:'b-pending',review:'b-review',approved:'b-approved',live:'b-live',rejected:'b-rejected'};
   el.innerHTML=list.map((r,i)=>`
-    <div class="ri" style="animation:fadeUp .4s ${i*.05}s ease both">
-      <div class="r-art">${r.artworkUrl?`<img src="${r.artworkUrl}" onerror="this.style.display='none'" />`:"🎵"}</div>
+    <div class="ri" style="animation:fadeUp .4s ${i*0.05}s ease both">
+      <div class="r-art">🎵</div>
       <div class="r-info">
-        <div class="r-title">${r.title||"—"}</div>
-        <div class="r-meta">${r.type||"Single"} · ${r.genre||"—"} · ${r.releaseDate||"—"}${r.isrc?` · ISRC: ${r.isrc}`:""}${r.upc?` · UPC: ${r.upc}`:""}</div>
+        <div class="r-title">${r.title||'—'}</div>
+        <div class="r-meta">${r.type||'Single'} · ${r.genre||'—'} · ${r.releaseDate||'—'}</div>
       </div>
-      <span class="badge ${bc[r.status]||"b-pending"}">${(r.status||"pending").charAt(0).toUpperCase()+(r.status||"pending").slice(1)}</span>
-    </div>`).join("");
+      <span class="badge ${bc[r.status]||'b-pending'}">${(r.status||'pending').charAt(0).toUpperCase()+(r.status||'pending').slice(1)}</span>
+    </div>`).join('');
 }
 
-// ─── SUBMIT FLOW ───
-let currentStep=1;
-
-function resetSubmitFlow(){
-  currentStep=1;
-  goStep(1);
-  ["s0","s2","s3","s5","s12","s13","s16","s17","s18","s19","s-track-title","s-video-url","s-isrc","s-upc"].forEach(id=>{
-    const el=document.getElementById(id);if(el)el.value="";
-  });
-  ["s1","s4","s6","s8","s14","s15","s-vocals"].forEach(id=>{
-    const el=document.getElementById(id);if(el)el.value="";
-  });
-  document.getElementById("s10").value="The Imaginary Records";
-  document.getElementById("s2").value=AD.name||CU?.displayName||"";
-  previewArtwork("");
-  checkAudioUrl("");
-  document.getElementById("artwork-preview-block").innerHTML='<div class="art-placeholder-icon">🖼️</div><div class="art-placeholder-title">Artwork Preview</div><div class="art-placeholder-sub">Paste a direct image URL above to see your artwork preview here</div>';
-  document.getElementById("artwork-preview-block").className="artwork-preview-block";
-  document.getElementById("track-preview-block").style.display="none";
-  document.getElementById("sub-e-1").classList.remove("on");
-  document.getElementById("sub-e-2").classList.remove("on");
-  document.getElementById("sub-e-3").classList.remove("on");
-  document.getElementById("sub-e-5").classList.remove("on");
-  document.getElementById("sub-s-5").classList.remove("on");
-}
-
-function goStep(n){
-  // Update pages
-  document.querySelectorAll(".step-page").forEach(p=>p.classList.remove("on"));
-  const pg=document.getElementById("spage-"+n);
-  if(pg)pg.classList.add("on");
-  // Update step indicators
-  for(let i=1;i<=5;i++){
-    const fs=document.getElementById("fstep-"+i);
-    if(!fs)continue;
-    fs.classList.remove("active","done");
-    if(i<n)fs.classList.add("done");
-    else if(i===n)fs.classList.add("active");
-    const circle=fs.querySelector(".step-circle");
-    if(circle)circle.textContent=i<n?"✓":i;
-  }
-  currentStep=n;
-  window.scrollTo(0,0);
-  if(n===5)buildReviewPage();
-}
-
-function validateStep1(){
-  const v=id=>document.getElementById(id)?.value.trim();
-  const err=id=>showErr("sub-e-1",id);
-  if(!v("s0"))return err("Please enter a release title.");
-  if(!v("s1"))return err("Please select a release type.");
-  if(!v("s2"))return err("Please enter the primary artist name.");
-  if(!v("s4"))return err("Please select a genre.");
-  if(!v("s6"))return err("Please select a language.");
-  if(!v("s7"))return err("Please select a release date.");
-  if(!v("s12"))return err("Please enter songwriter name(s).");
-  document.getElementById("sub-e-1").classList.remove("on");
-  goStep(2);
-}
-
-function validateStep2(){
-  const url=document.getElementById("s19").value.trim();
-  if(!url)return showErr("sub-e-2","Please paste your artwork URL.");
-  document.getElementById("sub-e-2").classList.remove("on");
-  goStep(3);
-}
-
-function validateStep3(){
-  const audio=document.getElementById("s18").value.trim();
-  if(!audio)return showErr("sub-e-3","Please paste your audio file URL.");
-  document.getElementById("sub-e-3").classList.remove("on");
-  goStep(4);
-}
-
-function previewArtwork(url){
-  const block=document.getElementById("artwork-preview-block");
-  const check=document.getElementById("art-check");
-  if(!url){
-    block.className="artwork-preview-block";
-    block.innerHTML='<div class="art-placeholder-icon">🖼️</div><div class="art-placeholder-title">Artwork Preview</div><div class="art-placeholder-sub">Paste a direct image URL above to see your artwork preview here</div>';
-    if(check)check.textContent="";
-    return;
-  }
-  const img=new Image();
-  img.onload=()=>{
-    block.className="artwork-preview-block has-art";
-    block.innerHTML=`<img src="${url}" class="art-img" /><div class="artwork-info"><h4>Cover Art Ready ✓</h4><p>Image loaded successfully</p></div>`;
-    if(check)check.textContent="✅";
-    document.getElementById("s19").classList.add("has-value");
-  };
-  img.onerror=()=>{
-    block.className="artwork-preview-block";
-    block.innerHTML='<div class="art-placeholder-icon">❌</div><div class="art-placeholder-title">Image not found</div><div class="art-placeholder-sub">Could not load image from this URL. Make sure it's a direct image link, not a webpage link.</div>';
-    if(check)check.textContent="❌";
-    document.getElementById("s19").classList.remove("has-value");
-  };
-  img.src=url;
-}
-
-function checkAudioUrl(url){
-  const check=document.getElementById("audio-check");
-  const trackBlock=document.getElementById("track-preview-block");
-  if(!url){if(check)check.textContent="";trackBlock.style.display="none";return;}
-  if(check)check.textContent="✅";
-  trackBlock.style.display="block";
-  const title=document.getElementById("s-track-title").value||document.getElementById("s0").value||"Track";
-  const artist=document.getElementById("s2").value||"Artist";
-  document.getElementById("track-preview-title").textContent=title;
-  document.getElementById("track-preview-sub").textContent=artist+" · Audio file linked";
-}
-
-function buildReviewPage(){
-  const v=id=>document.getElementById(id)?.value.trim()||"";
-  const artUrl=v("s19");
-  const artBox=document.getElementById("review-art-box");
-  if(artUrl){
-    artBox.innerHTML=`<img src="${artUrl}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML='<div class=review-art-placeholder>🎵</div>'"/>`;
-  } else {
-    artBox.innerHTML='<div class="review-art-placeholder">🎵</div>';
-  }
-  document.getElementById("review-title-big").textContent=v("s0")||"RELEASE TITLE";
-  document.getElementById("review-artist").textContent=v("s2")||(AD.name||"Artist");
-  document.getElementById("rv-type").textContent=v("s1")||"—";
-  document.getElementById("rv-genre").textContent=v("s4")||"—";
-  document.getElementById("rv-lang").textContent=v("s6")||"—";
-  document.getElementById("rv-date").textContent=v("s7")||"—";
-  document.getElementById("rv-stores").textContent=v("s14")||"All available";
-  document.getElementById("rv-territories").textContent=v("s15")==="india"?"India only":"Worldwide distribution";
-  const videoUrl=v("s-video-url");
-  const videoItem=document.getElementById("rv-video");
-  if(videoItem)videoItem.style.display=videoUrl?"list-item":"none";
-}
-
-// ─── SUBMIT ───
+// SUBMIT RELEASE
 async function submitRelease(){
-  const v=id=>document.getElementById(id)?.value.trim()||"";
-  const btn=document.getElementById("bsub");
-  document.getElementById("sub-e-5").classList.remove("on");
-  document.getElementById("sub-s-5").classList.remove("on");
-  btn.disabled=true;btn.innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="animation:spin 1s linear infinite"><path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg> Submitting...';
-  const data={
-    userId:CU.uid,
-    artistName:AD.name||CU.displayName||v("s2"),
-    title:v("s0"),type:v("s1"),
-    primaryArtist:v("s2"),featuredArtists:v("s3"),
-    genre:v("s4"),subGenre:v("s5"),language:v("s6"),
-    releaseDate:v("s7"),explicit:v("s8"),
-    copyrightYear:v("s9")||v("s9b"),label:v("s10"),
-    writers:v("s12"),producers:v("s13"),
-    platforms:v("s14"),territories:v("s15"),
-    notes:v("s17"),lyrics:v("s16"),
-    audioLink:v("s18"),artworkUrl:v("s19"),
-    videoUrl:v("s-video-url"),
-    trackTitle:v("s-track-title"),vocals:v("s-vocals"),
-    copyright:v("s-copyright"),
-    // ISRC and UPC are admin-assigned — not submitted by artist
-    isrc:"",upc:"",
-    status:"pending",submittedAt:new Date().toISOString()
-  };
+  const v=id=>document.getElementById(id).value.trim();
+  const [title,type,artist,genre,lang,date,writers,audio]=[v('s0'),v('s1'),v('s2'),v('s4'),v('s6'),v('s7'),v('s12'),v('s18')];
+  document.getElementById('sub-e').classList.remove('on');
+  document.getElementById('sub-s').classList.remove('on');
+  if(!title)return showErr('sub-e','Please enter a release title.');
+  if(!type)return showErr('sub-e','Please select a release type.');
+  if(!artist)return showErr('sub-e','Please enter the primary artist name.');
+  if(!genre)return showErr('sub-e','Please select a genre.');
+  if(!lang)return showErr('sub-e','Please select a language.');
+  if(!date)return showErr('sub-e','Please select a release date.');
+  if(!writers)return showErr('sub-e','Please enter songwriter name(s).');
+  if(!audio)return showErr('sub-e','Please paste your Google Drive audio file link.');
+  const btn=document.getElementById('bsub');
+  btn.disabled=true;btn.textContent='Submitting...';
+  const data={userId:CU.uid,artistName:AD.name||CU.displayName||artist,title,type,primaryArtist:artist,featuredArtists:v('s3'),genre,subGenre:v('s5'),language:lang,releaseDate:date,explicit:document.getElementById('s8').value,copyrightYear:v('s9'),label:v('s10'),upc:v('s11'),writers,producers:v('s13'),platforms:document.getElementById('s14').value,territories:document.getElementById('s15').value,lyrics:v('s16'),notes:v('s17'),audioLink:audio,artworkLink:v('s19'),status:'pending',submittedAt:new Date().toISOString()};
   try{
-    await db.collection("releases").add(data);
-    try{
-      await emailjs.send("service_3bit5yi","eg3omh9",{
-        artist_name:data.artistName,release_title:data.title,release_type:data.type,
-        genre:data.genre,release_date:data.releaseDate,audio_link:data.audioLink,artwork_link:data.artworkUrl||"Not provided"
-      });
-    }catch(ee){console.log("Email:",ee);}
-    showOk("sub-s-5","✓ Release submitted! TIR will review within 3–5 business days. ISRC/UPC will be assigned after approval.");
+    await db.collection('releases').add(data);
+    try{await emailjs.send('service_3bit5yi','eg3omh9',{artist_name:data.artistName,release_title:title,release_type:type,genre,release_date:date,audio_link:audio,artwork_link:v('s19')||'Not provided'});}catch(ee){console.log('Email:',ee);}
+    ['s0','s3','s5','s11','s12','s13','s16','s17','s18','s19'].forEach(id=>document.getElementById(id).value='');
+    ['s1','s4','s6'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('s10').value='The Imaginary Records';
+    showOk('sub-s','✓ Release submitted! We will review within 3–5 business days.');
     await loadReleases();
-    toast("Release submitted ✓");
-    setTimeout(()=>{goPage("releases",null);},3000);
-  }catch(e){showErr("sub-e-5","Submission failed: "+e.message);}
-  btn.disabled=false;btn.innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12l7-7 7 7"/></svg> Submit Release';
+    toast('Release submitted ✓');
+  }catch(e){showErr('sub-e','Submission failed: '+e.message);}
+  btn.disabled=false;btn.textContent='Submit Release';
 }
 
-// ─── ROYALTIES ───
+// ROYALTIES
 async function loadRoyalties(){
   try{
-    const snap=await db.collection("royalties").where("userId","==",CU.uid).get();
+    const snap=await db.collection('royalties').where('userId','==',CU.uid).get();
     if(snap.empty)return;
-    let totalAll=0,totalQ=0;
-    const platforms={},rels={},history=[];
+    let totalAll=0,totalQ=0,lastPayout=0;
+    const platforms={},releases={},history=[];
     snap.forEach(d=>{
       const r=d.data();
       totalAll+=Number(r.totalAmount||0);
       if(r.isCurrent)totalQ+=Number(r.totalAmount||0);
-      if(r.type==="payout")history.push(r);
-      if(r.platforms)Object.entries(r.platforms).forEach(([k,v])=>{platforms[k]=(platforms[k]||0)+Number(v||0);});
-      if(r.releaseTitle)rels[r.releaseTitle]=(rels[r.releaseTitle]||0)+Number(r.totalAmount||0);
+      if(r.type==='payout')history.push(r);
+      if(r.platforms){Object.entries(r.platforms).forEach(([k,v])=>{platforms[k]=(platforms[k]||0)+Number(v||0);})}
+      if(r.releaseTitle){releases[r.releaseTitle]=(releases[r.releaseTitle]||0)+Number(r.totalAmount||0);}
       royData=r;
     });
-    document.getElementById("st3").textContent="₹"+totalAll.toFixed(0);
-    document.getElementById("roy-total").textContent="₹"+totalAll.toFixed(2);
-    document.getElementById("roy-quarter").textContent="₹"+totalQ.toFixed(2);
-    if(history.length)document.getElementById("roy-last").textContent="₹"+Math.max(...history.map(h=>Number(h.amount||0))).toFixed(2);
-    if(royData.period)document.getElementById("roy-period-lbl").textContent=royData.period;
-    const icons={Spotify:"🎧","Apple Music":"🍎","Amazon Music":"📦","YouTube Music":"▶️",JioSaavn:"🎵",Gaana:"🎶",Tidal:"🌊",Deezer:"🎸"};
-    const platE=document.getElementById("roy-platforms");
+    document.getElementById('st3').textContent='₹'+totalAll.toFixed(2);
+    document.getElementById('roy-total').textContent='₹'+totalAll.toFixed(2);
+    document.getElementById('roy-quarter').textContent='₹'+totalQ.toFixed(2);
+    if(history.length)document.getElementById('roy-last').textContent='₹'+Math.max(...history.map(h=>Number(h.amount||0))).toFixed(2);
+    if(royData.period)document.getElementById('roy-period-lbl').textContent=royData.period;
+    const platEl=document.getElementById('roy-platforms');
     const platEntries=Object.entries(platforms);
     if(platEntries.length){
-      platE.innerHTML=`<div style="overflow-x:auto"><table class="roy-table"><thead><tr><th>Platform</th><th>Earnings</th></tr></thead><tbody>${platEntries.map(([p,a])=>`<tr><td>${icons[p]||"🎵"} ${p}</td><td class="roy-amount">₹${Number(a).toFixed(2)}</td></tr>`).join("")}</tbody></table></div>`;
+      const icons={Spotify:'🎧','Apple Music':'🍎','Amazon Music':'📦','YouTube Music':'▶️',JioSaavn:'🎵',Gaana:'🎶',Tidal:'🌊',Deezer:'🎸'};
+      platEl.innerHTML=`<div style="overflow-x:auto"><table class="roy-table"><thead><tr><th>Platform</th><th>Streams</th><th>Earnings</th></tr></thead><tbody>
+        ${platEntries.map(([p,amt])=>`<tr><td><span class="platform-icon">${icons[p]||'🎵'}</span>${p}</td><td style="color:var(--txt3);font-size:12px">—</td><td class="roy-amount">₹${Number(amt).toFixed(2)}</td></tr>`).join('')}
+      </tbody></table></div>`;
     }
-    const relE=document.getElementById("roy-releases");
-    const relEntries=Object.entries(rels);
+    const relEl=document.getElementById('roy-releases');
+    const relEntries=Object.entries(releases);
     if(relEntries.length){
-      relE.innerHTML=`<div style="overflow-x:auto"><table class="roy-table"><thead><tr><th>Release</th><th>Earnings</th></tr></thead><tbody>${relEntries.map(([t,a])=>`<tr><td>🎵 ${t}</td><td class="roy-amount">₹${Number(a).toFixed(2)}</td></tr>`).join("")}</tbody></table></div>`;
+      relEl.innerHTML=`<div style="overflow-x:auto"><table class="roy-table"><thead><tr><th>Release</th><th>Earnings</th></tr></thead><tbody>
+        ${relEntries.map(([t,amt])=>`<tr><td style="font-weight:500">🎵 ${t}</td><td class="roy-amount">₹${Number(amt).toFixed(2)}</td></tr>`).join('')}
+      </tbody></table></div>`;
     }
     if(history.length){
-      document.getElementById("roy-history").innerHTML=`<div style="overflow-x:auto"><table class="roy-table"><thead><tr><th>Period</th><th>Amount</th><th>Method</th><th>Status</th></tr></thead><tbody>${history.map(h=>`<tr><td>${h.period||"—"}</td><td class="roy-amount">₹${Number(h.amount||0).toFixed(2)}</td><td style="color:var(--txt3)">PayPal</td><td><span class="badge b-live">Paid</span></td></tr>`).join("")}</tbody></table></div>`;
+      document.getElementById('roy-history').innerHTML=`<div style="overflow-x:auto"><table class="roy-table"><thead><tr><th>Period</th><th>Amount</th><th>Method</th><th>Status</th></tr></thead><tbody>
+        ${history.map(h=>`<tr><td>${h.period||'—'}</td><td class="roy-amount">₹${Number(h.amount||0).toFixed(2)}</td><td style="color:var(--txt3)">PayPal</td><td><span class="badge b-live">Paid</span></td></tr>`).join('')}
+      </tbody></table></div>`;
     }
-  }catch(e){console.log("Royalties:",e);}
+  }catch(e){console.log('Royalties:',e);}
 }
 
-// ─── BLOG ───
+// BLOG
 async function loadBlog(){
   try{
-    const snap=await db.collection("blog").orderBy("createdAt","desc").get();
-    const posts=[];snap.forEach(d=>posts.push({id:d.id,...d.data()}));
-    const grid=document.getElementById("blog-grid");
-    if(!posts.length){grid.innerHTML='<div class="empty" style="grid-column:1/-1"><div class="empty-icon">📝</div><div class="empty-text">No posts yet</div></div>';return;}
-    const emojis=["🎵","🎸","🎤","🎧","🎶","🔥","⚡","🎹"];
+    const snap=await db.collection('blog').orderBy('createdAt','desc').get();
+    const posts=[];
+    snap.forEach(d=>posts.push({id:d.id,...d.data()}));
+    const grid=document.getElementById('blog-grid');
+    if(!posts.length){grid.innerHTML='<div class="empty" style="grid-column:1/-1"><div class="empty-icon">📝</div><div class="empty-text">No posts yet</div><div class="empty-sub">TIR will publish music industry tips and updates here</div></div>';return;}
+    const emojis=['🎵','🎸','🎤','🎧','🎶','🔥','⚡','🎹'];
     grid.innerHTML=posts.map((p,i)=>`
-      <div class="blog-card" style="animation-delay:${i*.08}s" onclick="openBlog('${p.id}')">
+      <div class="blog-card" style="animation-delay:${i*0.08}s" onclick="openBlog('${p.id}')">
         <div class="blog-img">${emojis[i%emojis.length]}</div>
         <div class="blog-body">
-          <div class="blog-cat">${p.category||"Music"}</div>
-          <div class="blog-title">${p.title||"—"}</div>
-          <div class="blog-excerpt">${(p.content||"").substring(0,100)}...</div>
-          <div class="blog-meta"><span>By TIR</span><span>·</span><span>${p.createdAt?p.createdAt.substring(0,10):"—"}</span></div>
+          <div class="blog-cat">${p.category||'Music'}</div>
+          <div class="blog-title">${p.title||'—'}</div>
+          <div class="blog-excerpt">${(p.content||'').substring(0,100)}...</div>
+          <div class="blog-meta"><span>By TIR</span><span>·</span><span>${p.createdAt?p.createdAt.substring(0,10):'—'}</span></div>
         </div>
-      </div>`).join("");
-  }catch(e){console.log("Blog:",e);}
+      </div>`).join('');
+  }catch(e){console.log('Blog:',e);}
 }
 
+let blogPosts=[];
 async function openBlog(id){
   try{
-    const snap=await db.collection("blog").doc(id).get();
+    const snap=await db.collection('blog').doc(id).get();
     if(!snap.exists)return;
     const p=snap.data();
-    document.getElementById("bm-cat").textContent=p.category||"Music";
-    document.getElementById("bm-title").textContent=p.title||"";
-    document.getElementById("bm-meta").textContent="By The Imaginary Records · "+(p.createdAt?p.createdAt.substring(0,10):"");
-    document.getElementById("bm-body").textContent=p.content||"";
-    document.getElementById("blog-modal").classList.add("on");
-    document.body.style.overflow="hidden";
+    document.getElementById('bm-cat').textContent=p.category||'Music';
+    document.getElementById('bm-title').textContent=p.title||'';
+    document.getElementById('bm-meta').textContent='By The Imaginary Records · '+(p.createdAt?p.createdAt.substring(0,10):'');
+    document.getElementById('bm-body').textContent=p.content||'';
+    document.getElementById('blog-modal').classList.add('on');
+    document.body.style.overflow='hidden';
   }catch(e){}
 }
-function closeBlog(){document.getElementById("blog-modal").classList.remove("on");document.body.style.overflow="";}
+function closeBlog(){document.getElementById('blog-modal').classList.remove('on');document.body.style.overflow='';}
 
-// ─── FAQ ───
-function loadFAQ(filter=""){
-  const list=document.getElementById("faq-list");
-  const faqs=portalSettings.faqs||DEFAULT_FAQS;
-  const cats=[...new Set(faqs.map(f=>f.cat))];
-  const filtered=filter?faqs.filter(f=>f.q.toLowerCase().includes(filter.toLowerCase())||f.a.toLowerCase().includes(filter.toLowerCase())):faqs;
+// FAQ
+function loadFAQ(filter=''){
+  const list=document.getElementById('faq-list');
+  const cats=[...new Set(FAQS.map(f=>f.cat))];
+  const filtered=filter?FAQS.filter(f=>f.q.toLowerCase().includes(filter.toLowerCase())||f.a.toLowerCase().includes(filter.toLowerCase())):FAQS;
   if(!filtered.length){list.innerHTML='<div class="empty"><div class="empty-text">No results found</div></div>';return;}
-  let html="";
+  let html='';
   if(!filter){
     cats.forEach(cat=>{
       const items=filtered.filter(f=>f.cat===cat);
@@ -1414,85 +1033,117 @@ function loadFAQ(filter=""){
       html+=`<div class="faq-cat">${cat}</div>`;
       items.forEach((f,i)=>{html+=faqItem(f,cat+i);});
     });
-  } else {filtered.forEach((f,i)=>{html+=faqItem(f,"f"+i);});}
+  } else {
+    filtered.forEach((f,i)=>{html+=faqItem(f,'f'+i);});
+  }
   list.innerHTML=html;
 }
-function faqItem(f,id){return`<div class="faq-item" id="faq-${id}"><div class="faq-q" onclick="toggleFAQ('faq-${id}')"><span>${f.q}</span><span class="faq-arrow">▼</span></div><div class="faq-a">${f.a}</div></div>`;}
-function toggleFAQ(id){document.getElementById(id)?.classList.toggle("open");}
+
+function faqItem(f,id){
+  return `<div class="faq-item" id="faq-${id}">
+    <div class="faq-q" onclick="toggleFAQ('faq-${id}')">
+      <span>${f.q}</span>
+      <span class="faq-arrow">▼</span>
+    </div>
+    <div class="faq-a">${f.a}</div>
+  </div>`;
+}
+
+function toggleFAQ(id){
+  const el=document.getElementById(id);
+  el.classList.toggle('open');
+}
+
 function searchFAQ(q){loadFAQ(q);}
 
-// ─── TICKETS ───
+// TICKETS
 async function loadTickets(){
   try{
-    const snap=await db.collection("tickets").where("userId","==",CU.uid).get();
+    const snap=await db.collection('tickets').where('userId','==',CU.uid).get();
     const list=[];
     snap.forEach(d=>list.push({id:d.id,...d.data()}));
     list.sort((a,b)=>new Date(b.createdAt||0)-new Date(a.createdAt||0));
-    document.getElementById("tkt-count").textContent=list.length+" ticket"+(list.length!==1?"s":"");
-    const open=list.filter(t=>t.status==="open"||t.status==="pending").length;
-    const cntEl=document.getElementById("tkt-cnt");
-    if(open>0){cntEl.textContent=open;cntEl.style.display="inline";}else{cntEl.style.display="none";}
+    document.getElementById('tkt-count').textContent=list.length+' ticket'+(list.length!==1?'s':'');
+    const open=list.filter(t=>t.status==='open'||t.status==='pending').length;
+    const cntEl=document.getElementById('tkt-cnt');
+    const cntElM=document.getElementById('tkt-cnt-m');
+    if(open>0){
+      cntEl.textContent=open;cntEl.style.display='inline';
+      cntElM.textContent=open;cntElM.style.display='inline';
+    }else{
+      cntEl.style.display='none';
+      cntElM.style.display='none';
+    }
     renderTickets(list);
-  }catch(e){console.log("Tickets:",e);}
+  }catch(e){console.log('Tickets:',e);}
 }
 
 function renderTickets(list){
-  const el=document.getElementById("tkt-list");
+  const el=document.getElementById('tkt-list');
   if(!list.length){el.innerHTML='<div class="empty" style="padding:32px"><div class="empty-icon">💬</div><div class="empty-text">No tickets yet</div></div>';return;}
-  const bc={open:"b-pending",pending:"b-review",resolved:"b-approved",closed:"b-rejected"};
+  const bc={open:'b-pending',pending:'b-review',resolved:'b-approved',closed:'b-rejected'};
   el.innerHTML=list.map(t=>`
     <div class="ticket-item" onclick="toggleTicket('tr${t.id}')">
-      <div class="ticket-top"><div class="ticket-subject">${t.subject||"—"}</div><span class="badge ${bc[t.status]||"b-pending"}">${t.status||"Open"}</span></div>
-      <div class="ticket-preview">${(t.message||"").substring(0,100)}${(t.message||"").length>100?"...":""}</div>
-      <div class="ticket-meta">Category: ${t.category||"—"} · Priority: ${t.priority||"Normal"} · ${t.createdAt?t.createdAt.substring(0,10):"—"}</div>
-      <div class="ticket-reply ${t.reply?"on":""}" id="tr${t.id}">
-        <div class="tr-label">TIR Response</div>
-        <div class="tr-text">${t.reply||"We have received your ticket and will respond within 24–48 hours."}</div>
+      <div class="ticket-top">
+        <div class="ticket-subject">${t.subject||'—'}</div>
+        <span class="badge ${bc[t.status]||'b-pending'}">${t.status||'Open'}</span>
       </div>
-    </div>`).join("");
+      <div class="ticket-preview">${(t.message||'').substring(0,100)}${(t.message||'').length>100?'...':''}</div>
+      <div class="ticket-meta">Category: ${t.category||'—'} · Priority: ${t.priority||'Normal'} · ${t.createdAt?t.createdAt.substring(0,10):'—'}</div>
+      <div class="ticket-reply ${t.reply?'on':''}" id="tr${t.id}">
+        <div class="tr-label">TIR Response</div>
+        <div class="tr-text">${t.reply||'We have received your ticket and will respond within 24–48 hours.'}</div>
+      </div>
+    </div>`).join('');
 }
-function toggleTicket(id){document.getElementById(id)?.classList.toggle("on");}
+
+function toggleTicket(id){document.getElementById(id)?.classList.toggle('on');}
 
 async function submitTicket(){
-  const cat=document.getElementById("t0").value,pri=document.getElementById("t1").value;
-  const sub=document.getElementById("t2").value.trim(),msg=document.getElementById("t3").value.trim();
-  document.getElementById("tkt-e").classList.remove("on");document.getElementById("tkt-s").classList.remove("on");
-  if(!cat)return showErr("tkt-e","Please select a category.");
-  if(!sub)return showErr("tkt-e","Please enter a subject.");
-  if(!msg)return showErr("tkt-e","Please describe your issue.");
-  const btn=document.getElementById("btkt");btn.disabled=true;btn.textContent="Submitting...";
+  const cat=document.getElementById('t0').value;
+  const pri=document.getElementById('t1').value;
+  const sub=document.getElementById('t2').value.trim();
+  const msg=document.getElementById('t3').value.trim();
+  document.getElementById('tkt-e').classList.remove('on');
+  document.getElementById('tkt-s').classList.remove('on');
+  if(!cat)return showErr('tkt-e','Please select a category.');
+  if(!sub)return showErr('tkt-e','Please enter a subject.');
+  if(!msg)return showErr('tkt-e','Please describe your issue.');
+  const btn=document.getElementById('btkt');
+  btn.disabled=true;btn.textContent='Submitting...';
   try{
-    await db.collection("tickets").add({userId:CU.uid,artistName:AD.name||CU.displayName,artistEmail:CU.email,category:cat,priority:pri,subject:sub,message:msg,status:"open",reply:"",createdAt:new Date().toISOString()});
-    document.getElementById("t0").value="";document.getElementById("t2").value="";document.getElementById("t3").value="";document.getElementById("t1").value="normal";
-    showOk("tkt-s","✓ Ticket submitted! We will respond within 24–48 hours.");
-    await loadTickets();toast("Ticket submitted ✓");
-  }catch(e){showErr("tkt-e","Failed: "+e.message);}
-  btn.disabled=false;btn.textContent="Submit Ticket";
+    await db.collection('tickets').add({userId:CU.uid,artistName:AD.name||CU.displayName,artistEmail:CU.email,category:cat,priority:pri,subject:sub,message:msg,status:'open',reply:'',createdAt:new Date().toISOString()});
+    document.getElementById('t0').value='';
+    document.getElementById('t2').value='';
+    document.getElementById('t3').value='';
+    document.getElementById('t1').value='normal';
+    showOk('tkt-s','✓ Ticket submitted! We will respond within 24–48 hours.');
+    await loadTickets();
+    toast('Ticket submitted ✓');
+  }catch(e){showErr('tkt-e','Failed: '+e.message);}
+  btn.disabled=false;btn.textContent='Submit Ticket';
 }
 
-// ─── NAV ───
+// NAV
 function goPage(name,el){
-  document.querySelectorAll(".pg").forEach(p=>p.classList.remove("on"));
-  document.querySelectorAll(".ni").forEach(n=>n.classList.remove("on"));
-  document.getElementById("page-"+name)?.classList.add("on");
-  if(el)el.classList.add("on");
-  const m={home:["Overview","Your label dashboard."],releases:["My Releases","All submitted releases."],submit:["Submit Release","Guided release submission."],royalties:["Royalties","Your earnings breakdown."],blog:["Music Blog","Tips & updates from TIR."],support:["Support Hub","Find answers."],tickets:["My Tickets","Get help from TIR."],profile:["My Profile","Update your artist info."]};
-  const [t,s]=m[name]||["Dashboard",""];
-  document.getElementById("pgt").textContent=t;
-  document.getElementById("pgs").textContent=s;
-  if(name==="royalties")loadRoyalties();
-  if(name==="blog")loadBlog();
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));
+  document.getElementById('page-'+name)?.classList.add('on');
+  if(el)el.classList.add('on');
+  const m={home:['Overview','Your label dashboard.'],releases:['My Releases','All submitted releases.'],submit:['Submit Release','Fill in all details carefully.'],royalties:['Royalties','Your earnings breakdown.'],blog:['Music Blog','Industry tips & updates from TIR.'],support:['Support Hub','Find answers to common questions.'],tickets:['My Tickets','Get help from TIR team.'],profile:['My Profile','Update your artist info.']};
+  const [t,s]=m[name]||['Dashboard',''];
+  document.getElementById('pgt').textContent=t;
+  document.getElementById('pgs').textContent=s;
+  if(name==='royalties')loadRoyalties();
+  if(name==='blog')loadBlog();
+  // Scroll to top on mobile
   window.scrollTo(0,0);
 }
 
-function openDrawer(){document.getElementById("mob-drawer").classList.add("on");document.getElementById("mob-overlay").classList.add("on");document.body.style.overflow="hidden";}
-function closeDrawer(){document.getElementById("mob-drawer").classList.remove("on");document.getElementById("mob-overlay").classList.remove("on");document.body.style.overflow="";}
-function setMobNav(name){document.querySelectorAll(".mob-ni").forEach(n=>n.classList.remove("on"));const el=document.getElementById("mni-"+name);if(el)el.classList.add("on");}
-
-// ─── HELPERS ───
-function showErr(id,m){const e=document.getElementById(id);if(e){e.textContent=m;e.classList.add("on");}}
-function showOk(id,m){const e=document.getElementById(id);if(e){e.textContent=m;e.classList.add("on");}}
-function toast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("on");setTimeout(()=>t.classList.remove("on"),3500);}
+// HELPERS
+function showErr(id,m){const e=document.getElementById(id);e.textContent=m;e.classList.add('on');}
+function showOk(id,m){const e=document.getElementById(id);e.textContent=m;e.classList.add('on');}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),3000);}
 </script>
 </body>
 </html>

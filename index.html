@@ -4,7 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>TIR Artist Portal</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
@@ -27,179 +27,245 @@ emailjs.init({publicKey:'O_glA7q-_LOyfl0AS'});
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#0a0a0a;--surface:#111111;--card:#181818;--brd:#222222;
-  --gold:#39e75f;--gold2:#5dfc7d;--gold3:rgba(57,231,95,.1);
-  --txt:#ffffff;--txt2:#a3a3a3;--txt3:#525252;
-  --grn:#39e75f;--red:#ef4444;--blu:#3b82f6;--org:#f97316;
+  --bg:#0d0d0d;
+  --surface:#141414;
+  --card:#1a1a1a;
+  --card2:#202020;
+  --brd:#2a2a2a;
+  --brd2:#333;
+  --green:#39e75f;
+  --green-dim:rgba(57,231,95,.12);
+  --green-hover:#4aed6e;
+  --txt:#ffffff;
+  --txt2:#a0a0a0;
+  --txt3:#555;
+  --red:#ef4444;
+  --blue:#3b82f6;
+  --orange:#f97316;
   --r:10px;
+  --r2:14px;
 }
 body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;min-height:100vh;font-size:14px;overflow-x:hidden}
 
-@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+/* ANIMATIONS */
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 @keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
 @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes waveAnim{0%,100%{transform:scaleY(.3)}50%{transform:scaleY(1)}}
 @keyframes checkPop{0%{transform:scale(0)}80%{transform:scale(1.2)}100%{transform:scale(1)}}
-
-.animate-fade-up{animation:fadeUp .5s ease forwards}
-.animate-fade-up-d1{animation:fadeUp .5s .1s ease both}
-.animate-fade-up-d2{animation:fadeUp .5s .2s ease both}
-.animate-fade-up-d3{animation:fadeUp .5s .3s ease both}
-.animate-fade-up-d4{animation:fadeUp .5s .4s ease both}
+@keyframes slideIn{from{transform:translateX(-100%)}to{transform:translateX(0)}}
 
 /* LOADING */
-#ld{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column;gap:20px}
-.ld-logo{font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:8px;color:var(--gold);animation:pulse 1.5s ease infinite}
-.ld-bar{width:140px;height:2px;background:var(--brd);border-radius:2px;overflow:hidden}
-.ld-fill{height:100%;background:linear-gradient(90deg,transparent,var(--gold),transparent);background-size:200% 100%;animation:shimmer 1.2s ease infinite}
+#ld{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column;gap:16px}
+.ld-logo{display:flex;align-items:center;gap:10px;animation:pulse 1.5s ease infinite}
+.ld-logo-mark{width:36px;height:36px;background:var(--green);border-radius:8px;display:flex;align-items:center;justify-content:center}
+.ld-logo-mark svg{width:20px;height:20px;color:#000}
+.ld-logo-text{font-size:18px;font-weight:800;letter-spacing:-.3px}
+.ld-logo-text span{color:var(--green)}
+.ld-bar{width:120px;height:2px;background:var(--brd);border-radius:2px;overflow:hidden;margin-top:8px}
+.ld-fill{height:100%;background:linear-gradient(90deg,transparent,var(--green),transparent);background-size:200% 100%;animation:shimmer 1.2s ease infinite}
 
 /* AUTH */
-#auth{min-height:100vh;display:none;align-items:center;justify-content:center;position:relative;overflow:hidden}
-#auth::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(57,231,95,.05) 0%,transparent 70%);pointer-events:none}
-#auth::after{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.015) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.015) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;mask-image:linear-gradient(to bottom,transparent,black 30%,black 70%,transparent)}
-.auth-wrap{display:flex;width:920px;max-width:98vw;min-height:540px;border:1px solid var(--brd);border-radius:16px;overflow:hidden;box-shadow:0 32px 100px rgba(0,0,0,.7);position:relative;z-index:1;animation:fadeUp .6s ease}
-.auth-left{flex:1;background:linear-gradient(135deg,#0a0a0a 0%,#111111 100%);padding:56px 48px;display:flex;flex-direction:column;justify-content:center;border-right:1px solid var(--brd)}
-.auth-left .brand{font-family:'Bebas Neue',sans-serif;font-size:52px;letter-spacing:6px;color:var(--gold);line-height:1;margin-bottom:4px;animation:fadeUp .6s .1s ease both}
-.auth-left .brand-sub{font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--txt3);margin-bottom:36px;animation:fadeUp .6s .15s ease both}
-.auth-left .tagline{font-size:22px;font-weight:300;color:var(--txt);line-height:1.5;margin-bottom:28px;animation:fadeUp .6s .2s ease both}
-.auth-left .feats{display:flex;flex-direction:column;gap:12px;animation:fadeUp .6s .25s ease both}
-.auth-left .feat{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--txt2)}
-.feat-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);flex-shrink:0;box-shadow:0 0 6px rgba(57,231,95,.4)}
-.auth-right{width:400px;background:var(--surface);padding:52px 44px;display:flex;flex-direction:column;justify-content:center}
-.auth-right h2{font-size:24px;font-weight:700;margin-bottom:6px}
-.auth-right p{font-size:13px;color:var(--txt2);margin-bottom:32px}
-.iw{margin-bottom:16px}
-.iw label{display:block;font-size:11px;font-weight:600;color:var(--txt2);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
-.iw input{width:100%;background:var(--card);border:1px solid var(--brd);border-radius:8px;color:var(--txt);padding:12px 14px;font-family:'Inter',sans-serif;font-size:14px;outline:none;transition:border-color .2s,box-shadow .2s}
-.iw input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(57,231,95,.08)}
-.btn-main{width:100%;padding:13px;background:var(--gold);border:none;border-radius:8px;color:#000;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;margin-top:4px;letter-spacing:.5px}
-.btn-main:hover{background:var(--gold2);transform:translateY(-1px);box-shadow:0 4px 16px rgba(57,231,95,.25)}
-.btn-main:active{transform:translateY(0)}
-.btn-main:disabled{background:#1a3d1f;color:#666;cursor:not-allowed;transform:none;box-shadow:none}
-.err-box{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);border-radius:8px;color:#fca5a5;font-size:12px;padding:10px 13px;margin-bottom:14px;display:none}
+#auth{min-height:100vh;display:none;align-items:center;justify-content:center;background:var(--bg);position:relative;overflow:hidden}
+#auth::before{content:'';position:absolute;top:-30%;right:-20%;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(57,231,95,.04) 0%,transparent 70%);pointer-events:none}
+.auth-wrap{display:flex;width:900px;max-width:98vw;border:1px solid var(--brd);border-radius:20px;overflow:hidden;box-shadow:0 40px 120px rgba(0,0,0,.8);animation:fadeUp .5s ease}
+.auth-left{flex:1;background:linear-gradient(145deg,#111 0%,#161616 100%);padding:52px 44px;display:flex;flex-direction:column;justify-content:center;border-right:1px solid var(--brd);position:relative;overflow:hidden}
+.auth-left::before{content:'';position:absolute;bottom:-40px;left:-40px;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,rgba(57,231,95,.06) 0%,transparent 70%)}
+.auth-brand{display:flex;align-items:center;gap:12px;margin-bottom:40px;animation:fadeUp .5s .05s ease both}
+.auth-brand-mark{width:44px;height:44px;background:var(--green);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.auth-brand-mark svg{width:24px;height:24px;color:#000}
+.auth-brand-name{font-size:15px;font-weight:800;letter-spacing:-.2px;line-height:1.2}
+.auth-brand-name span{display:block;font-size:11px;font-weight:500;color:var(--txt2);letter-spacing:.5px;margin-top:1px}
+.auth-tagline{font-size:28px;font-weight:800;line-height:1.3;margin-bottom:12px;animation:fadeUp .5s .1s ease both}
+.auth-tagline span{color:var(--green)}
+.auth-sub{font-size:13px;color:var(--txt2);line-height:1.7;margin-bottom:36px;animation:fadeUp .5s .15s ease both}
+.auth-feats{display:flex;flex-direction:column;gap:10px;animation:fadeUp .5s .2s ease both}
+.auth-feat{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--txt2)}
+.auth-feat-check{width:20px;height:20px;border-radius:5px;background:var(--green-dim);border:1px solid rgba(57,231,95,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.auth-feat-check svg{width:11px;height:11px;color:var(--green)}
+.auth-right{width:380px;background:var(--surface);padding:52px 40px;display:flex;flex-direction:column;justify-content:center}
+.auth-right h2{font-size:26px;font-weight:800;margin-bottom:4px}
+.auth-right>p{font-size:13px;color:var(--txt2);margin-bottom:32px}
+.iw{margin-bottom:14px}
+.iw label{display:block;font-size:11px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.iw input{width:100%;background:var(--card);border:1px solid var(--brd2);border-radius:10px;color:var(--txt);padding:12px 14px;font-family:'Inter',sans-serif;font-size:14px;outline:none;transition:all .2s}
+.iw input:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(57,231,95,.1)}
+.btn-main{width:100%;padding:13px;background:var(--green);border:none;border-radius:10px;color:#000;font-size:14px;font-weight:800;cursor:pointer;transition:all .2s;margin-top:8px;letter-spacing:.3px}
+.btn-main:hover{background:var(--green-hover);transform:translateY(-1px);box-shadow:0 6px 20px rgba(57,231,95,.3)}
+.btn-main:disabled{background:#1d3d25;color:#555;cursor:not-allowed;transform:none;box-shadow:none}
+.err-box{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:8px;color:#fca5a5;font-size:12px;padding:10px 13px;margin-bottom:12px;display:none}
 .err-box.on{display:block;animation:fadeIn .3s ease}
-.auth-note{font-size:11px;color:var(--txt3);text-align:center;margin-top:18px;line-height:1.6}
+.auth-note{font-size:11px;color:var(--txt3);text-align:center;margin-top:20px;line-height:1.7}
 
 /* LAYOUT */
 #dash{display:none}
 .layout{display:flex;min-height:100vh}
 
 /* SIDEBAR */
-.sb{width:240px;min-width:240px;background:var(--surface);border-right:1px solid var(--brd);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto}
-.sb-top{padding:22px 18px 18px;border-bottom:1px solid var(--brd)}
-.sb-brand{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:4px;color:var(--gold);text-shadow:0 0 20px rgba(57,231,95,.2)}
-.sb-lbl{font-size:10px;color:var(--txt3);letter-spacing:1.5px;margin-top:1px}
-.sb-artist{display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--brd)}
-.av{width:38px;height:38px;border-radius:50%;background:var(--gold3);border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:var(--gold);flex-shrink:0;box-shadow:0 0 12px rgba(57,231,95,.15)}
-.av-name{font-size:13px;font-weight:600;color:var(--txt)}
-.av-role{font-size:10px;color:var(--txt3)}
-nav{flex:1;padding:8px}
-.ns{font-size:10px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:2px;padding:14px 10px 5px}
-.ni{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;color:var(--txt2);cursor:pointer;font-size:13px;font-weight:500;transition:all .15s;margin-bottom:1px;position:relative}
+.sb{width:230px;min-width:230px;background:var(--surface);border-right:1px solid var(--brd);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sb-header{padding:20px 16px 16px;border-bottom:1px solid var(--brd)}
+.sb-brand{display:flex;align-items:center;gap:10px}
+.sb-brand-mark{width:34px;height:34px;background:var(--green);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sb-brand-mark svg{width:18px;height:18px;color:#000}
+.sb-brand-name{font-size:14px;font-weight:800;letter-spacing:-.2px}
+.sb-brand-name span{display:block;font-size:10px;font-weight:500;color:var(--txt3);margin-top:0px;letter-spacing:.3px}
+.sb-artist{padding:14px 16px;border-bottom:1px solid var(--brd);display:flex;align-items:center;gap:10px}
+.av{width:36px;height:36px;border-radius:50%;background:var(--green-dim);border:2px solid rgba(57,231,95,.3);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:var(--green);flex-shrink:0}
+.av-info{min-width:0}
+.av-name{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.av-earn{font-size:11px;color:var(--txt2);margin-top:1px;display:flex;align-items:center;gap:4px}
+.earn-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 7px;background:var(--card);border:1px solid var(--brd2);border-radius:20px;font-size:10px;font-weight:700;font-family:'DM Mono',monospace}
+nav{flex:1;padding:10px 8px;overflow-y:auto}
+.ns{font-size:10px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:2px;padding:14px 8px 5px}
+.ni{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:9px;color:var(--txt2);cursor:pointer;font-size:13px;font-weight:500;transition:all .15s;margin-bottom:1px;position:relative}
 .ni:hover{background:var(--card);color:var(--txt)}
-.ni.on{background:var(--gold3);color:var(--gold);font-weight:600}
-.ni.on::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:60%;background:var(--gold);border-radius:0 2px 2px 0}
-.ni svg{width:16px;height:16px;flex-shrink:0}
-.ni .badge-cnt{margin-left:auto;background:var(--red);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;animation:pulse 2s ease infinite}
+.ni.on{background:var(--card2);color:var(--txt);font-weight:600}
+.ni.on .ni-icon{color:var(--green)}
+.ni-icon{width:16px;height:16px;flex-shrink:0;opacity:.7;transition:opacity .15s}
+.ni:hover .ni-icon{opacity:1}
+.ni.on .ni-icon{opacity:1}
+.ni .badge-cnt{margin-left:auto;background:var(--red);color:#fff;font-size:9px;font-weight:800;padding:1px 6px;border-radius:10px}
 .sb-bottom{padding:10px 8px;border-top:1px solid var(--brd)}
-.so-btn{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;color:var(--txt3);cursor:pointer;font-size:13px;width:100%;background:none;border:none;transition:all .15s}
-.so-btn:hover{background:rgba(239,68,68,.1);color:var(--red)}
-
-/* MOBILE */
-.mob-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;backdrop-filter:blur(2px)}
-.mob-overlay.on{display:block;animation:fadeIn .2s ease}
-.mob-drawer{display:none;position:fixed;left:0;top:0;bottom:0;width:280px;background:var(--surface);border-right:1px solid var(--brd);z-index:1001;flex-direction:column;overflow-y:auto;transform:translateX(-100%);transition:transform .3s ease}
-.mob-drawer.on{transform:translateX(0)}
-.mob-topbar{display:none;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--surface);border-bottom:1px solid var(--brd);position:sticky;top:0;z-index:100}
-.mob-topbar-brand{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:4px;color:var(--gold)}
-.mob-menu-btn{background:none;border:1px solid var(--brd);border-radius:8px;color:var(--txt2);width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s}
-.mob-menu-btn:hover{border-color:var(--gold);color:var(--gold)}
-.mob-new-btn{background:var(--gold);border:none;border-radius:8px;color:#000;font-size:12px;font-weight:700;padding:8px 12px;cursor:pointer;display:flex;align-items:center;gap:5px}
-.mob-bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--brd);z-index:200;padding:0 4px;padding-bottom:env(safe-area-inset-bottom)}
-.mob-nav-items{display:flex;justify-content:space-around;align-items:stretch}
-.mob-ni{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 2px 6px;cursor:pointer;color:var(--txt3);transition:color .2s;position:relative;gap:3px;min-width:0}
-.mob-ni.on{color:var(--gold)}
-.mob-ni svg{width:20px;height:20px;flex-shrink:0}
-.mob-ni-label{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
-.mob-ni.on::after{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:28px;height:2px;background:var(--gold);border-radius:0 0 2px 2px}
+.so-btn{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:9px;color:var(--txt3);cursor:pointer;font-size:13px;width:100%;background:none;border:none;transition:all .15s}
+.so-btn:hover{background:rgba(239,68,68,.08);color:var(--red)}
+.so-btn svg{width:16px;height:16px}
+.ni-badge{margin-left:auto;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;background:rgba(57,231,95,.15);color:var(--green)}
 
 /* MAIN */
-.main{flex:1;overflow-y:auto}
-.topbar{padding:16px 28px;border-bottom:1px solid var(--brd);background:var(--surface);position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;backdrop-filter:blur(10px)}
-.topbar h1{font-size:18px;font-weight:700}
-.topbar p{font-size:12px;color:var(--txt3);margin-top:2px}
-.btn-new{display:flex;align-items:center;gap:6px;padding:9px 18px;background:var(--gold);border:none;border-radius:8px;color:#000;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s}
-.btn-new:hover{background:var(--gold2);transform:translateY(-1px);box-shadow:0 4px 16px rgba(57,231,95,.25)}
-.content{padding:24px 28px}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:100vh}
+.topbar{padding:16px 28px;background:var(--surface);border-bottom:1px solid var(--brd);position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between}
+.topbar-left h1{font-size:24px;font-weight:800;letter-spacing:-.5px}
+.topbar-left p{font-size:12px;color:var(--txt3);margin-top:1px}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.btn-new{display:flex;align-items:center;gap:7px;padding:10px 20px;background:var(--green);border:none;border-radius:10px;color:#000;font-size:13px;font-weight:800;cursor:pointer;transition:all .2s;letter-spacing:.2px}
+.btn-new:hover{background:var(--green-hover);transform:translateY(-1px);box-shadow:0 6px 20px rgba(57,231,95,.3)}
+.btn-new svg{width:14px;height:14px}
+.content{padding:28px;flex:1;overflow-y:auto}
+
+/* MOBILE */
+.mob-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:1000;backdrop-filter:blur(3px)}
+.mob-overlay.on{display:block;animation:fadeIn .2s ease}
+.mob-drawer{display:none;position:fixed;left:0;top:0;bottom:0;width:280px;background:var(--surface);border-right:1px solid var(--brd);z-index:1001;flex-direction:column;overflow-y:auto;transform:translateX(-100%);transition:transform .3s cubic-bezier(.4,0,.2,1)}
+.mob-drawer.on{transform:translateX(0)}
+.mob-topbar{display:none;align-items:center;justify-content:space-between;padding:13px 16px;background:var(--surface);border-bottom:1px solid var(--brd);position:sticky;top:0;z-index:100}
+.mob-brand{display:flex;align-items:center;gap:8px}
+.mob-brand-mark{width:28px;height:28px;background:var(--green);border-radius:6px;display:flex;align-items:center;justify-content:center}
+.mob-brand-mark svg{width:15px;height:15px;color:#000}
+.mob-brand-text{font-size:14px;font-weight:800}
+.mob-menu-btn{background:none;border:1px solid var(--brd2);border-radius:8px;color:var(--txt2);width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.mob-bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--brd);z-index:200;padding-bottom:env(safe-area-inset-bottom)}
+.mob-nav-items{display:flex;justify-content:space-around}
+.mob-ni{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 2px 7px;cursor:pointer;color:var(--txt3);transition:color .2s;gap:4px;position:relative}
+.mob-ni.on{color:var(--green)}
+.mob-ni svg{width:20px;height:20px}
+.mob-ni-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+.mob-ni.on::after{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:24px;height:2px;background:var(--green);border-radius:0 0 2px 2px}
+.mob-submit-fab{width:44px;height:44px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;margin-top:-18px;box-shadow:0 4px 20px rgba(57,231,95,.35);transition:transform .2s}
+.mob-submit-fab:active{transform:scale(.95)}
 
 /* PAGES */
 .pg{display:none}
-.pg.on{display:block;animation:fadeUp .4s ease}
+.pg.on{display:block;animation:fadeUp .35s ease}
 
-/* STAT CARDS */
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
-.sc{background:var(--surface);border:1px solid var(--brd);border-radius:var(--r);padding:20px;position:relative;overflow:hidden;transition:all .2s;cursor:default}
-.sc:hover{border-color:rgba(57,231,95,.2);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.3)}
-.sc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:0;transition:opacity .3s}
-.sc:hover::before{opacity:1}
-.sc-label{font-size:11px;font-weight:600;color:var(--txt3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px}
-.sc-val{font-size:30px;font-weight:800;color:var(--txt);line-height:1}
-.sc-val.gold{color:var(--gold)}
+/* HOME HERO CARDS */
+.hero-cards{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.hero-card{border-radius:16px;overflow:hidden;position:relative;min-height:190px;display:flex;flex-direction:column;justify-content:flex-end;padding:24px;cursor:pointer;transition:transform .2s}
+.hero-card:hover{transform:translateY(-2px)}
+.hero-card-bg{position:absolute;inset:0;z-index:0}
+.hero-card-content{position:relative;z-index:1}
+.hero-card-badge{display:inline-flex;align-items:center;font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;padding:3px 10px;border-radius:20px;margin-bottom:10px}
+.badge-blue{background:rgba(59,130,246,.9);color:#fff}
+.badge-green{background:var(--green);color:#000}
+.badge-orange{background:rgba(249,115,22,.9);color:#fff}
+.hero-card h3{font-size:20px;font-weight:800;line-height:1.2;margin-bottom:5px}
+.hero-card p{font-size:12px;color:rgba(255,255,255,.7);line-height:1.5}
+.hero-card-link{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:var(--green);margin-top:12px;text-decoration:none;transition:gap .2s}
+.hero-card-link:hover{gap:8px}
+.hero-card-link svg{width:13px;height:13px}
+.hero-card-1 .hero-card-bg{background:linear-gradient(135deg,#0f1f13 0%,#0d1a0f 40%,#0a150d 100%);border:1px solid rgba(57,231,95,.15)}
+.hero-card-2 .hero-card-bg{background:linear-gradient(135deg,#0f0f1f 0%,#0d0d1a 40%,#0a0a15 100%);border:1px solid rgba(59,130,246,.15)}
+
+/* STATS GRID */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.sc{background:var(--surface);border:1px solid var(--brd);border-radius:var(--r2);padding:20px;transition:all .2s;position:relative;overflow:hidden}
+.sc:hover{border-color:var(--brd2);transform:translateY(-1px)}
+.sc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.sc-label{font-size:11px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:1px}
+.sc-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center}
+.sc-icon-green{background:rgba(57,231,95,.1)}
+.sc-icon-blue{background:rgba(59,130,246,.1)}
+.sc-icon-orange{background:rgba(249,115,22,.1)}
+.sc-icon-red{background:rgba(239,68,68,.1)}
+.sc-icon svg{width:16px;height:16px}
+.sc-icon-green svg{color:var(--green)}
+.sc-icon-blue svg{color:#60a5fa}
+.sc-icon-orange svg{color:#fb923c}
+.sc-icon-red svg{color:#f87171}
+.sc-val{font-size:28px;font-weight:800;letter-spacing:-1px;line-height:1}
 .sc-sub{font-size:11px;color:var(--txt3);margin-top:5px}
-.sc-icon{position:absolute;right:16px;top:16px;opacity:.06;font-size:36px}
+.sc-val.green{color:var(--green)}
 
 /* SECTION */
-.section{background:var(--surface);border:1px solid var(--brd);border-radius:var(--r);margin-bottom:20px;overflow:hidden}
-.sh{padding:16px 20px;border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between}
-.sh h3{font-size:14px;font-weight:700}
-.sh p{font-size:12px;color:var(--txt3)}
+.section{background:var(--surface);border:1px solid var(--brd);border-radius:var(--r2);margin-bottom:18px;overflow:hidden}
+.sh{padding:18px 22px;border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between}
+.sh h3{font-size:15px;font-weight:800}
+.sh-right{font-size:12px;color:var(--txt3)}
 .sb2{padding:20px}
 
-/* RELEASE ITEM */
-.ri{display:flex;align-items:center;gap:14px;padding:13px 0;border-bottom:1px solid var(--brd);transition:background .15s;border-radius:6px;padding-left:4px;padding-right:4px}
+/* RELEASE ITEMS */
+.ri{display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.04);transition:background .15s;border-radius:8px;padding-left:6px;padding-right:6px}
 .ri:last-child{border-bottom:none}
 .ri:hover{background:rgba(255,255,255,.02)}
-.r-art{width:44px;height:44px;border-radius:8px;background:var(--card);border:1px solid var(--brd);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;overflow:hidden}
-.r-art img{width:100%;height:100%;object-fit:cover}
+.r-art{width:46px;height:46px;border-radius:10px;background:var(--card);border:1px solid var(--brd);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;overflow:hidden}
+.r-art img{width:100%;height:100%;object-fit:cover;border-radius:9px}
 .r-info{flex:1;min-width:0}
-.r-title{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.r-meta{font-size:12px;color:var(--txt3);margin-top:2px}
-.badge{font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;white-space:nowrap;flex-shrink:0}
-.b-pending{background:rgba(249,115,22,.12);color:#fb923c}
-.b-review{background:rgba(59,130,246,.12);color:#60a5fa}
-.b-approved{background:rgba(34,197,94,.12);color:#4ade80}
-.b-live{background:rgba(57,231,95,.12);color:var(--gold)}
-.b-rejected{background:rgba(239,68,68,.12);color:#f87171}
+.r-title{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.r-meta{font-size:11px;color:var(--txt3);margin-top:2px;display:flex;align-items:center;gap:6px}
+.r-dot{width:3px;height:3px;border-radius:50%;background:var(--txt3)}
+.badge{font-size:10px;font-weight:800;padding:3px 10px;border-radius:20px;white-space:nowrap;flex-shrink:0;letter-spacing:.3px;text-transform:uppercase}
+.b-pending{background:rgba(249,115,22,.1);color:#fb923c;border:1px solid rgba(249,115,22,.15)}
+.b-review{background:rgba(59,130,246,.1);color:#60a5fa;border:1px solid rgba(59,130,246,.15)}
+.b-approved{background:rgba(57,231,95,.1);color:var(--green);border:1px solid rgba(57,231,95,.15)}
+.b-live{background:rgba(57,231,95,.1);color:var(--green);border:1px solid rgba(57,231,95,.15)}
+.b-rejected{background:rgba(239,68,68,.1);color:#f87171;border:1px solid rgba(239,68,68,.15)}
+
+/* ANNOUNCEMENTS */
+.ann-item{display:flex;align-items:flex-start;gap:14px;padding:14px;background:var(--card);border:1px solid var(--brd);border-radius:11px;margin-bottom:10px}
+.ann-item:last-child{margin-bottom:0}
+.ann-icon{width:32px;height:32px;border-radius:8px;background:var(--green-dim);border:1px solid rgba(57,231,95,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ann-icon svg{width:15px;height:15px;color:var(--green)}
+.ann-text{font-size:13px;color:var(--txt2);line-height:1.7}
+.ann-text strong{color:var(--txt)}
 
 /* FORM */
 .fg2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .full{grid-column:1/-1}
-.fsec{grid-column:1/-1;font-size:11px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:2px;padding:8px 0;border-bottom:1px solid var(--brd);margin-top:8px}
+.fsec{grid-column:1/-1;font-size:10px;font-weight:800;color:var(--txt3);text-transform:uppercase;letter-spacing:2px;padding:10px 0;border-bottom:1px solid var(--brd);margin-top:6px}
 .fsec:first-child{margin-top:0}
-.fg label{display:block;font-size:11px;font-weight:600;color:var(--txt2);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
-.fg input,.fg select,.fg textarea{width:100%;background:var(--card);border:1px solid var(--brd);border-radius:8px;color:var(--txt);padding:10px 13px;font-family:'Inter',sans-serif;font-size:14px;outline:none;transition:all .2s}
-.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(57,231,95,.07)}
-.fg select option{background:#1a1a1a}
+.fg label{display:block;font-size:11px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.fg input,.fg select,.fg textarea{width:100%;background:var(--card);border:1px solid var(--brd2);border-radius:10px;color:var(--txt);padding:10px 13px;font-family:'Inter',sans-serif;font-size:14px;outline:none;transition:all .2s}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(57,231,95,.08)}
+.fg select option{background:#1c1c1c}
 .fg textarea{resize:vertical;min-height:90px}
-.btn-sub{padding:12px 32px;background:var(--gold);border:none;border-radius:8px;color:#000;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;letter-spacing:.3px}
-.btn-sub:hover{background:var(--gold2);transform:translateY(-1px);box-shadow:0 4px 16px rgba(57,231,95,.25)}
-.btn-sub:disabled{background:#1a3d1f;color:#666;cursor:not-allowed;transform:none;box-shadow:none}
-.btn-sec2{padding:12px 20px;background:var(--card);border:1px solid var(--brd);border-radius:8px;color:var(--txt2);font-size:13px;cursor:pointer;transition:all .2s}
-.btn-sec2:hover{border-color:var(--gold);color:var(--gold)}
+.btn-sub{padding:12px 28px;background:var(--green);border:none;border-radius:10px;color:#000;font-size:13px;font-weight:800;cursor:pointer;transition:all .2s;letter-spacing:.3px}
+.btn-sub:hover{background:var(--green-hover);transform:translateY(-1px);box-shadow:0 6px 20px rgba(57,231,95,.3)}
+.btn-sub:disabled{background:#1d3d25;color:#555;cursor:not-allowed;transform:none;box-shadow:none}
+.btn-sec2{padding:12px 20px;background:transparent;border:1px solid var(--brd2);border-radius:10px;color:var(--txt2);font-size:13px;cursor:pointer;transition:all .2s;font-weight:600}
+.btn-sec2:hover{border-color:var(--green);color:var(--green)}
 
-/* UPLOAD ZONES */
+/* UPLOAD */
 .upload-section{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:4px}
-.upload-zone{position:relative;border:1.5px dashed var(--brd);border-radius:12px;background:rgba(57,231,95,.015);transition:all .25s;overflow:hidden;cursor:pointer}
-.upload-zone:hover{border-color:var(--gold);background:var(--gold3)}
-.upload-zone.drag-over{border-color:var(--gold);background:var(--gold3);transform:scale(1.01)}
-.upload-zone.has-file{border-color:rgba(57,231,95,.4);background:rgba(57,231,95,.03);border-style:solid}
-.upload-zone.uploading{border-color:var(--gold);border-style:solid;background:rgba(57,231,95,.02)}
-.upload-zone.error{border-color:rgba(239,68,68,.4);background:rgba(239,68,68,.03);border-style:solid}
+.upload-zone{position:relative;border:1.5px dashed var(--brd2);border-radius:14px;background:rgba(255,255,255,.015);transition:all .25s;overflow:hidden;cursor:pointer}
+.upload-zone:hover{border-color:var(--green);background:rgba(57,231,95,.02)}
+.upload-zone.drag-over{border-color:var(--green);background:rgba(57,231,95,.04);transform:scale(1.01)}
+.upload-zone.has-file{border-color:rgba(57,231,95,.35);background:rgba(57,231,95,.02);border-style:solid}
+.upload-zone.uploading{border-color:var(--green);border-style:solid}
+.upload-zone.error{border-color:rgba(239,68,68,.4);border-style:solid}
 .artwork-zone{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px;min-height:220px}
-.artwork-zone .artwork-preview{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:11px;z-index:1}
-.artwork-zone .artwork-overlay{position:absolute;inset:0;background:rgba(0,0,0,.7);z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;opacity:0;transition:opacity .2s;border-radius:11px}
+.artwork-zone .artwork-preview{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:13px;z-index:1}
+.artwork-zone .artwork-overlay{position:absolute;inset:0;background:rgba(0,0,0,.75);z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;opacity:0;transition:opacity .2s;border-radius:13px}
 .artwork-zone:hover .artwork-overlay{opacity:1}
 .artwork-zone .uz-content{display:flex;flex-direction:column;align-items:center;gap:12px;z-index:1;text-align:center}
 .artwork-zone.has-file .uz-content{display:none}
@@ -208,22 +274,21 @@ nav{flex:1;padding:8px}
 .audio-zone.has-file .uz-content{display:none}
 .audio-player-area{display:none;width:100%;flex-direction:column;gap:12px;align-items:center}
 .audio-zone.has-file .audio-player-area{display:flex}
-.uz-icon-wrap{width:48px;height:48px;border-radius:12px;background:var(--gold3);border:1px solid rgba(57,231,95,.15);display:flex;align-items:center;justify-content:center;transition:all .2s}
+.uz-icon-wrap{width:46px;height:46px;border-radius:12px;background:var(--green-dim);border:1px solid rgba(57,231,95,.15);display:flex;align-items:center;justify-content:center;transition:all .2s}
 .upload-zone:hover .uz-icon-wrap{background:rgba(57,231,95,.2);transform:scale(1.05)}
-.uz-icon-wrap svg{color:var(--gold)}
-.uz-title{font-size:14px;font-weight:700;color:var(--txt)}
-.uz-sub{font-size:11px;color:var(--txt3);line-height:1.6}
-.uz-browse{display:inline-block;margin-top:4px;padding:6px 14px;background:var(--gold3);border:1px solid rgba(57,231,95,.2);border-radius:6px;font-size:11px;font-weight:700;color:var(--gold);letter-spacing:.5px;text-transform:uppercase;transition:all .2s}
+.uz-icon-wrap svg{color:var(--green);width:20px;height:20px}
+.uz-title{font-size:14px;font-weight:700}
+.uz-sub{font-size:11px;color:var(--txt3);line-height:1.7}
+.uz-browse{display:inline-block;margin-top:6px;padding:7px 16px;background:var(--green-dim);border:1px solid rgba(57,231,95,.2);border-radius:8px;font-size:11px;font-weight:800;color:var(--green);letter-spacing:.5px;text-transform:uppercase;transition:all .2s}
 .upload-zone:hover .uz-browse{background:rgba(57,231,95,.2)}
-.upload-progress{width:100%;background:var(--brd);border-radius:4px;height:4px;overflow:hidden;margin-top:4px}
-.upload-progress-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:4px;transition:width .3s ease;width:0%}
+.upload-progress{width:100%;background:var(--brd);border-radius:4px;height:3px;overflow:hidden;margin-top:4px}
+.upload-progress-fill{height:100%;background:var(--green);border-radius:4px;transition:width .3s ease;width:0%}
 .upload-status{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--txt2)}
-.status-spinner{width:14px;height:14px;border:2px solid var(--brd);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
-.status-check{width:20px;height:20px;border-radius:50%;background:var(--grn);display:flex;align-items:center;justify-content:center;flex-shrink:0;animation:checkPop .3s ease}
+.status-spinner{width:14px;height:14px;border:2px solid var(--brd2);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+.status-check{width:20px;height:20px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;flex-shrink:0;animation:checkPop .3s ease}
 .status-check svg{width:11px;height:11px;color:#000}
-.status-error-icon{width:20px;height:20px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-weight:700;color:#fff}
-.waveform{display:flex;align-items:center;justify-content:center;gap:2px;height:36px;padding:0 4px}
-.wave-bar{width:3px;border-radius:2px;background:var(--gold);opacity:.7;animation:waveAnim 1.2s ease-in-out infinite}
+.waveform{display:flex;align-items:center;justify-content:center;gap:3px;height:36px}
+.wave-bar{width:3px;border-radius:2px;background:var(--green);opacity:.7;animation:waveAnim 1.2s ease-in-out infinite}
 .wave-bar:nth-child(1){height:40%;animation-delay:0s}
 .wave-bar:nth-child(2){height:70%;animation-delay:.1s}
 .wave-bar:nth-child(3){height:100%;animation-delay:.2s}
@@ -232,127 +297,149 @@ nav{flex:1;padding:8px}
 .wave-bar:nth-child(6){height:50%;animation-delay:.25s}
 .wave-bar:nth-child(7){height:90%;animation-delay:.05s}
 .wave-bar:nth-child(8){height:40%;animation-delay:.35s}
-.audio-file-info{width:100%;background:var(--card);border:1px solid var(--brd);border-radius:8px;padding:10px 14px}
-.afi-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--txt)}
+.audio-file-info{width:100%;background:var(--card);border:1px solid var(--brd);border-radius:9px;padding:10px 14px}
+.afi-name{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .afi-meta{font-size:11px;color:var(--txt3);margin-top:2px}
-.ov-btn{display:flex;align-items:center;gap:6px;padding:8px 14px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:8px;color:#fff;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;backdrop-filter:blur(4px)}
-.ov-btn:hover{background:rgba(255,255,255,.2)}
-.ov-btn.danger:hover{background:rgba(239,68,68,.3);border-color:rgba(239,68,68,.4)}
-.remove-file-btn{margin-top:6px;padding:5px 12px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);border-radius:6px;color:#f87171;font-size:11px;font-weight:600;cursor:pointer;transition:all .2s}
-.remove-file-btn:hover{background:rgba(239,68,68,.2)}
-.upload-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
-.ub-ok{background:rgba(57,231,95,.1);color:var(--gold);border:1px solid rgba(57,231,95,.2)}
+.ov-btn{display:flex;align-items:center;gap:6px;padding:8px 14px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:8px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s}
+.ov-btn:hover{background:rgba(255,255,255,.15)}
+.ov-btn.danger:hover{background:rgba(239,68,68,.25);border-color:rgba(239,68,68,.4)}
+.remove-file-btn{padding:5px 12px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.15);border-radius:7px;color:#f87171;font-size:11px;font-weight:700;cursor:pointer;transition:all .2s}
+.remove-file-btn:hover{background:rgba(239,68,68,.15)}
+.upload-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:800;letter-spacing:.5px;text-transform:uppercase}
+.ub-ok{background:rgba(57,231,95,.1);color:var(--green);border:1px solid rgba(57,231,95,.2)}
 .ub-warn{background:rgba(249,115,22,.1);color:#fb923c;border:1px solid rgba(249,115,22,.2)}
 .ub-req{background:rgba(239,68,68,.1);color:#f87171;border:1px solid rgba(239,68,68,.2)}
 .hidden-input{display:none}
 
 /* NOTICE */
-.notice{background:rgba(57,231,95,.04);border:1px solid rgba(57,231,95,.15);border-radius:8px;padding:12px 16px;font-size:13px;color:var(--txt2);line-height:1.6;margin-bottom:20px}
-.notice strong{color:var(--gold)}
-.al{padding:11px 14px;border-radius:8px;font-size:12px;margin-bottom:14px;display:none}
+.notice{background:rgba(57,231,95,.04);border:1px solid rgba(57,231,95,.12);border-radius:10px;padding:13px 16px;font-size:13px;color:var(--txt2);line-height:1.7;margin-bottom:18px}
+.notice strong{color:var(--green)}
+.al{padding:11px 14px;border-radius:9px;font-size:12px;margin-bottom:14px;display:none}
 .al.on{display:block;animation:fadeIn .3s ease}
-.al-e{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);color:#fca5a5}
-.al-s{background:rgba(57,231,95,.1);border:1px solid rgba(57,231,95,.2);color:#86efac}
+.al-e{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);color:#fca5a5}
+.al-s{background:rgba(57,231,95,.08);border:1px solid rgba(57,231,95,.2);color:#86efac}
 
 /* ROYALTIES */
-.roy-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px}
+.roy-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px}
 .roy-table{width:100%;border-collapse:collapse}
-.roy-table th{font-size:11px;font-weight:600;color:var(--txt3);text-transform:uppercase;letter-spacing:1px;text-align:left;padding:10px 12px;border-bottom:1px solid var(--brd)}
-.roy-table td{padding:13px 12px;font-size:13px;border-bottom:1px solid rgba(255,255,255,.04)}
+.roy-table th{font-size:10px;font-weight:800;color:var(--txt3);text-transform:uppercase;letter-spacing:1.5px;text-align:left;padding:10px 14px;border-bottom:1px solid var(--brd)}
+.roy-table td{padding:13px 14px;font-size:13px;border-bottom:1px solid rgba(255,255,255,.04)}
 .roy-table tr:last-child td{border-bottom:none}
-.roy-amount{font-family:'DM Mono',monospace;font-size:13px;font-weight:600;color:var(--gold)}
-.platform-icon{width:28px;height:28px;border-radius:6px;background:var(--card);border:1px solid var(--brd);display:inline-flex;align-items:center;justify-content:center;font-size:12px;margin-right:8px;vertical-align:middle}
+.roy-amount{font-family:'DM Mono',monospace;font-size:13px;font-weight:600;color:var(--green)}
+
+/* PROFILE TABS */
+.ptabs{display:flex;gap:0;border-bottom:1px solid var(--brd);margin-bottom:0;padding:0 22px}
+.ptab{padding:14px 16px;font-size:13px;font-weight:600;color:var(--txt2);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;margin-bottom:-1px}
+.ptab:hover{color:var(--txt)}
+.ptab.on{color:var(--green);border-bottom-color:var(--green)}
 
 /* BLOG */
 .blog-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.blog-card{background:var(--card);border:1px solid var(--brd);border-radius:10px;overflow:hidden;cursor:pointer;transition:all .2s;animation:fadeUp .4s ease both}
-.blog-card:hover{border-color:rgba(57,231,95,.25);transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.3)}
-.blog-img{height:140px;background:linear-gradient(135deg,var(--card),var(--brd));display:flex;align-items:center;justify-content:center;font-size:36px;border-bottom:1px solid var(--brd)}
+.blog-card{background:var(--card);border:1px solid var(--brd);border-radius:14px;overflow:hidden;cursor:pointer;transition:all .2s}
+.blog-card:hover{border-color:rgba(57,231,95,.2);transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,0,0,.4)}
+.blog-img{height:140px;background:linear-gradient(135deg,var(--card),var(--brd2));display:flex;align-items:center;justify-content:center;font-size:36px;border-bottom:1px solid var(--brd)}
 .blog-body{padding:16px}
-.blog-cat{font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:2px;margin-bottom:6px}
-.blog-title{font-size:15px;font-weight:700;line-height:1.4;margin-bottom:6px}
+.blog-cat{font-size:10px;font-weight:800;color:var(--green);text-transform:uppercase;letter-spacing:2px;margin-bottom:6px}
+.blog-title{font-size:15px;font-weight:800;line-height:1.4;margin-bottom:6px}
 .blog-excerpt{font-size:12px;color:var(--txt3);line-height:1.6;margin-bottom:10px}
-.blog-meta{font-size:11px;color:var(--txt3);display:flex;align-items:center;gap:8px}
-.blog-modal{position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:1000;display:none;align-items:flex-start;justify-content:center;overflow-y:auto;padding:40px 20px}
+.blog-meta{font-size:11px;color:var(--txt3)}
+.blog-modal{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:1000;display:none;align-items:flex-start;justify-content:center;overflow-y:auto;padding:40px 20px;backdrop-filter:blur(4px)}
 .blog-modal.on{display:flex;animation:fadeIn .3s ease}
-.blog-modal-box{background:var(--surface);border:1px solid var(--brd);border-radius:14px;width:700px;max-width:95vw;animation:fadeUp .4s ease}
+.blog-modal-box{background:var(--surface);border:1px solid var(--brd);border-radius:16px;width:700px;max-width:95vw;animation:fadeUp .4s ease}
 .blog-modal-head{padding:24px 28px;border-bottom:1px solid var(--brd);display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
 .blog-modal-body{padding:28px;font-size:14px;color:var(--txt2);line-height:1.9;white-space:pre-wrap}
-.close-btn{background:none;border:1px solid var(--brd);border-radius:8px;color:var(--txt2);width:32px;height:32px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s}
+.close-btn{background:none;border:1px solid var(--brd2);border-radius:8px;color:var(--txt2);width:32px;height:32px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;font-size:14px}
 .close-btn:hover{border-color:var(--red);color:var(--red)}
 
 /* SUPPORT */
-.faq-item{border:1px solid var(--brd);border-radius:10px;margin-bottom:10px;overflow:hidden}
-.faq-item:hover{border-color:rgba(57,231,95,.15)}
-.faq-q{padding:16px 20px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:600;transition:background .15s}
-.faq-q:hover{background:var(--card)}
-.faq-arrow{transition:transform .3s;color:var(--gold);font-size:12px}
+.faq-search-wrap{position:relative;margin-bottom:16px}
+.faq-search-icon{position:absolute;left:13px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--txt3)}
+.faq-input{width:100%;background:var(--card);border:1px solid var(--brd2);border-radius:10px;color:var(--txt);padding:11px 14px 11px 38px;font-size:13px;font-family:'Inter',sans-serif;outline:none;transition:all .2s}
+.faq-input:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(57,231,95,.08)}
+.faq-item{border:1px solid var(--brd);border-radius:11px;margin-bottom:8px;overflow:hidden;background:var(--card)}
+.faq-item:hover{border-color:var(--brd2)}
+.faq-q{padding:15px 18px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:600;transition:background .15s}
+.faq-q:hover{background:rgba(255,255,255,.02)}
+.faq-arrow{transition:transform .3s;color:var(--green);width:14px;height:14px;flex-shrink:0}
 .faq-item.open .faq-arrow{transform:rotate(180deg)}
-.faq-a{display:none;padding:0 20px 16px;font-size:13px;color:var(--txt2);line-height:1.8}
+.faq-a{display:none;padding:0 18px 15px;font-size:13px;color:var(--txt2);line-height:1.8}
 .faq-item.open .faq-a{display:block;animation:fadeIn .3s ease}
-.faq-cat{font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:2px;margin:20px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--brd)}
+.faq-cat{font-size:10px;font-weight:800;color:var(--green);text-transform:uppercase;letter-spacing:2px;margin:18px 0 8px;padding-bottom:6px;border-bottom:1px solid var(--brd)}
 
 /* TICKETS */
-.ticket-item{padding:16px;border-bottom:1px solid var(--brd);cursor:pointer;transition:background .15s;border-radius:6px}
+.ticket-item{padding:16px 18px;border-bottom:1px solid var(--brd);cursor:pointer;transition:background .15s}
 .ticket-item:last-child{border-bottom:none}
-.ticket-item:hover{background:var(--card)}
-.ticket-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
-.ticket-subject{font-size:13px;font-weight:600}
+.ticket-item:hover{background:rgba(255,255,255,.02)}
+.ticket-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px}
+.ticket-subject{font-size:13px;font-weight:700}
 .ticket-preview{font-size:12px;color:var(--txt3);line-height:1.5}
-.ticket-meta{font-size:11px;color:var(--txt3);margin-top:6px}
-.ticket-reply{background:rgba(57,231,95,.04);border:1px solid rgba(57,231,95,.12);border-radius:8px;padding:12px 16px;margin-top:10px;display:none}
+.ticket-meta{font-size:11px;color:var(--txt3);margin-top:6px;display:flex;gap:10px}
+.ticket-reply{background:rgba(57,231,95,.03);border:1px solid rgba(57,231,95,.1);border-radius:9px;padding:12px 14px;margin-top:10px;display:none}
 .ticket-reply.on{display:block;animation:fadeIn .3s ease}
-.tr-label{font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px}
+.tr-label{font-size:10px;font-weight:800;color:var(--green);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px}
 .tr-text{font-size:13px;color:var(--txt2);line-height:1.6}
 
 /* EMPTY */
-.empty{text-align:center;padding:52px 20px;color:var(--txt3)}
-.empty-icon{font-size:40px;opacity:.2;margin-bottom:12px;animation:pulse 3s ease infinite}
-.empty-text{font-size:15px;font-weight:600;color:var(--txt2)}
-.empty-sub{font-size:12px;margin-top:5px}
+.empty{text-align:center;padding:52px 20px}
+.empty-icon{font-size:36px;opacity:.15;margin-bottom:12px}
+.empty-text{font-size:15px;font-weight:700;color:var(--txt2)}
+.empty-sub{font-size:12px;color:var(--txt3);margin-top:5px}
 
 /* TOAST */
-.toast{position:fixed;bottom:24px;right:24px;background:var(--surface);border:1px solid var(--brd);border-radius:10px;color:var(--txt);font-size:13px;padding:12px 18px;z-index:9999;opacity:0;transition:all .3s;pointer-events:none;box-shadow:0 8px 32px rgba(0,0,0,.4);transform:translateY(8px)}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--surface);border:1px solid var(--brd2);border-radius:12px;color:var(--txt);font-size:13px;font-weight:600;padding:12px 18px;z-index:9999;opacity:0;transition:all .3s;pointer-events:none;box-shadow:0 8px 32px rgba(0,0,0,.5);transform:translateY(8px);display:flex;align-items:center;gap:8px}
 .toast.on{opacity:1;transform:translateY(0)}
+.toast-dot{width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0}
 
+/* SCROLLBAR */
 ::-webkit-scrollbar{width:4px}
 ::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:var(--brd);border-radius:2px}
+::-webkit-scrollbar-thumb{background:var(--brd2);border-radius:2px}
 
 @media(max-width:768px){
   .sb{display:none}.topbar{display:none}.mob-topbar{display:flex}.mob-bottom-nav{display:block}.mob-drawer{display:flex}
-  .content{padding:16px 14px 90px}.auth-left{display:none}.auth-right{width:100%;padding:36px 28px}
-  .stats{grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}.sc{padding:14px}.sc-val{font-size:22px}
+  .content{padding:16px 14px 90px}
+  .auth-left{display:none}.auth-right{width:100%;padding:36px 28px}
+  .stats{grid-template-columns:1fr 1fr;gap:10px}.sc{padding:16px}.sc-val{font-size:22px}
+  .hero-cards{grid-template-columns:1fr}.hero-card{min-height:160px}
   .roy-stats{grid-template-columns:1fr 1fr;gap:10px}.fg2{grid-template-columns:1fr}.full{grid-column:1}.fsec{grid-column:1}
-  .upload-section{grid-template-columns:1fr}.blog-grid{grid-template-columns:1fr}.section{overflow-x:auto}
-  .roy-table{min-width:400px}.sh{padding:12px 14px}.sb2{padding:14px}
+  .upload-section{grid-template-columns:1fr}.blog-grid{grid-template-columns:1fr}
+  .roy-table{min-width:400px}.section{overflow-x:auto}.sh{padding:14px 16px}.sb2{padding:14px}
   .toast{bottom:76px;right:14px;left:14px;text-align:center}
-  .blog-modal{padding:16px 10px}.blog-modal-head{padding:18px}.blog-modal-body{padding:18px;font-size:13px}
-}
-@media(max-width:380px){
-  .stats{grid-template-columns:1fr 1fr}.sc-val{font-size:18px}.mob-ni-label{display:none}.mob-ni{padding:10px 2px}
+  .blog-modal{padding:14px 10px}.blog-modal-head{padding:18px}.blog-modal-body{padding:18px;font-size:13px}
 }
 </style>
 </head>
 <body>
 
+<!-- LOADING -->
 <div id="ld">
-  <div class="ld-logo">T · I · R</div>
+  <div class="ld-logo">
+    <div class="ld-logo-mark">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
+    </div>
+    <div class="ld-logo-text">T·I·<span>R</span></div>
+  </div>
   <div class="ld-bar"><div class="ld-fill"></div></div>
 </div>
 
+<!-- AUTH -->
 <div id="auth">
   <div class="auth-wrap">
     <div class="auth-left">
-      <div class="brand">THE IMAGINARY<br>RECORDS</div>
-      <div class="brand-sub">Artist Portal</div>
-      <div class="tagline">Distribute your music to<br>200+ platforms worldwide.</div>
-      <div class="feats">
-        <div class="feat"><div class="feat-dot"></div> Spotify, Apple Music, JioSaavn & more</div>
-        <div class="feat"><div class="feat-dot"></div> Direct file upload — no Drive links</div>
-        <div class="feat"><div class="feat-dot"></div> Real-time release status tracking</div>
-        <div class="feat"><div class="feat-dot"></div> Detailed royalty statements</div>
-        <div class="feat"><div class="feat-dot"></div> Direct support from TIR team</div>
+      <div class="auth-brand">
+        <div class="auth-brand-mark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
+        </div>
+        <div class="auth-brand-name">The Imaginary Records<span>Artist Portal</span></div>
+      </div>
+      <div class="auth-tagline">Distribute your music.<br><span>Get paid. Stay free.</span></div>
+      <div class="auth-sub">Submit your tracks to 200+ platforms worldwide and keep 85% of all royalties earned.</div>
+      <div class="auth-feats">
+        <div class="auth-feat"><div class="auth-feat-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20,6 9,17 4,12"/></svg></div>Spotify, Apple Music, JioSaavn & more</div>
+        <div class="auth-feat"><div class="auth-feat-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20,6 9,17 4,12"/></svg></div>Direct file upload — no Drive links needed</div>
+        <div class="auth-feat"><div class="auth-feat-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20,6 9,17 4,12"/></svg></div>Real-time release status tracking</div>
+        <div class="auth-feat"><div class="auth-feat-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20,6 9,17 4,12"/></svg></div>Detailed quarterly royalty statements</div>
+        <div class="auth-feat"><div class="auth-feat-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20,6 9,17 4,12"/></svg></div>Direct support from TIR team</div>
       </div>
     </div>
     <div class="auth-right">
@@ -367,75 +454,218 @@ nav{flex:1;padding:8px}
   </div>
 </div>
 
+<!-- DASHBOARD -->
 <div id="dash">
   <div class="layout">
+
+    <!-- SIDEBAR -->
     <div class="sb">
-      <div class="sb-top"><div class="sb-brand">T·I·R</div><div class="sb-lbl">Artist Portal</div></div>
-      <div class="sb-artist"><div class="av" id="av-i">A</div><div><div class="av-name" id="av-n">Artist</div><div class="av-role">Recording Artist</div></div></div>
+      <div class="sb-header">
+        <div class="sb-brand">
+          <div class="sb-brand-mark">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
+          </div>
+          <div class="sb-brand-name">T·I·R<span>Artist Portal</span></div>
+        </div>
+      </div>
+      <div class="sb-artist">
+        <div class="av" id="av-i">A</div>
+        <div class="av-info">
+          <div class="av-name" id="av-n">Artist</div>
+          <div class="av-earn"><span class="earn-badge" id="earn-badge-sb">₹0</span></div>
+        </div>
+      </div>
       <nav>
         <div class="ns">Main</div>
-        <div class="ni on" onclick="goPage('home',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Overview</div>
-        <div class="ni" onclick="goPage('releases',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>My Releases</div>
-        <div class="ni" onclick="goPage('submit',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7-7 7 7"/></svg>Submit Release</div>
+        <div class="ni on" onclick="goPage('home',this)">
+          <svg class="ni-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          Dashboard
+        </div>
+        <div class="ni" onclick="goPage('releases',this)">
+          <svg class="ni-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
+          Releases
+        </div>
+        <div class="ni" onclick="goPage('submit',this)">
+          <svg class="ni-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7-7 7 7"/></svg>
+          Submit Release
+        </div>
         <div class="ns">Finance</div>
-        <div class="ni" onclick="goPage('royalties',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Royalties</div>
+        <div class="ni" onclick="goPage('royalties',this)">
+          <svg class="ni-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          Royalties
+        </div>
         <div class="ns">Community</div>
-        <div class="ni" onclick="goPage('blog',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Music Blog</div>
+        <div class="ni" onclick="goPage('blog',this)">
+          <svg class="ni-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          Music Blog
+        </div>
         <div class="ns">Support</div>
-        <div class="ni" onclick="goPage('support',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Support Hub</div>
-        <div class="ni" onclick="goPage('tickets',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>My Tickets <span class="badge-cnt" id="tkt-cnt" style="display:none">!</span></div>
+        <div class="ni" onclick="goPage('support',this)">
+          <svg class="ni-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          Support Hub
+        </div>
+        <div class="ni" onclick="goPage('tickets',this)">
+          <svg class="ni-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          My Tickets
+          <span class="badge-cnt" id="tkt-cnt" style="display:none">!</span>
+        </div>
         <div class="ns">Account</div>
-        <div class="ni" onclick="goPage('profile',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>My Profile</div>
+        <div class="ni" onclick="goPage('profile',this)">
+          <svg class="ni-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          My Profile
+        </div>
       </nav>
-      <div class="sb-bottom"><button class="so-btn" onclick="doSignOut()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16,17 21,12 16,7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign Out</button></div>
+      <div class="sb-bottom">
+        <button class="so-btn" onclick="doSignOut()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16,17 21,12 16,7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Sign Out
+        </button>
+      </div>
     </div>
 
+    <!-- MAIN -->
     <div class="main">
+      <!-- TOPBAR (desktop) -->
       <div class="topbar">
-        <div><h1 id="pgt">Overview</h1><p id="pgs">Welcome back.</p></div>
-        <button class="btn-new" onclick="goPage('submit',null)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12l7-7 7 7"/></svg>New Release</button>
+        <div class="topbar-left">
+          <h1 id="pgt">Dashboard</h1>
+          <p id="pgs">Welcome back.</p>
+        </div>
+        <div class="topbar-right">
+          <button class="btn-new" onclick="goPage('submit',null)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12l7-7 7 7"/></svg>
+            Release Music
+          </button>
+        </div>
       </div>
+
+      <!-- MOBILE TOPBAR -->
       <div class="mob-topbar">
-        <button class="mob-menu-btn" onclick="openDrawer()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-        <div class="mob-topbar-brand">T·I·R</div>
-        <button class="mob-new-btn" onclick="goPage('submit',null)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12l7-7 7 7"/></svg>Submit</button>
+        <button class="mob-menu-btn" onclick="openDrawer()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <div class="mob-brand">
+          <div class="mob-brand-mark">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
+          </div>
+          <div class="mob-brand-text">T·I·R</div>
+        </div>
+        <div style="width:34px"></div>
       </div>
 
       <div class="content">
-        <!-- HOME -->
+
+        <!-- HOME PAGE -->
         <div class="pg on" id="page-home">
-          <div class="stats animate-fade-up">
-            <div class="sc animate-fade-up-d1"><div class="sc-icon">🎵</div><div class="sc-label">Total Releases</div><div class="sc-val gold" id="st0">0</div><div class="sc-sub">All time</div></div>
-            <div class="sc animate-fade-up-d2"><div class="sc-icon">⏳</div><div class="sc-label">Pending</div><div class="sc-val" id="st1">0</div><div class="sc-sub">Awaiting TIR</div></div>
-            <div class="sc animate-fade-up-d3"><div class="sc-icon">🟢</div><div class="sc-label">Live Now</div><div class="sc-val" id="st2">0</div><div class="sc-sub">On platforms</div></div>
-            <div class="sc animate-fade-up-d4"><div class="sc-icon">💰</div><div class="sc-label">Earnings</div><div class="sc-val gold" id="st3">₹0</div><div class="sc-sub">Quarterly</div></div>
+          <!-- Hero Cards -->
+          <div class="hero-cards">
+            <div class="hero-card hero-card-1" onclick="goPage('submit',null)">
+              <div class="hero-card-bg"></div>
+              <div class="hero-card-content">
+                <span class="hero-card-badge badge-green">Submit</span>
+                <h3>Release your<br>music today.</h3>
+                <p>When you've got the beats right, there's no fun in keeping the world waiting.</p>
+                <a href="#" class="hero-card-link" onclick="event.preventDefault();goPage('submit',null)">
+                  Release Music
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </a>
+              </div>
+            </div>
+            <div class="hero-card hero-card-2" onclick="goPage('royalties',null)">
+              <div class="hero-card-bg"></div>
+              <div class="hero-card-content">
+                <span class="hero-card-badge badge-blue">Earnings</span>
+                <h3>Track your<br>royalties live.</h3>
+                <p>Keep 85% of all earnings. Quarterly payouts via PayPal, no surprises.</p>
+                <a href="#" class="hero-card-link" onclick="event.preventDefault();goPage('royalties',null)">
+                  View Royalties
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </a>
+              </div>
+            </div>
           </div>
-          <div class="section animate-fade-up-d2">
-            <div class="sh"><h3>Recent Releases</h3><span style="font-size:12px;color:var(--txt3)" id="rel-count2"></span></div>
-            <div class="sb2" id="home-r"><div class="empty"><div class="empty-icon">🎵</div><div class="empty-text">No releases yet</div><div class="empty-sub">Submit your first release to get started</div></div></div>
+
+          <!-- Stats -->
+          <div class="stats">
+            <div class="sc">
+              <div class="sc-top">
+                <div class="sc-label">Total Releases</div>
+                <div class="sc-icon sc-icon-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg></div>
+              </div>
+              <div class="sc-val green" id="st0">0</div>
+              <div class="sc-sub">All time</div>
+            </div>
+            <div class="sc">
+              <div class="sc-top">
+                <div class="sc-label">Pending</div>
+                <div class="sc-icon sc-icon-orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg></div>
+              </div>
+              <div class="sc-val" id="st1">0</div>
+              <div class="sc-sub">Awaiting review</div>
+            </div>
+            <div class="sc">
+              <div class="sc-top">
+                <div class="sc-label">Live Now</div>
+                <div class="sc-icon sc-icon-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22,7 13.5,15.5 8.5,10.5 2,17"/><polyline points="16,7 22,7 22,13"/></svg></div>
+              </div>
+              <div class="sc-val green" id="st2">0</div>
+              <div class="sc-sub">On platforms</div>
+            </div>
+            <div class="sc">
+              <div class="sc-top">
+                <div class="sc-label">Earnings</div>
+                <div class="sc-icon sc-icon-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+              </div>
+              <div class="sc-val green" id="st3">₹0</div>
+              <div class="sc-sub">Available</div>
+            </div>
           </div>
-          <div class="section animate-fade-up-d3">
+
+          <!-- Recent Releases -->
+          <div class="section">
+            <div class="sh"><h3>Recent Releases</h3><span class="sh-right" id="rel-count2"></span></div>
+            <div class="sb2" id="home-r">
+              <div class="empty"><div class="empty-icon">🎵</div><div class="empty-text">No releases yet</div><div class="empty-sub">Submit your first release to get started</div></div>
+            </div>
+          </div>
+
+          <!-- Announcements -->
+          <div class="section">
             <div class="sh"><h3>Announcements from TIR</h3></div>
-            <div class="sb2" style="display:flex;flex-direction:column;gap:10px">
-              <div style="display:flex;gap:12px;align-items:flex-start;padding:12px;background:var(--card);border-radius:8px;border:1px solid var(--brd)"><span style="color:var(--gold);font-size:16px;margin-top:1px">→</span><span style="font-size:13px;color:var(--txt2);line-height:1.7">TIR distributes to <strong style="color:var(--txt)">200+ platforms</strong> — Spotify, Apple Music, JioSaavn, Gaana, YouTube Music, Amazon Music and more.</span></div>
-              <div style="display:flex;gap:12px;align-items:flex-start;padding:12px;background:var(--card);border-radius:8px;border:1px solid var(--brd)"><span style="color:var(--gold);font-size:16px;margin-top:1px">→</span><span style="font-size:13px;color:var(--txt2);line-height:1.7">Release review takes <strong style="color:var(--txt)">3–5 business days</strong>. You will be notified via email.</span></div>
-              <div style="display:flex;gap:12px;align-items:flex-start;padding:12px;background:var(--card);border-radius:8px;border:1px solid var(--brd)"><span style="color:var(--gold);font-size:16px;margin-top:1px">→</span><span style="font-size:13px;color:var(--txt2);line-height:1.7">Audio: <strong style="color:var(--txt)">WAV or FLAC</strong>, 44.1kHz / 16-bit minimum. Artwork: <strong style="color:var(--txt)">3000×3000px JPG or PNG</strong>.</span></div>
+            <div class="sb2">
+              <div class="ann-item">
+                <div class="ann-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg></div>
+                <div class="ann-text">TIR distributes to <strong>200+ platforms</strong> — Spotify, Apple Music, JioSaavn, Gaana, YouTube Music, Amazon Music and more.</div>
+              </div>
+              <div class="ann-item">
+                <div class="ann-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg></div>
+                <div class="ann-text">Release review takes <strong>3–5 business days</strong>. You will be notified via email once your release is approved.</div>
+              </div>
+              <div class="ann-item">
+                <div class="ann-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>
+                <div class="ann-text">Audio: <strong>WAV or FLAC</strong>, 44.1kHz / 16-bit minimum. Artwork: <strong>3000×3000px JPG or PNG</strong> required.</div>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- RELEASES -->
+        <!-- RELEASES PAGE -->
         <div class="pg" id="page-releases">
-          <div class="section"><div class="sh"><h3>All My Releases</h3><p id="rel-count">0 releases</p></div><div class="sb2" id="all-r"><div class="empty"><div class="empty-icon">🎵</div><div class="empty-text">No releases yet</div></div></div></div>
+          <div class="section">
+            <div class="sh"><h3>All Releases</h3><span class="sh-right" id="rel-count">0 releases</span></div>
+            <div class="sb2" id="all-r">
+              <div class="empty"><div class="empty-icon">🎵</div><div class="empty-text">No releases yet</div></div>
+            </div>
+          </div>
         </div>
 
-        <!-- SUBMIT -->
+        <!-- SUBMIT PAGE -->
         <div class="pg" id="page-submit">
-          <div class="notice"><strong>Submit your release:</strong> Fill in all details, then upload your audio and artwork directly below. WAV or FLAC for audio · 3000×3000px JPG/PNG for artwork.</div>
+          <div class="notice"><strong>Submit your release:</strong> Fill in all details, upload your audio and artwork directly. WAV or FLAC for audio · 3000×3000px JPG/PNG for artwork.</div>
           <div class="al al-e" id="sub-e"></div>
           <div class="al al-s" id="sub-s"></div>
           <div class="section">
-            <div class="sh"><h3>Release Submission</h3><p>All * fields required</p></div>
+            <div class="sh"><h3>Release Submission</h3><p style="font-size:12px;color:var(--txt3)">All * fields required</p></div>
             <div class="sb2">
               <div class="fg2">
                 <div class="fsec">Release Information</div>
@@ -461,13 +691,12 @@ nav{flex:1;padding:8px}
                 <div class="fg full"><label>Notes for TIR</label><textarea id="s17" placeholder="Anything else..." style="min-height:70px"></textarea></div>
                 <div class="fsec">Audio &amp; Artwork Upload</div>
                 <div class="upload-section">
-                  <!-- AUDIO -->
                   <div>
                     <div class="fg" style="margin-bottom:8px"><label>Audio File * <span style="color:var(--txt3);font-weight:400;text-transform:none;letter-spacing:0">WAV or FLAC · 44.1kHz / 16-bit min</span></label></div>
                     <div class="upload-zone audio-zone" id="audio-zone" ondragover="handleDrag(event,'audio-zone')" ondragleave="handleDragLeave('audio-zone')" ondrop="handleDrop(event,'audio')" onclick="document.getElementById('audio-input').click()">
                       <input type="file" id="audio-input" class="hidden-input" accept=".wav,.flac,.aiff,.aif" onchange="handleFileSelect(event,'audio')"/>
                       <div class="uz-content">
-                        <div class="uz-icon-wrap"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>
+                        <div class="uz-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>
                         <div><div class="uz-title">Drop audio file here</div><div class="uz-sub">WAV, FLAC, or AIFF<br>Drag & drop or click to browse</div></div>
                         <div class="uz-browse">Browse Files</div>
                       </div>
@@ -478,12 +707,11 @@ nav{flex:1;padding:8px}
                       </div>
                       <div class="audio-player-area">
                         <div class="audio-file-info" id="audio-info"><div class="afi-name" id="audio-filename">—</div><div class="afi-meta" id="audio-filemeta">—</div></div>
-                        <div class="upload-status"><div class="status-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20,6 9,17 4,12"/></svg></div><span style="color:var(--grn);font-weight:600">Uploaded successfully</span></div>
+                        <div class="upload-status"><div class="status-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20,6 9,17 4,12"/></svg></div><span style="color:var(--green);font-weight:700">Uploaded successfully</span></div>
                         <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center"><span class="upload-badge ub-ok" id="audio-format-badge">WAV</span><button class="remove-file-btn" onclick="removeFile(event,'audio')">✕ Remove</button></div>
                       </div>
                     </div>
                   </div>
-                  <!-- ARTWORK -->
                   <div>
                     <div class="fg" style="margin-bottom:8px"><label>Cover Artwork <span style="color:var(--txt3);font-weight:400;text-transform:none;letter-spacing:0">3000×3000px JPG or PNG</span></label></div>
                     <div class="upload-zone artwork-zone" id="artwork-zone" ondragover="handleDrag(event,'artwork-zone')" ondragleave="handleDragLeave('artwork-zone')" ondrop="handleDrop(event,'artwork')" onclick="document.getElementById('artwork-input').click()">
@@ -494,7 +722,7 @@ nav{flex:1;padding:8px}
                         <button class="ov-btn danger" onclick="removeFile(event,'artwork')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>Remove</button>
                       </div>
                       <div class="uz-content">
-                        <div class="uz-icon-wrap"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
+                        <div class="uz-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
                         <div><div class="uz-title">Drop artwork here</div><div class="uz-sub">JPG or PNG<br>3000×3000px recommended</div></div>
                         <div class="uz-browse">Browse Files</div>
                       </div>
@@ -504,13 +732,13 @@ nav{flex:1;padding:8px}
                         <div class="upload-progress" style="width:100%"><div class="upload-progress-fill" id="artwork-prog"></div></div>
                       </div>
                     </div>
-                    <div id="artwork-status-row" style="display:none;margin-top:8px;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">
-                      <div class="upload-status" id="artwork-status-msg" style="display:none"><div class="status-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20,6 9,17 4,12"/></svg></div><span style="color:var(--grn);font-weight:600">Artwork uploaded</span></div>
+                    <div id="artwork-status-row" style="display:none;margin-top:8px;display:none;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">
+                      <div class="upload-status" id="artwork-status-msg" style="display:none"><div class="status-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20,6 9,17 4,12"/></svg></div><span style="color:var(--green);font-weight:700">Artwork uploaded</span></div>
                       <span class="upload-badge ub-ok" id="artwork-dim-badge" style="display:none">Checking...</span>
                     </div>
                   </div>
                 </div>
-                <div class="full" style="display:flex;gap:12px;margin-top:16px;flex-wrap:wrap">
+                <div class="full" style="display:flex;gap:12px;margin-top:20px;flex-wrap:wrap">
                   <button class="btn-sub" id="bsub" onclick="submitRelease()">Submit Release</button>
                   <button class="btn-sec2" onclick="goPage('home',null)">Cancel</button>
                 </div>
@@ -519,42 +747,52 @@ nav{flex:1;padding:8px}
           </div>
         </div>
 
-        <!-- ROYALTIES -->
+        <!-- ROYALTIES PAGE -->
         <div class="pg" id="page-royalties">
           <div class="roy-stats">
-            <div class="sc"><div class="sc-label">Total Earned</div><div class="sc-val gold" id="roy-total">₹0.00</div><div class="sc-sub">All time</div></div>
-            <div class="sc"><div class="sc-label">This Quarter</div><div class="sc-val" id="roy-quarter">₹0.00</div><div class="sc-sub">Current period</div></div>
-            <div class="sc"><div class="sc-label">Last Payout</div><div class="sc-val" id="roy-last">₹0.00</div><div class="sc-sub">Via PayPal</div></div>
+            <div class="sc"><div class="sc-top"><div class="sc-label">Total Earned</div><div class="sc-icon sc-icon-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div></div><div class="sc-val green" id="roy-total">₹0.00</div><div class="sc-sub">All time</div></div>
+            <div class="sc"><div class="sc-top"><div class="sc-label">This Quarter</div><div class="sc-icon sc-icon-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div></div><div class="sc-val" id="roy-quarter">₹0.00</div><div class="sc-sub">Current period</div></div>
+            <div class="sc"><div class="sc-top"><div class="sc-label">Last Payout</div><div class="sc-icon sc-icon-orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div></div><div class="sc-val" id="roy-last">₹0.00</div><div class="sc-sub">Via PayPal</div></div>
           </div>
           <div class="notice">Royalty statements updated every quarter. Minimum payout threshold is <strong>₹500</strong>. Ensure your PayPal email is set in your profile.</div>
-          <div class="section" style="margin-bottom:16px"><div class="sh"><h3>Earnings by Platform</h3><p id="roy-period-lbl">—</p></div><div class="sb2"><div id="roy-platforms"><div class="empty"><div class="empty-icon">📊</div><div class="empty-text">No earnings yet</div><div class="empty-sub">Appears after your first live release</div></div></div></div></div>
-          <div class="section" style="margin-bottom:16px"><div class="sh"><h3>Earnings by Release</h3></div><div class="sb2"><div id="roy-releases"><div class="empty"><div class="empty-icon">🎵</div><div class="empty-text">No release earnings yet</div></div></div></div></div>
-          <div class="section"><div class="sh"><h3>Payout History</h3></div><div class="sb2"><div id="roy-history"><div class="empty"><div class="empty-icon">💸</div><div class="empty-text">No payouts yet</div><div class="empty-sub">Payouts processed every quarter via PayPal</div></div></div></div></div>
+          <div class="section" style="margin-bottom:16px"><div class="sh"><h3>Earnings by Platform</h3><span class="sh-right" id="roy-period-lbl">—</span></div><div class="sb2" id="roy-platforms"><div class="empty"><div class="empty-icon">📊</div><div class="empty-text">No earnings yet</div><div class="empty-sub">Appears after your first live release</div></div></div></div>
+          <div class="section" style="margin-bottom:16px"><div class="sh"><h3>Earnings by Release</h3></div><div class="sb2" id="roy-releases"><div class="empty"><div class="empty-icon">🎵</div><div class="empty-text">No release earnings yet</div></div></div></div>
+          <div class="section"><div class="sh"><h3>Payout History</h3></div><div class="sb2" id="roy-history"><div class="empty"><div class="empty-icon">💸</div><div class="empty-text">No payouts yet</div><div class="empty-sub">Payouts processed quarterly via PayPal</div></div></div></div>
         </div>
 
-        <!-- BLOG -->
+        <!-- BLOG PAGE -->
         <div class="pg" id="page-blog">
-          <div class="section"><div class="sh"><h3>Music Blog</h3><p>Tips, news & insights from TIR</p></div><div class="sb2"><div class="blog-grid" id="blog-grid"><div class="empty" style="grid-column:1/-1"><div class="empty-icon">📝</div><div class="empty-text">No posts yet</div></div></div></div></div>
+          <div class="section"><div class="sh"><h3>Music Blog</h3><span class="sh-right">Tips, news & insights from TIR</span></div><div class="sb2"><div class="blog-grid" id="blog-grid"><div class="empty" style="grid-column:1/-1"><div class="empty-icon">📝</div><div class="empty-text">No posts yet</div></div></div></div></div>
         </div>
 
-        <!-- SUPPORT -->
+        <!-- SUPPORT PAGE -->
         <div class="pg" id="page-support">
-          <div class="section" style="margin-bottom:20px">
-            <div class="sh"><h3>Support Hub</h3><p>Find answers instantly</p></div>
+          <div class="section" style="margin-bottom:18px">
+            <div class="sh"><h3>Support Hub</h3><span class="sh-right">Find answers instantly</span></div>
             <div class="sb2">
-              <div style="margin-bottom:16px"><input type="text" id="faq-search" oninput="searchFAQ(this.value)" placeholder="🔍  Search questions..." style="width:100%;background:var(--card);border:1px solid var(--brd);border-radius:8px;color:var(--txt);padding:11px 14px;font-size:14px;outline:none;transition:border-color .2s"/></div>
+              <div class="faq-search-wrap">
+                <svg class="faq-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input class="faq-input" id="faq-search" oninput="searchFAQ(this.value)" placeholder="Search questions..."/>
+              </div>
               <div id="faq-list"></div>
             </div>
           </div>
-          <div class="section"><div class="sh"><h3>Still need help?</h3></div><div class="sb2" style="display:flex;gap:12px;flex-wrap:wrap"><button class="btn-sub" onclick="goPage('tickets',null)">Open Support Ticket</button><a href="mailto:theimaginaryrecords@gmail.com" style="text-decoration:none"><button class="btn-sec2">Email TIR Directly</button></a></div></div>
+          <div class="section">
+            <div class="sh"><h3>Still need help?</h3></div>
+            <div class="sb2" style="display:flex;gap:12px;flex-wrap:wrap">
+              <button class="btn-sub" onclick="goPage('tickets',null)">Open Support Ticket</button>
+              <a href="mailto:theimaginaryrecords@gmail.com" style="text-decoration:none"><button class="btn-sec2">Email TIR Directly</button></a>
+            </div>
+          </div>
         </div>
 
-        <!-- TICKETS -->
+        <!-- TICKETS PAGE -->
         <div class="pg" id="page-tickets">
-          <div class="section" style="margin-bottom:20px">
-            <div class="sh"><h3>Open New Ticket</h3><p>Response within 24–48 hrs</p></div>
+          <div class="section" style="margin-bottom:18px">
+            <div class="sh"><h3>Open New Ticket</h3><span class="sh-right">Response within 24–48 hrs</span></div>
             <div class="sb2">
-              <div class="al al-e" id="tkt-e"></div><div class="al al-s" id="tkt-s"></div>
+              <div class="al al-e" id="tkt-e"></div>
+              <div class="al al-s" id="tkt-s"></div>
               <div class="fg2">
                 <div class="fg"><label>Category *</label><select id="t0"><option value="">— Select Category —</option><option>Release Issue</option><option>Distribution Problem</option><option>Royalty / Payment</option><option>ISRC / UPC Request</option><option>Takedown Request</option><option>Artwork Issue</option><option>Account Problem</option><option>General Inquiry</option><option>Other</option></select></div>
                 <div class="fg"><label>Priority</label><select id="t1"><option value="normal">Normal</option><option value="urgent">Urgent</option></select></div>
@@ -564,74 +802,117 @@ nav{flex:1;padding:8px}
               </div>
             </div>
           </div>
-          <div class="section"><div class="sh"><h3>My Tickets</h3><p id="tkt-count">0 tickets</p></div><div id="tkt-list"><div class="empty" style="padding:32px"><div class="empty-icon">💬</div><div class="empty-text">No tickets yet</div></div></div></div>
-        </div>
-
-        <!-- PROFILE -->
-        <div class="pg" id="page-profile">
-          <div class="al al-s" id="p-ok"></div>
-          <div class="section"><div class="sh"><h3>Artist Profile</h3></div>
-            <div class="sb2"><div class="fg2">
-              <div class="fg"><label>Artist / Stage Name</label><input type="text" id="p0"/></div>
-              <div class="fg"><label>Email (cannot change)</label><input type="email" id="p1" disabled/></div>
-              <div class="fg"><label>Genre</label><select id="p2"><option>Hip Hop / Trap</option><option>UK Drill</option><option>R&amp;B / Soul</option><option>Nasheed / Islamic</option><option>Lofi / Chillhop</option><option>Instrumental</option><option>Other</option></select></div>
-              <div class="fg"><label>Country</label><input type="text" id="p3"/></div>
-              <div class="fg full"><label>Bio</label><textarea id="p4" placeholder="Tell the world about yourself..."></textarea></div>
-              <div class="fg"><label>PayPal Email (for royalties)</label><input type="email" id="p5" placeholder="paypal@email.com"/></div>
-              <div class="fg"><label>Spotify Artist ID</label><input type="text" id="p6" placeholder="spotify:artist:..."/></div>
-              <div class="fg"><label>Instagram</label><input type="text" id="p7" placeholder="@handle"/></div>
-              <div class="fg"><label>YouTube</label><input type="text" id="p8" placeholder="Channel URL"/></div>
-              <div class="full"><button class="btn-sub" onclick="saveProfile()">Save Profile</button></div>
-            </div></div>
+          <div class="section">
+            <div class="sh"><h3>My Tickets</h3><span class="sh-right" id="tkt-count">0 tickets</span></div>
+            <div id="tkt-list"><div class="empty" style="padding:36px"><div class="empty-icon">💬</div><div class="empty-text">No tickets yet</div></div></div>
           </div>
         </div>
+
+        <!-- PROFILE PAGE -->
+        <div class="pg" id="page-profile">
+          <div class="al al-s" id="p-ok"></div>
+          <div class="section">
+            <div class="sh"><h3>Artist Profile</h3></div>
+            <div class="ptabs">
+              <div class="ptab on" onclick="switchProfileTab('general',this)">General</div>
+              <div class="ptab" onclick="switchProfileTab('social',this)">Social Links</div>
+            </div>
+            <div class="sb2" id="ptab-general">
+              <div class="fg2">
+                <div class="fg"><label>Artist / Stage Name</label><input type="text" id="p0"/></div>
+                <div class="fg"><label>Email (cannot change)</label><input type="email" id="p1" disabled style="opacity:.5"/></div>
+                <div class="fg"><label>Genre</label><select id="p2"><option>Hip Hop / Trap</option><option>UK Drill</option><option>R&amp;B / Soul</option><option>Nasheed / Islamic</option><option>Lofi / Chillhop</option><option>Instrumental</option><option>Other</option></select></div>
+                <div class="fg"><label>Country</label><input type="text" id="p3"/></div>
+                <div class="fg full"><label>About</label><textarea id="p4" placeholder="Tell the world about yourself..."></textarea></div>
+                <div class="fg"><label>PayPal Email (for royalties)</label><input type="email" id="p5" placeholder="paypal@email.com"/></div>
+                <div class="fg"><label>Spotify Artist URL</label><input type="text" id="p6" placeholder="https://open.spotify.com/artist/..."/></div>
+                <div class="full"><button class="btn-sub" onclick="saveProfile()">Save Profile</button></div>
+              </div>
+            </div>
+            <div class="sb2" id="ptab-social" style="display:none">
+              <div class="fg2">
+                <div class="fg"><label>Instagram</label><input type="text" id="p7" placeholder="@handle"/></div>
+                <div class="fg"><label>YouTube</label><input type="text" id="p8" placeholder="Channel URL"/></div>
+                <div class="fg"><label>Facebook</label><input type="text" id="p9" placeholder="Page URL"/></div>
+                <div class="fg"><label>Twitter / X</label><input type="text" id="p10" placeholder="@handle"/></div>
+                <div class="full"><button class="btn-sub" onclick="saveProfile()">Save Changes</button></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /.content -->
+    </div><!-- /.main -->
+  </div><!-- /.layout -->
+
+  <!-- MOBILE OVERLAY & DRAWER -->
+  <div class="mob-overlay" id="mob-overlay" onclick="closeDrawer()"></div>
+  <div class="mob-drawer" id="mob-drawer">
+    <div class="sb-header" style="display:flex;align-items:center;justify-content:space-between;padding:16px">
+      <div class="sb-brand">
+        <div class="sb-brand-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg></div>
+        <div class="sb-brand-name">T·I·R<span>Artist Portal</span></div>
+      </div>
+      <button class="mob-menu-btn" onclick="closeDrawer()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="sb-artist"><div class="av" id="av-i-m">A</div><div class="av-info"><div class="av-name" id="av-n-m">Artist</div><div class="av-earn"><span class="earn-badge">₹0</span></div></div></div>
+    <nav>
+      <div class="ns">Main</div>
+      <div class="ni on" onclick="goPage('home',this);closeDrawer()"><svg class="ni-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Dashboard</div>
+      <div class="ni" onclick="goPage('releases',this);closeDrawer()"><svg class="ni-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>Releases</div>
+      <div class="ni" onclick="goPage('submit',this);closeDrawer()"><svg class="ni-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7-7 7 7"/></svg>Submit Release</div>
+      <div class="ns">Finance</div>
+      <div class="ni" onclick="goPage('royalties',this);closeDrawer()"><svg class="ni-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Royalties</div>
+      <div class="ns">Community</div>
+      <div class="ni" onclick="goPage('blog',this);closeDrawer()"><svg class="ni-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Music Blog</div>
+      <div class="ns">Support</div>
+      <div class="ni" onclick="goPage('support',this);closeDrawer()"><svg class="ni-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Support Hub</div>
+      <div class="ni" onclick="goPage('tickets',this);closeDrawer()"><svg class="ni-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>My Tickets<span class="badge-cnt" id="tkt-cnt-m" style="display:none">!</span></div>
+      <div class="ns">Account</div>
+      <div class="ni" onclick="goPage('profile',this);closeDrawer()"><svg class="ni-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>My Profile</div>
+    </nav>
+    <div class="sb-bottom"><button class="so-btn" onclick="doSignOut()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16,17 21,12 16,7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign Out</button></div>
+  </div>
+
+  <!-- MOBILE BOTTOM NAV -->
+  <div class="mob-bottom-nav">
+    <div class="mob-nav-items">
+      <div class="mob-ni on" id="mni-home" onclick="goPage('home',null);setMobNav('home')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        <span class="mob-ni-label">Home</span>
+      </div>
+      <div class="mob-ni" id="mni-releases" onclick="goPage('releases',null);setMobNav('releases')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
+        <span class="mob-ni-label">Releases</span>
+      </div>
+      <div class="mob-ni" id="mni-submit" onclick="goPage('submit',null);setMobNav('submit')">
+        <div class="mob-submit-fab"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5"><path d="M12 5v14M5 12l7-7 7 7"/></svg></div>
+        <span class="mob-ni-label" style="color:var(--txt3)">Submit</span>
+      </div>
+      <div class="mob-ni" id="mni-royalties" onclick="goPage('royalties',null);setMobNav('royalties')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        <span class="mob-ni-label">Royalties</span>
+      </div>
+      <div class="mob-ni" id="mni-more" onclick="openDrawer()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1" fill="currentColor"/><circle cx="12" cy="12" r="1" fill="currentColor"/><circle cx="12" cy="19" r="1" fill="currentColor"/></svg>
+        <span class="mob-ni-label">More</span>
       </div>
     </div>
   </div>
-
-  <div class="mob-overlay" id="mob-overlay" onclick="closeDrawer()"></div>
-  <div class="mob-drawer" id="mob-drawer">
-    <div class="sb-top" style="display:flex;align-items:center;justify-content:space-between">
-      <div><div class="sb-brand">T·I·R</div><div class="sb-lbl">Artist Portal</div></div>
-      <button class="mob-menu-btn" onclick="closeDrawer()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
-    </div>
-    <div class="sb-artist"><div class="av" id="av-i-m">A</div><div><div class="av-name" id="av-n-m">Artist</div><div class="av-role">Recording Artist</div></div></div>
-    <nav>
-      <div class="ns">Main</div>
-      <div class="ni on" onclick="goPage('home',this);closeDrawer()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Overview</div>
-      <div class="ni" onclick="goPage('releases',this);closeDrawer()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>My Releases</div>
-      <div class="ni" onclick="goPage('submit',this);closeDrawer()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7-7 7 7"/></svg>Submit Release</div>
-      <div class="ns">Finance</div>
-      <div class="ni" onclick="goPage('royalties',this);closeDrawer()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Royalties</div>
-      <div class="ns">Community</div>
-      <div class="ni" onclick="goPage('blog',this);closeDrawer()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Music Blog</div>
-      <div class="ns">Support</div>
-      <div class="ni" onclick="goPage('support',this);closeDrawer()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Support Hub</div>
-      <div class="ni" onclick="goPage('tickets',this);closeDrawer()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>My Tickets <span class="badge-cnt" id="tkt-cnt-m" style="display:none">!</span></div>
-      <div class="ns">Account</div>
-      <div class="ni" onclick="goPage('profile',this);closeDrawer()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>My Profile</div>
-    </nav>
-    <div class="sb-bottom"><button class="so-btn" onclick="doSignOut()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16,17 21,12 16,7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign Out</button></div>
-  </div>
-
-  <div class="mob-bottom-nav">
-    <div class="mob-nav-items">
-      <div class="mob-ni on" id="mni-home" onclick="goPage('home',null);setMobNav('home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg><span class="mob-ni-label">Home</span></div>
-      <div class="mob-ni" id="mni-releases" onclick="goPage('releases',null);setMobNav('releases')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg><span class="mob-ni-label">Releases</span></div>
-      <div class="mob-ni" id="mni-submit" onclick="goPage('submit',null);setMobNav('submit')" style="color:var(--gold)"><div style="width:44px;height:44px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;margin-top:-16px;box-shadow:0 4px 16px rgba(57,231,95,.3)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5"><path d="M12 5v14M5 12l7-7 7 7"/></svg></div><span class="mob-ni-label" style="color:var(--txt3)">Submit</span></div>
-      <div class="mob-ni" id="mni-royalties" onclick="goPage('royalties',null);setMobNav('royalties')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg><span class="mob-ni-label">Royalties</span></div>
-      <div class="mob-ni" id="mni-more" onclick="openDrawer()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1" fill="currentColor"/><circle cx="12" cy="12" r="1" fill="currentColor"/><circle cx="12" cy="19" r="1" fill="currentColor"/></svg><span class="mob-ni-label">More</span></div>
-    </div>
-  </div>
 </div>
 
+<!-- BLOG MODAL -->
 <div class="blog-modal" id="blog-modal">
   <div class="blog-modal-box">
-    <div class="blog-modal-head"><div><div class="blog-cat" id="bm-cat"></div><div style="font-size:20px;font-weight:700" id="bm-title"></div><div style="font-size:12px;color:var(--txt3);margin-top:6px" id="bm-meta"></div></div><button class="close-btn" onclick="closeBlog()">✕</button></div>
+    <div class="blog-modal-head">
+      <div><div class="blog-cat" id="bm-cat"></div><div style="font-size:20px;font-weight:800" id="bm-title"></div><div style="font-size:12px;color:var(--txt3);margin-top:6px" id="bm-meta"></div></div>
+      <button class="close-btn" onclick="closeBlog()">✕</button>
+    </div>
     <div class="blog-modal-body" id="bm-body"></div>
   </div>
 </div>
-<div class="toast" id="toast"></div>
+
+<div class="toast" id="toast"><div class="toast-dot"></div><span id="toast-msg"></span></div>
 
 <script>
 // ── UPLOAD STATE ──
@@ -647,13 +928,7 @@ async function uploadToCloudinary(file,type){
     const xhr=new XMLHttpRequest();
     xhr.open('POST',url,true);
     xhr.upload.onprogress=(e)=>{
-      if(e.lengthComputable){
-        const pct=Math.round((e.loaded/e.total)*100);
-        const progEl=document.getElementById(type+'-prog');
-        if(progEl)progEl.style.width=pct+'%';
-        const msgEl=document.getElementById(type+'-upload-msg');
-        if(msgEl)msgEl.textContent=`Uploading ${type}... ${pct}%`;
-      }
+      if(e.lengthComputable){const pct=Math.round((e.loaded/e.total)*100);const p=document.getElementById(type+'-prog');if(p)p.style.width=pct+'%';const m=document.getElementById(type+'-upload-msg');if(m)m.textContent=`Uploading ${type}... ${pct}%`;}
     };
     xhr.onload=()=>{xhr.status===200?resolve(JSON.parse(xhr.responseText)):reject(new Error('Upload failed: '+xhr.status));};
     xhr.onerror=()=>reject(new Error('Network error'));
@@ -667,107 +942,96 @@ function handleDrop(e,type){e.preventDefault();e.stopPropagation();document.getE
 function handleFileSelect(e,type){const file=e.target.files[0];if(file)processFile(file,type);}
 
 function validateFile(file,type){
-  if(type==='audio'){
-    const ext=file.name.split('.').pop().toLowerCase();
-    if(!['wav','flac','aif','aiff'].includes(ext))return{ok:false,msg:'Only WAV, FLAC, or AIFF files are accepted for audio.'};
-    if(file.size>500*1024*1024)return{ok:false,msg:'Audio file must be under 500MB.'};
-  }
-  if(type==='artwork'){
-    if(!['image/jpeg','image/jpg','image/png'].includes(file.type))return{ok:false,msg:'Only JPG or PNG files are accepted for artwork.'};
-    if(file.size>50*1024*1024)return{ok:false,msg:'Artwork file must be under 50MB.'};
-  }
+  if(type==='audio'){const ext=file.name.split('.').pop().toLowerCase();if(!['wav','flac','aif','aiff'].includes(ext))return{ok:false,msg:'Only WAV, FLAC, or AIFF accepted.'};if(file.size>500*1024*1024)return{ok:false,msg:'Audio must be under 500MB.'};}
+  if(type==='artwork'){if(!['image/jpeg','image/jpg','image/png'].includes(file.type))return{ok:false,msg:'Only JPG or PNG accepted.'};if(file.size>50*1024*1024)return{ok:false,msg:'Artwork must be under 50MB.'};}
   return{ok:true};
 }
-
-function fmtSize(bytes){if(bytes<1024*1024)return(bytes/1024).toFixed(1)+' KB';return(bytes/(1024*1024)).toFixed(1)+' MB';}
+function fmtSize(b){if(b<1024*1024)return(b/1024).toFixed(1)+' KB';return(b/(1024*1024)).toFixed(1)+' MB';}
 
 async function processFile(file,type){
   const v=validateFile(file,type);
   if(!v.ok){showErr('sub-e',v.msg);document.getElementById('sub-e').classList.add('on');return;}
   document.getElementById('sub-e').classList.remove('on');
-  if(type==='audio')await processAudio(file);
-  else await processArtwork(file);
+  if(type==='audio')await processAudio(file);else await processArtwork(file);
 }
 
 async function processAudio(file){
   const zone=document.getElementById('audio-zone');
-  const uploadingEl=document.getElementById('audio-uploading');
-  const uzContent=zone.querySelector('.uz-content');
-  uzContent.style.display='none';uploadingEl.style.display='flex';zone.classList.add('uploading');zone.onclick=null;
+  const up=document.getElementById('audio-uploading');
+  zone.querySelector('.uz-content').style.display='none';up.style.display='flex';zone.classList.add('uploading');zone.onclick=null;
   try{
-    const result=await uploadToCloudinary(file,'audio');
-    if(!result){resetAudioZone();return;}
+    const r=await uploadToCloudinary(file,'audio');
     const ext=file.name.split('.').pop().toUpperCase();
-    uploadState.audio={url:result.secure_url,publicId:result.public_id,filename:file.name,size:fmtSize(file.size),format:ext,duration:result.duration?Math.round(result.duration)+'s':null};
-    uploadingEl.style.display='none';zone.classList.remove('uploading');zone.classList.add('has-file');zone.onclick=null;
+    uploadState.audio={url:r.secure_url,publicId:r.public_id,filename:file.name,size:fmtSize(file.size),format:ext,duration:r.duration?Math.round(r.duration)+'s':null};
+    up.style.display='none';zone.classList.remove('uploading');zone.classList.add('has-file');zone.onclick=null;
     document.getElementById('audio-filename').textContent=file.name;
-    document.getElementById('audio-filemeta').textContent=`${ext} · ${fmtSize(file.size)}${result.duration?' · '+Math.floor(result.duration/60)+':'+String(Math.round(result.duration%60)).padStart(2,'0'):''}`;
+    document.getElementById('audio-filemeta').textContent=`${ext} · ${fmtSize(file.size)}${r.duration?' · '+Math.floor(r.duration/60)+':'+String(Math.round(r.duration%60)).padStart(2,'0'):''}`;
     document.getElementById('audio-format-badge').textContent=ext;
     toast('Audio uploaded ✓');
   }catch(err){
-    uploadingEl.style.display='none';zone.classList.remove('uploading');zone.classList.add('error');
+    up.style.display='none';zone.classList.remove('uploading');zone.classList.add('error');
     showErr('sub-e','Audio upload failed: '+err.message);document.getElementById('sub-e').classList.add('on');
-    zone.onclick=()=>document.getElementById('audio-input').click();setTimeout(()=>zone.classList.remove('error'),3000);
+    zone.querySelector('.uz-content').style.display='flex';zone.onclick=()=>document.getElementById('audio-input').click();setTimeout(()=>zone.classList.remove('error'),3000);
   }
 }
 
 async function processArtwork(file){
   const zone=document.getElementById('artwork-zone');
-  const uploadingEl=document.getElementById('artwork-uploading');
-  const uzContent=zone.querySelector('.uz-content');
+  const up=document.getElementById('artwork-uploading');
   const localUrl=URL.createObjectURL(file);
-  const prevImg=document.getElementById('artwork-preview');
-  prevImg.src=localUrl;prevImg.style.display='block';
-  const img=new Image();
-  img.src=localUrl;
+  const prev=document.getElementById('artwork-preview');
+  prev.src=localUrl;prev.style.display='block';
+  const img=new Image();img.src=localUrl;
   img.onload=()=>{
     const w=img.naturalWidth,h=img.naturalHeight;
     uploadState.artwork.dimensions=`${w}×${h}`;
-    const dimBadge=document.getElementById('artwork-dim-badge');
-    const statusRow=document.getElementById('artwork-status-row');
-    if(dimBadge){dimBadge.textContent=`${w}×${h}px`;dimBadge.className=w>=3000&&h>=3000?'upload-badge ub-ok':w>=1400?'upload-badge ub-warn':'upload-badge ub-req';if(w<3000)dimBadge.textContent+=' (3000×3000 recommended)';dimBadge.style.display='inline-flex';}
-    if(statusRow)statusRow.style.display='flex';
+    const db=document.getElementById('artwork-dim-badge');
+    const sr=document.getElementById('artwork-status-row');
+    if(db){db.textContent=`${w}×${h}px`;db.className=w>=3000&&h>=3000?'upload-badge ub-ok':w>=1400?'upload-badge ub-warn':'upload-badge ub-req';if(w<3000)db.textContent+=' (3000×3000 recommended)';db.style.display='inline-flex';}
+    if(sr)sr.style.display='flex';
   };
-  uzContent.style.display='none';uploadingEl.style.display='flex';zone.classList.add('uploading');zone.onclick=null;
+  zone.querySelector('.uz-content').style.display='none';up.style.display='flex';zone.classList.add('uploading');zone.onclick=null;
   try{
-    const result=await uploadToCloudinary(file,'artwork');
-    if(!result){resetArtworkZone();return;}
-    uploadState.artwork={...uploadState.artwork,url:result.secure_url,publicId:result.public_id,filename:file.name,width:result.width,height:result.height};
-    uploadingEl.style.display='none';zone.classList.remove('uploading');zone.classList.add('has-file');zone.onclick=null;
+    const r=await uploadToCloudinary(file,'artwork');
+    uploadState.artwork={...uploadState.artwork,url:r.secure_url,publicId:r.public_id,filename:file.name,width:r.width,height:r.height};
+    up.style.display='none';zone.classList.remove('uploading');zone.classList.add('has-file');zone.onclick=null;
     document.getElementById('artwork-overlay').style.display='flex';
     document.getElementById('artwork-status-msg').style.display='flex';
     toast('Artwork uploaded ✓');
   }catch(err){
-    uploadingEl.style.display='none';zone.classList.remove('uploading');prevImg.style.display='none';uzContent.style.display='flex';
-    zone.classList.add('error');showErr('sub-e','Artwork upload failed: '+err.message);document.getElementById('sub-e').classList.add('on');
+    up.style.display='none';zone.classList.remove('uploading');prev.style.display='none';
+    zone.querySelector('.uz-content').style.display='flex';zone.classList.add('error');
+    showErr('sub-e','Artwork upload failed: '+err.message);document.getElementById('sub-e').classList.add('on');
     zone.onclick=()=>document.getElementById('artwork-input').click();setTimeout(()=>zone.classList.remove('error'),3000);
   }
 }
 
 function removeFile(e,type){e.stopPropagation();if(type==='audio'){uploadState.audio={url:null,publicId:null,filename:null,size:null,format:null};resetAudioZone();}else{uploadState.artwork={url:null,publicId:null,filename:null,dimensions:null};resetArtworkZone();}}
-
-function resetAudioZone(){const zone=document.getElementById('audio-zone');zone.classList.remove('has-file','uploading','error');zone.querySelector('.uz-content').style.display='flex';document.getElementById('audio-uploading').style.display='none';document.getElementById('audio-prog').style.width='0%';document.getElementById('audio-input').value='';zone.onclick=()=>document.getElementById('audio-input').click();}
-
-function resetArtworkZone(){const zone=document.getElementById('artwork-zone');zone.classList.remove('has-file','uploading','error');zone.querySelector('.uz-content').style.display='flex';document.getElementById('artwork-uploading').style.display='none';document.getElementById('artwork-prog').style.width='0%';document.getElementById('artwork-preview').style.display='none';document.getElementById('artwork-preview').src='';document.getElementById('artwork-overlay').style.display='none';document.getElementById('artwork-status-msg').style.display='none';document.getElementById('artwork-dim-badge').style.display='none';document.getElementById('artwork-status-row').style.display='none';document.getElementById('artwork-input').value='';zone.onclick=()=>document.getElementById('artwork-input').click();}
-
+function resetAudioZone(){const z=document.getElementById('audio-zone');z.classList.remove('has-file','uploading','error');z.querySelector('.uz-content').style.display='flex';document.getElementById('audio-uploading').style.display='none';document.getElementById('audio-prog').style.width='0%';document.getElementById('audio-input').value='';z.onclick=()=>document.getElementById('audio-input').click();}
+function resetArtworkZone(){const z=document.getElementById('artwork-zone');z.classList.remove('has-file','uploading','error');z.querySelector('.uz-content').style.display='flex';document.getElementById('artwork-uploading').style.display='none';document.getElementById('artwork-prog').style.width='0%';document.getElementById('artwork-preview').style.display='none';document.getElementById('artwork-preview').src='';document.getElementById('artwork-overlay').style.display='none';document.getElementById('artwork-status-msg').style.display='none';document.getElementById('artwork-dim-badge').style.display='none';document.getElementById('artwork-status-row').style.display='none';document.getElementById('artwork-input').value='';z.onclick=()=>document.getElementById('artwork-input').click();}
 function changeArtwork(e){e.stopPropagation();document.getElementById('artwork-input').click();}
 
-// ── APP LOGIC ──
+// ── APP ──
 let CU=null,AD={},allReleases=[],royData={};
 
 const FAQS=[
-  {cat:'Getting Started',q:'How do I submit my first release?',a:'Go to "Submit Release" in the sidebar, fill in all required details, upload your audio and artwork directly using the upload zones, and click Submit. We review within 3–5 business days.'},
-  {cat:'Getting Started',q:'What audio format do you accept?',a:'We require WAV or FLAC format, minimum 44.1kHz sample rate and 16-bit depth. MP3 is not accepted for distribution. Your audio should be fully mastered before submission.'},
-  {cat:'Getting Started',q:'What are the artwork requirements?',a:'Cover artwork must be exactly 3000×3000 pixels, in JPG or PNG format. It must not contain any social media handles, website URLs, or logos from streaming platforms.'},
-  {cat:'Distribution',q:'Which platforms do you distribute to?',a:'TIR distributes to 200+ platforms including Spotify, Apple Music, Amazon Music, YouTube Music, JioSaavn, Gaana, Tidal, Deezer, Anghami, and many more.'},
-  {cat:'Distribution',q:'How long does it take for my music to go live?',a:'After approval, your music typically goes live within 3–5 business days on most platforms. Spotify and Apple Music can take up to 7 days.'},
-  {cat:'Royalties',q:'How are royalties calculated?',a:'You earn 85% of all royalties generated from your music. TIR retains 15% as a distribution fee. Royalties are reported quarterly.'},
-  {cat:'Royalties',q:'When do I get paid?',a:'Royalty payouts are processed quarterly. Minimum payout threshold is ₹500. Payments are made via PayPal — ensure your PayPal email is set in your profile.'},
-  {cat:'Rights',q:'Do I keep my rights when distributing through TIR?',a:'Yes, 100%. You retain full ownership of your music and masters. TIR only holds a non-exclusive distribution license.'},
-  {cat:'Rights',q:'What is ISRC and do I need one?',a:'An ISRC is a unique identifier for your recording. If you do not have one, TIR will assign one automatically at no charge.'},
-  {cat:'Account',q:'How do I update my artist profile?',a:'Go to "My Profile" in the sidebar. Update your name, bio, genre, country, PayPal email, Spotify ID, and social links.'},
+  {cat:'Getting Started',q:'How do I submit my first release?',a:'Go to "Submit Release" in the sidebar, fill in all required details, upload your audio and artwork directly, and click Submit. We review within 3–5 business days.'},
+  {cat:'Getting Started',q:'What audio format do you accept?',a:'We require WAV or FLAC format, minimum 44.1kHz / 16-bit. MP3 is not accepted for distribution. Your audio should be fully mastered.'},
+  {cat:'Getting Started',q:'What are the artwork requirements?',a:'Cover artwork must be 3000×3000 pixels, JPG or PNG. No social media handles, URLs, or streaming platform logos.'},
+  {cat:'Distribution',q:'Which platforms do you distribute to?',a:'TIR distributes to 200+ platforms including Spotify, Apple Music, Amazon Music, YouTube Music, JioSaavn, Gaana, Tidal, Deezer, Anghami and more.'},
+  {cat:'Distribution',q:'How long until my music goes live?',a:'After approval, your music typically goes live within 3–5 business days. Spotify and Apple Music can take up to 7 days.'},
+  {cat:'Royalties',q:'How are royalties calculated?',a:'You earn 85% of all royalties generated. TIR retains 15% as a distribution fee. Royalties are reported quarterly.'},
+  {cat:'Royalties',q:'When do I get paid?',a:'Royalty payouts are processed quarterly. Minimum threshold is ₹500. Payments made via PayPal — ensure your email is set in your profile.'},
+  {cat:'Rights',q:'Do I keep my rights?',a:'Yes, 100%. You retain full ownership of your music and masters. TIR only holds a non-exclusive distribution license.'},
+  {cat:'Rights',q:'What is ISRC?',a:'An ISRC is a unique identifier for your recording. If you don\'t have one, TIR will assign one automatically at no charge.'},
+  {cat:'Account',q:'How do I update my profile?',a:'Go to "My Profile" in the sidebar. Update your name, bio, genre, country, PayPal email, Spotify ID, and social links.'},
 ];
 
+function switchProfileTab(tab,el){
+  document.querySelectorAll('.ptab').forEach(t=>t.classList.remove('on'));el.classList.add('on');
+  document.getElementById('ptab-general').style.display=tab==='general'?'block':'none';
+  document.getElementById('ptab-social').style.display=tab==='social'?'block':'none';
+}
 function openDrawer(){document.getElementById('mob-drawer').classList.add('on');document.getElementById('mob-overlay').classList.add('on');document.body.style.overflow='hidden';}
 function closeDrawer(){document.getElementById('mob-drawer').classList.remove('on');document.getElementById('mob-overlay').classList.remove('on');document.body.style.overflow='';}
 function setMobNav(name){document.querySelectorAll('.mob-ni').forEach(n=>n.classList.remove('on'));const el=document.getElementById('mni-'+name);if(el)el.classList.add('on');}
@@ -801,7 +1065,7 @@ async function doLogin(){
 function doSignOut(){auth.signOut();}
 
 async function loadProfile(){
-  try{const snap=await db.collection('users').doc(CU.uid).get();if(snap.exists){AD=snap.data();document.getElementById('p0').value=AD.name||'';document.getElementById('p1').value=CU.email||'';document.getElementById('p3').value=AD.country||'';document.getElementById('p4').value=AD.bio||'';document.getElementById('p5').value=AD.paypal||'';document.getElementById('p6').value=AD.spotify||'';document.getElementById('p7').value=AD.instagram||'';document.getElementById('p8').value=AD.youtube||'';if(AD.genre)document.getElementById('p2').value=AD.genre;document.getElementById('s2').value=AD.name||CU.displayName||'';}}catch(e){console.log(e);}
+  try{const snap=await db.collection('users').doc(CU.uid).get();if(snap.exists){AD=snap.data();document.getElementById('p0').value=AD.name||'';document.getElementById('p1').value=CU.email||'';document.getElementById('p3').value=AD.country||'';document.getElementById('p4').value=AD.bio||'';document.getElementById('p5').value=AD.paypal||'';document.getElementById('p6').value=AD.spotify||'';document.getElementById('p7').value=AD.instagram||'';document.getElementById('p8').value=AD.youtube||'';if(AD.genre)document.getElementById('p2').value=AD.genre;document.getElementById('s2').value=AD.name||CU.displayName||'';}}catch(e){}
 }
 
 async function saveProfile(){
@@ -811,14 +1075,14 @@ async function saveProfile(){
 }
 
 async function loadReleases(){
-  try{const snap=await db.collection('releases').where('userId','==',CU.uid).get();allReleases=[];snap.forEach(d=>allReleases.push({id:d.id,...d.data()}));allReleases.sort((a,b)=>new Date(b.submittedAt||0)-new Date(a.submittedAt||0));document.getElementById('st0').textContent=allReleases.length;document.getElementById('st1').textContent=allReleases.filter(r=>r.status==='pending'||r.status==='review').length;document.getElementById('st2').textContent=allReleases.filter(r=>r.status==='live').length;document.getElementById('rel-count').textContent=allReleases.length+' release'+(allReleases.length!==1?'s':'');document.getElementById('rel-count2').textContent=allReleases.length+' total';renderReleases('home-r',allReleases.slice(0,5));renderReleases('all-r',allReleases);}catch(e){console.log(e);}
+  try{const snap=await db.collection('releases').where('userId','==',CU.uid).get();allReleases=[];snap.forEach(d=>allReleases.push({id:d.id,...d.data()}));allReleases.sort((a,b)=>new Date(b.submittedAt||0)-new Date(a.submittedAt||0));document.getElementById('st0').textContent=allReleases.length;document.getElementById('st1').textContent=allReleases.filter(r=>r.status==='pending'||r.status==='review').length;document.getElementById('st2').textContent=allReleases.filter(r=>r.status==='live').length;document.getElementById('rel-count').textContent=allReleases.length+' release'+(allReleases.length!==1?'s':'');document.getElementById('rel-count2').textContent=allReleases.length+' total';renderReleases('home-r',allReleases.slice(0,5));renderReleases('all-r',allReleases);}catch(e){}
 }
 
 function renderReleases(id,list){
   const el=document.getElementById(id);
   if(!list.length){el.innerHTML='<div class="empty"><div class="empty-icon">🎵</div><div class="empty-text">No releases yet</div><div class="empty-sub">Click Submit Release to get started</div></div>';return;}
   const bc={pending:'b-pending',review:'b-review',approved:'b-approved',live:'b-live',rejected:'b-rejected'};
-  el.innerHTML=list.map((r,i)=>`<div class="ri" style="animation:fadeUp .4s ${i*.05}s ease both"><div class="r-art">${r.artworkUrl?`<img src="${r.artworkUrl}" alt="Art"/>`:'🎵'}</div><div class="r-info"><div class="r-title">${r.title||'—'}</div><div class="r-meta">${r.type||'Single'} · ${r.genre||'—'} · ${r.releaseDate||'—'}</div></div><span class="badge ${bc[r.status]||'b-pending'}">${(r.status||'pending').charAt(0).toUpperCase()+(r.status||'pending').slice(1)}</span></div>`).join('');
+  el.innerHTML=list.map((r,i)=>`<div class="ri" style="animation:fadeUp .35s ${i*.04}s ease both"><div class="r-art">${r.artworkUrl?`<img src="${r.artworkUrl}" alt="Art"/>`:'🎵'}</div><div class="r-info"><div class="r-title">${r.title||'—'}</div><div class="r-meta"><span>${r.type||'Single'}</span><span class="r-dot"></span><span>${r.genre||'—'}</span><span class="r-dot"></span><span>${r.releaseDate||'—'}</span></div></div><span class="badge ${bc[r.status]||'b-pending'}">${(r.status||'pending').charAt(0).toUpperCase()+(r.status||'pending').slice(1)}</span></div>`).join('');
 }
 
 async function submitRelease(){
@@ -837,7 +1101,7 @@ async function submitRelease(){
   const data={userId:CU.uid,artistName:AD.name||CU.displayName||artist,title,type,primaryArtist:artist,featuredArtists:v('s3'),genre,subGenre:v('s5'),language:lang,releaseDate:date,explicit:document.getElementById('s8').value,copyrightYear:v('s9'),label:v('s10'),upc:v('s11'),writers,producers:v('s13'),platforms:document.getElementById('s14').value,territories:document.getElementById('s15').value,lyrics:v('s16'),notes:v('s17'),audioUrl:uploadState.audio.url,audioPublicId:uploadState.audio.publicId,audioFilename:uploadState.audio.filename,audioFormat:uploadState.audio.format,audioSize:uploadState.audio.size,artworkUrl:uploadState.artwork.url||null,artworkPublicId:uploadState.artwork.publicId||null,artworkFilename:uploadState.artwork.filename||null,artworkDimensions:uploadState.artwork.dimensions||null,status:'pending',submittedAt:new Date().toISOString()};
   try{
     await db.collection('releases').add(data);
-    try{await emailjs.send('service_3bit5yi','eg3omh9',{artist_name:data.artistName,release_title:title,release_type:type,genre,release_date:date,audio_link:uploadState.audio.url,artwork_link:uploadState.artwork.url||'Not provided'});}catch(ee){console.log('Email:',ee);}
+    try{await emailjs.send('service_3bit5yi','eg3omh9',{artist_name:data.artistName,release_title:title,release_type:type,genre,release_date:date,audio_link:uploadState.audio.url,artwork_link:uploadState.artwork.url||'Not provided'});}catch(ee){}
     ['s0','s3','s5','s11','s12','s13','s16','s17'].forEach(id=>document.getElementById(id).value='');
     ['s1','s4','s6'].forEach(id=>document.getElementById(id).value='');
     document.getElementById('s10').value='The Imaginary Records';
@@ -851,11 +1115,11 @@ async function submitRelease(){
 }
 
 async function loadRoyalties(){
-  try{const snap=await db.collection('royalties').where('userId','==',CU.uid).get();if(snap.empty)return;let totalAll=0,totalQ=0;const platforms={},releases={},history=[];snap.forEach(d=>{const r=d.data();totalAll+=Number(r.totalAmount||0);if(r.isCurrent)totalQ+=Number(r.totalAmount||0);if(r.type==='payout')history.push(r);if(r.platforms){Object.entries(r.platforms).forEach(([k,v2])=>{platforms[k]=(platforms[k]||0)+Number(v2||0);});}if(r.releaseTitle){releases[r.releaseTitle]=(releases[r.releaseTitle]||0)+Number(r.totalAmount||0);}royData=r;});document.getElementById('st3').textContent='₹'+totalAll.toFixed(2);document.getElementById('roy-total').textContent='₹'+totalAll.toFixed(2);document.getElementById('roy-quarter').textContent='₹'+totalQ.toFixed(2);if(history.length)document.getElementById('roy-last').textContent='₹'+Math.max(...history.map(h=>Number(h.amount||0))).toFixed(2);if(royData.period)document.getElementById('roy-period-lbl').textContent=royData.period;}catch(e){console.log(e);}
+  try{const snap=await db.collection('royalties').where('userId','==',CU.uid).get();if(snap.empty)return;let totalAll=0,totalQ=0;const history=[];snap.forEach(d=>{const r=d.data();totalAll+=Number(r.totalAmount||0);if(r.isCurrent)totalQ+=Number(r.totalAmount||0);if(r.type==='payout')history.push(r);royData=r;});document.getElementById('st3').textContent='₹'+totalAll.toFixed(2);document.getElementById('roy-total').textContent='₹'+totalAll.toFixed(2);document.getElementById('roy-quarter').textContent='₹'+totalQ.toFixed(2);document.getElementById('earn-badge-sb').textContent='₹'+totalAll.toFixed(2);if(history.length)document.getElementById('roy-last').textContent='₹'+Math.max(...history.map(h=>Number(h.amount||0))).toFixed(2);if(royData.period)document.getElementById('roy-period-lbl').textContent=royData.period;}catch(e){}
 }
 
 async function loadBlog(){
-  try{const snap=await db.collection('blog').orderBy('createdAt','desc').get();const posts=[];snap.forEach(d=>posts.push({id:d.id,...d.data()}));const grid=document.getElementById('blog-grid');if(!posts.length){grid.innerHTML='<div class="empty" style="grid-column:1/-1"><div class="empty-icon">📝</div><div class="empty-text">No posts yet</div></div>';return;}const emojis=['🎵','🎸','🎤','🎧','🎶','🔥','⚡','🎹'];grid.innerHTML=posts.map((p,i)=>`<div class="blog-card" style="animation-delay:${i*.08}s" onclick="openBlog('${p.id}')"><div class="blog-img">${emojis[i%emojis.length]}</div><div class="blog-body"><div class="blog-cat">${p.category||'Music'}</div><div class="blog-title">${p.title||'—'}</div><div class="blog-excerpt">${(p.content||'').substring(0,100)}...</div><div class="blog-meta"><span>By TIR</span><span>·</span><span>${p.createdAt?p.createdAt.substring(0,10):'—'}</span></div></div></div>`).join('');}catch(e){console.log(e);}
+  try{const snap=await db.collection('blog').orderBy('createdAt','desc').get();const posts=[];snap.forEach(d=>posts.push({id:d.id,...d.data()}));const grid=document.getElementById('blog-grid');if(!posts.length){grid.innerHTML='<div class="empty" style="grid-column:1/-1"><div class="empty-icon">📝</div><div class="empty-text">No posts yet</div></div>';return;}const emojis=['🎵','🎸','🎤','🎧','🎶','🔥','⚡','🎹'];grid.innerHTML=posts.map((p,i)=>`<div class="blog-card" style="animation-delay:${i*.07}s" onclick="openBlog('${p.id}')"><div class="blog-img">${emojis[i%emojis.length]}</div><div class="blog-body"><div class="blog-cat">${p.category||'Music'}</div><div class="blog-title">${p.title||'—'}</div><div class="blog-excerpt">${(p.content||'').substring(0,100)}...</div><div class="blog-meta">By TIR · ${p.createdAt?p.createdAt.substring(0,10):'—'}</div></div></div>`).join('');}catch(e){}
 }
 
 async function openBlog(id){
@@ -864,25 +1128,26 @@ async function openBlog(id){
 function closeBlog(){document.getElementById('blog-modal').classList.remove('on');document.body.style.overflow='';}
 
 function loadFAQ(filter=''){
-  const list=document.getElementById('faq-list');const cats=[...new Set(FAQS.map(f=>f.cat))];const filtered=filter?FAQS.filter(f=>f.q.toLowerCase().includes(filter.toLowerCase())||f.a.toLowerCase().includes(filter.toLowerCase())):FAQS;
+  const list=document.getElementById('faq-list');const cats=[...new Set(FAQS.map(f=>f.cat))];
+  const filtered=filter?FAQS.filter(f=>f.q.toLowerCase().includes(filter.toLowerCase())||f.a.toLowerCase().includes(filter.toLowerCase())):FAQS;
   if(!filtered.length){list.innerHTML='<div class="empty"><div class="empty-text">No results found</div></div>';return;}
   let html='';
   if(!filter){cats.forEach(cat=>{const items=filtered.filter(f=>f.cat===cat);if(!items.length)return;html+=`<div class="faq-cat">${cat}</div>`;items.forEach((f,i)=>{html+=faqItem(f,cat+i);});});}
   else{filtered.forEach((f,i)=>{html+=faqItem(f,'f'+i);});}
   list.innerHTML=html;
 }
-function faqItem(f,id){return `<div class="faq-item" id="faq-${id}"><div class="faq-q" onclick="document.getElementById('faq-${id}').classList.toggle('open')"><span>${f.q}</span><span class="faq-arrow">▼</span></div><div class="faq-a">${f.a}</div></div>`;}
+function faqItem(f,id){return `<div class="faq-item" id="faq-${id}"><div class="faq-q" onclick="document.getElementById('faq-${id}').classList.toggle('open')"><span>${f.q}</span><svg class="faq-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div><div class="faq-a">${f.a}</div></div>`;}
 function searchFAQ(q){loadFAQ(q);}
 
 async function loadTickets(){
-  try{const snap=await db.collection('tickets').where('userId','==',CU.uid).get();const list=[];snap.forEach(d=>list.push({id:d.id,...d.data()}));list.sort((a,b)=>new Date(b.createdAt||0)-new Date(a.createdAt||0));document.getElementById('tkt-count').textContent=list.length+' ticket'+(list.length!==1?'s':'');const open=list.filter(t=>t.status==='open'||t.status==='pending').length;['tkt-cnt','tkt-cnt-m'].forEach(id=>{const el=document.getElementById(id);if(el){el.textContent=open;el.style.display=open>0?'inline':'none';}});renderTickets(list);}catch(e){console.log(e);}
+  try{const snap=await db.collection('tickets').where('userId','==',CU.uid).get();const list=[];snap.forEach(d=>list.push({id:d.id,...d.data()}));list.sort((a,b)=>new Date(b.createdAt||0)-new Date(a.createdAt||0));document.getElementById('tkt-count').textContent=list.length+' ticket'+(list.length!==1?'s':'');const open=list.filter(t=>t.status==='open'||t.status==='pending').length;['tkt-cnt','tkt-cnt-m'].forEach(id=>{const el=document.getElementById(id);if(el){el.textContent=open;el.style.display=open>0?'inline':'none';}});renderTickets(list);}catch(e){}
 }
 
 function renderTickets(list){
   const el=document.getElementById('tkt-list');
-  if(!list.length){el.innerHTML='<div class="empty" style="padding:32px"><div class="empty-icon">💬</div><div class="empty-text">No tickets yet</div></div>';return;}
+  if(!list.length){el.innerHTML='<div class="empty" style="padding:36px"><div class="empty-icon">💬</div><div class="empty-text">No tickets yet</div></div>';return;}
   const bc={open:'b-pending',pending:'b-review',resolved:'b-approved',closed:'b-rejected'};
-  el.innerHTML=list.map(t=>`<div class="ticket-item" onclick="toggleTicket('tr${t.id}')"><div class="ticket-top"><div class="ticket-subject">${t.subject||'—'}</div><span class="badge ${bc[t.status]||'b-pending'}">${t.status||'Open'}</span></div><div class="ticket-preview">${(t.message||'').substring(0,100)}${(t.message||'').length>100?'...':''}</div><div class="ticket-meta">Category: ${t.category||'—'} · Priority: ${t.priority||'Normal'} · ${t.createdAt?t.createdAt.substring(0,10):'—'}</div><div class="ticket-reply ${t.reply?'on':''}" id="tr${t.id}"><div class="tr-label">TIR Response</div><div class="tr-text">${t.reply||'We have received your ticket and will respond within 24–48 hours.'}</div></div></div>`).join('');
+  el.innerHTML=list.map(t=>`<div class="ticket-item" onclick="toggleTicket('tr${t.id}')"><div class="ticket-top"><div class="ticket-subject">${t.subject||'—'}</div><span class="badge ${bc[t.status]||'b-pending'}">${t.status||'Open'}</span></div><div class="ticket-preview">${(t.message||'').substring(0,100)}${(t.message||'').length>100?'...':''}</div><div class="ticket-meta"><span>${t.category||'—'}</span><span>·</span><span>${t.priority||'Normal'}</span><span>·</span><span>${t.createdAt?t.createdAt.substring(0,10):'—'}</span></div><div class="ticket-reply ${t.reply?'on':''}" id="tr${t.id}"><div class="tr-label">TIR Response</div><div class="tr-text">${t.reply||'We have received your ticket and will respond within 24–48 hours.'}</div></div></div>`).join('');
 }
 function toggleTicket(id){document.getElementById(id)?.classList.toggle('on');}
 
@@ -901,7 +1166,7 @@ function goPage(name,el){
   document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));
   document.getElementById('page-'+name)?.classList.add('on');
   if(el)el.classList.add('on');
-  const m={home:['Overview','Your label dashboard.'],releases:['My Releases','All submitted releases.'],submit:['Submit Release','Fill in all details carefully.'],royalties:['Royalties','Your earnings breakdown.'],blog:['Music Blog','Tips & updates from TIR.'],support:['Support Hub','Find answers.'],tickets:['My Tickets','Get help from TIR.'],profile:['My Profile','Update your artist info.']};
+  const m={home:['Dashboard','Your label dashboard.'],releases:['Releases','All submitted releases.'],submit:['Submit Release','Fill in all details carefully.'],royalties:['Royalties','Your earnings breakdown.'],blog:['Music Blog','Tips & updates from TIR.'],support:['Support Hub','Find answers instantly.'],tickets:['My Tickets','Get help from TIR.'],profile:['My Profile','Update your artist info.']};
   const[t,s]=m[name]||['Dashboard',''];
   document.getElementById('pgt').textContent=t;document.getElementById('pgs').textContent=s;
   if(name==='royalties')loadRoyalties();if(name==='blog')loadBlog();
@@ -910,7 +1175,7 @@ function goPage(name,el){
 
 function showErr(id,m){const e=document.getElementById(id);e.textContent=m;e.classList.add('on');}
 function showOk(id,m){const e=document.getElementById(id);e.textContent=m;e.classList.add('on');}
-function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),3000);}
+function toast(m){const t=document.getElementById('toast');document.getElementById('toast-msg').textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),3000);}
 </script>
 </body>
 </html>

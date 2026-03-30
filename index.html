@@ -321,6 +321,83 @@ input[type=file]{display:none}
 .btn-cancel{padding:12px 20px;background:transparent;border:1px solid var(--brd2);border-radius:var(--r);color:var(--txt2);font-size:13px;cursor:pointer;transition:all .2s;font-weight:600}
 .btn-cancel:hover{border-color:var(--txt2);color:var(--txt)}
 
+/* RELEASE FLOW */
+.rf-wrap{display:flex;flex-direction:column;gap:18px}
+.rf-title-row{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding-bottom:8px;border-bottom:1px solid var(--brd)}
+.rf-title-copy h2{font-size:24px;font-weight:900;letter-spacing:-.5px;margin-bottom:6px}
+.rf-title-copy p{font-size:13px;color:var(--txt2);line-height:1.7;max-width:760px}
+.rf-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:var(--green-dim);border:1px solid rgba(57,231,95,.15);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--green)}
+.rf-chip-dot{width:6px;height:6px;border-radius:50%;background:var(--green)}
+.rf-stepbar{display:flex;gap:12px;flex-wrap:wrap}
+.rf-step{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;border:1px solid var(--brd);background:var(--card);color:var(--txt3);font-size:12px;font-weight:700;cursor:pointer;transition:all .2s}
+.rf-step:hover{border-color:var(--brd2);color:var(--txt2)}
+.rf-step-num{width:24px;height:24px;border-radius:50%;border:1px solid var(--brd2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;background:rgba(255,255,255,.02)}
+.rf-step.active{color:var(--txt);border-color:rgba(57,231,95,.35);background:rgba(57,231,95,.05)}
+.rf-step.active .rf-step-num{background:var(--green);border-color:var(--green);color:#000}
+.rf-step.done{color:var(--green);border-color:rgba(57,231,95,.25)}
+.rf-step.done .rf-step-num{background:rgba(57,231,95,.12);border-color:rgba(57,231,95,.25);color:var(--green)}
+.rf-body{display:none;animation:fadeUp .28s ease}
+.rf-body.on{display:block}
+.rf-grid{display:grid;grid-template-columns:minmax(280px,360px) 1fr;gap:22px;align-items:start}
+.rf-art-panel,.rf-card,.rf-side-card,.rf-summary-card{background:var(--sidebar);border:1px solid var(--brd);border-radius:14px}
+.rf-art-panel{padding:18px}
+.rf-card{padding:20px}
+.rf-side-card{padding:18px}
+.rf-section-title{font-size:18px;font-weight:900;margin-bottom:6px}
+.rf-section-sub{font-size:12px;color:var(--txt3);line-height:1.7;margin-bottom:16px}
+.rf-note-list{padding-left:18px;color:var(--txt2);font-size:12px;line-height:1.8}
+.rf-note-list li{margin-bottom:2px}
+.rf-note-bad{margin-top:10px;color:#f87171;font-size:12px;line-height:1.7}
+.rf-fields{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.rf-fields .form-full{grid-column:1/-1}
+.rf-actions{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:20px;padding-top:18px;border-top:1px solid var(--brd);flex-wrap:wrap}
+.rf-actions-right{display:flex;gap:10px;flex-wrap:wrap}
+.rf-ghost{padding:11px 18px;background:transparent;border:1px solid var(--brd2);border-radius:var(--r);color:var(--txt2);font-size:13px;font-weight:700;cursor:pointer}
+.rf-ghost:hover{border-color:var(--txt2);color:var(--txt)}
+.rf-primary{padding:11px 18px;background:var(--green);border:none;border-radius:var(--r);color:#000;font-size:13px;font-weight:800;cursor:pointer}
+.rf-primary:disabled{background:#1d3d25;color:#555;cursor:not-allowed}
+.rf-track-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:20px}
+.rf-track-box{background:var(--sidebar);border:1px solid var(--brd);border-radius:14px;padding:18px}
+.rf-mini-title{font-size:15px;font-weight:800;margin-bottom:6px}
+.rf-mini-sub{font-size:12px;color:var(--txt3);line-height:1.7;margin-bottom:14px}
+.rf-album-drop{min-height:220px;border:1px dashed var(--brd2);border-radius:14px;background:rgba(255,255,255,.01);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center;color:var(--txt3)}
+.rf-album-drop.has-track{align-items:stretch;justify-content:flex-start;text-align:left;padding:16px;border-style:solid;background:rgba(57,231,95,.03);border-color:rgba(57,231,95,.25)}
+.rf-delivery-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.rf-service-group{grid-column:1/-1;background:var(--sidebar);border:1px solid var(--brd);border-radius:14px;padding:18px}
+.rf-service-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.rf-service-head h4{font-size:15px;font-weight:800}
+.rf-service-head p{font-size:12px;color:var(--txt3)}
+.rf-service-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.rf-check{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:10px;border:1px solid var(--brd);background:var(--card);font-size:13px;color:var(--txt2);cursor:pointer;transition:all .2s}
+.rf-check input{accent-color:var(--green)}
+.rf-check.on{border-color:rgba(57,231,95,.3);background:rgba(57,231,95,.05);color:var(--txt)}
+.rf-inline-split{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.rf-review-top{display:grid;grid-template-columns:160px 1fr;gap:18px;align-items:start;margin-bottom:18px}
+.rf-review-art{aspect-ratio:1;border-radius:14px;border:1px solid var(--brd);background:var(--card);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:44px;color:var(--txt3)}
+.rf-review-art img{width:100%;height:100%;object-fit:cover;display:block}
+.rf-review-meta h3{font-size:28px;font-weight:900;line-height:1.2;margin-bottom:8px}
+.rf-review-tagrow{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.rf-review-tag{padding:5px 10px;border-radius:999px;background:var(--card);border:1px solid var(--brd2);font-size:11px;color:var(--txt2)}
+.rf-review-status{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;background:rgba(59,130,246,.09);border:1px solid rgba(59,130,246,.18);color:#93c5fd;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.8px}
+.rf-review-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}
+.rf-review-list{background:var(--sidebar);border:1px solid var(--brd);border-radius:14px;padding:16px 18px}
+.rf-review-row{display:flex;justify-content:space-between;gap:16px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.rf-review-row:last-child{border-bottom:none}
+.rf-review-k{font-size:11px;color:var(--txt3);text-transform:uppercase;letter-spacing:1px;font-weight:700}
+.rf-review-v{font-size:13px;color:var(--txt);text-align:right;max-width:60%}
+.rf-warning{padding:14px 16px;border-radius:12px;background:rgba(249,115,22,.08);border:1px solid rgba(249,115,22,.22);color:#fdba74;font-size:12px;line-height:1.7;margin-bottom:18px}
+.rf-hidden{display:none!important}
+.rf-modal{position:fixed;inset:0;background:rgba(0,0,0,.82);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;z-index:2500;padding:20px}
+.rf-modal.on{display:flex;animation:fadeIn .2s ease}
+.rf-modal-box{width:450px;max-width:96vw;background:var(--sidebar);border:1px solid var(--brd);border-radius:18px;box-shadow:0 40px 120px rgba(0,0,0,.85);padding:22px 22px 20px;position:relative}
+.rf-modal-close{position:absolute;top:14px;right:14px;width:32px;height:32px;border-radius:8px;border:1px solid var(--brd2);background:none;color:var(--txt2);cursor:pointer;font-size:18px}
+.rf-modal-box h3{font-size:18px;font-weight:900;margin-bottom:6px}
+.rf-modal-box p{font-size:13px;color:var(--txt2);line-height:1.7;margin-bottom:14px}
+.rf-modal-box ul{padding-left:18px;color:var(--txt2);font-size:12px;line-height:1.8;margin:10px 0 18px}
+.rf-modal-actions{display:flex;justify-content:flex-end;gap:10px}
+@media(max-width:1024px){.rf-grid,.rf-track-grid,.rf-review-top,.rf-delivery-grid{grid-template-columns:1fr}.rf-service-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:768px){.rf-title-row{flex-direction:column}.rf-fields,.rf-inline-split,.rf-review-grid{grid-template-columns:1fr}.rf-service-grid{grid-template-columns:1fr}.rf-actions{flex-direction:column;align-items:stretch}.rf-actions-right{width:100%}.rf-actions-right .rf-primary,.rf-actions-right .rf-ghost,.rf-actions > .rf-ghost{width:100%}.rf-modal-box{padding:20px 18px}}
+
 /* BLOG */
 .blog-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .blog-card{background:var(--card);border:1px solid var(--brd);border-radius:12px;overflow:hidden;cursor:pointer;transition:all .2s}
@@ -624,59 +701,30 @@ input[type=file]{display:none}
 
       <!-- SUBMIT RELEASE -->
       <div class="pg" id="page-submit">
-        <div class="notice-box"><strong>How to submit:</strong> Fill in all details below. Upload your audio (WAV/FLAC) and artwork (3000×3000px JPG/PNG) directly using the upload zones. We review within 3–5 business days.</div>
         <div class="al al-e" id="sub-e"></div>
         <div class="al al-s" id="sub-s"></div>
-        <div class="section">
-          <div class="section-head"><h3>Release Submission</h3><span>All * fields required</span></div>
-          <div class="section-body">
-            <div class="form-grid">
-              <div class="form-sec">Release Information</div>
-              <div class="form-group2"><label>Release Title *</label><input type="text" id="s0" placeholder="Song or album name"/></div>
-              <div class="form-group2"><label>Release Type *</label><select id="s1"><option value="">— Select —</option><option>Single</option><option>EP</option><option>Album</option><option>Mixtape</option></select></div>
-              <div class="form-group2"><label>Primary Artist *</label><input type="text" id="s2"/></div>
-              <div class="form-group2"><label>Featured Artists</label><input type="text" id="s3" placeholder="ft. Name (optional)"/></div>
-              <div class="form-group2"><label>Primary Genre *</label><select id="s4"><option value="">— Select —</option><option>Hip Hop / Trap</option><option>UK Drill</option><option>R&amp;B / Soul</option><option>Pop</option><option>Electronic / EDM</option><option>Lofi / Chillhop</option><option>Nasheed / Islamic</option><option>Devotional</option><option>Instrumental</option><option>Folk / Acoustic</option><option>Other</option></select></div>
-              <div class="form-group2"><label>Sub Genre</label><input type="text" id="s5" placeholder="e.g. Dark Trap"/></div>
-              <div class="form-group2"><label>Language *</label><select id="s6"><option value="">— Select —</option><option>English</option><option>Hindi / Urdu</option><option>Kashmiri</option><option>Arabic</option><option>Punjabi</option><option>Instrumental (No Lyrics)</option><option>Other</option></select></div>
-              <div class="form-group2"><label>Desired Release Date *</label><input type="date" id="s7"/></div>
-              <div class="form-sec">Rights &amp; Credits</div>
-              <div class="form-group2"><label>Explicit?</label><select id="s8"><option value="no">No — Clean</option><option value="yes">Yes — Explicit</option></select></div>
-              <div class="form-group2"><label>Copyright Year</label><input type="number" id="s9" value="2025" min="2000" max="2035"/></div>
-              <div class="form-group2"><label>Label Name</label><input type="text" id="s10" value="The Imaginary Records"/></div>
-              <div class="form-group2"><label>UPC / ISRC (optional)</label><input type="text" id="s11" placeholder="Leave blank to auto-assign"/></div>
-              <div class="form-group2 form-full"><label>Songwriter(s) / Composer(s) *</label><input type="text" id="s12" placeholder="Full legal names of all writers"/></div>
-              <div class="form-group2 form-full"><label>Producer(s)</label><input type="text" id="s13" placeholder="Producer credits"/></div>
-              <div class="form-sec">Distribution</div>
-              <div class="form-group2"><label>Platforms</label><select id="s14"><option value="all">All Platforms (Recommended)</option><option value="streaming">Streaming Only</option><option value="india">India Only</option></select></div>
-              <div class="form-group2"><label>Territories</label><select id="s15"><option value="worldwide">Worldwide</option><option value="india">India Only</option></select></div>
-              <div class="form-group2 form-full"><label>Lyrics (optional)</label><textarea id="s16" placeholder="Paste full lyrics here..."></textarea></div>
-              <div class="form-group2 form-full"><label>Notes for TIR</label><textarea id="s17" placeholder="Anything else..." style="min-height:60px"></textarea></div>
-              <div class="form-sec">Audio &amp; Artwork</div>
-              <div class="upload-section form-full">
-                <!-- AUDIO -->
-                <div>
-                  <div class="form-group2" style="margin-bottom:8px"><label>Audio File * <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--txt3)">WAV · FLAC · AIFF</span></label></div>
-                  <div class="upload-zone audio-zone" id="audio-zone" ondragover="handleDrag(event,'audio-zone')" ondragleave="handleDragLeave('audio-zone')" ondrop="handleDrop(event,'audio')" onclick="document.getElementById('audio-input').click()">
-                    <input type="file" id="audio-input" accept=".wav,.flac,.aiff,.aif" onchange="handleFileSelect(event,'audio')"/>
-                    <div class="uz-content">
-                      <div class="uz-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>
-                      <div><div class="uz-title">Drop audio file here</div><div class="uz-sub">WAV, FLAC, or AIFF<br>Drag & drop or click to browse</div></div>
-                      <div class="uz-browse">Browse Files</div>
-                    </div>
-                    <div id="audio-uploading" style="display:none;flex-direction:column;align-items:center;gap:12px;width:100%">
-                      <div class="wav-anim"><div class="wav-bar"></div><div class="wav-bar"></div><div class="wav-bar"></div><div class="wav-bar"></div><div class="wav-bar"></div><div class="wav-bar"></div><div class="wav-bar"></div><div class="wav-bar"></div></div>
-                      <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--txt2)"><div class="uspinner"></div><span id="audio-upload-msg">Uploading...</span></div>
-                      <div class="uprog" style="width:100%"><div class="uprog-fill" id="audio-prog"></div></div>
-                    </div>
-                    <div class="audio-done">
-                      <div class="audio-file-box"><div class="afi-name" id="audio-filename">—</div><div class="afi-meta" id="audio-filemeta">—</div></div>
-                      <div style="display:flex;align-items:center;gap:8px;font-size:12px"><div class="ucheck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20,6 9,17 4,12"/></svg></div><span style="color:var(--green);font-weight:600">Uploaded successfully</span></div>
-                      <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center"><span class="ubadge ub-ok" id="audio-fmt-badge">WAV</span><button class="rm-btn" onclick="removeFile(event,'audio')">✕ Remove</button></div>
-                    </div>
-                  </div>
-                </div>
-                <!-- ARTWORK -->
+        <div class="rf-wrap">
+          <div class="rf-title-row">
+            <div class="rf-title-copy">
+              <div class="rf-chip"><span class="rf-chip-dot"></span>Distribution flow</div>
+              <h2>Create Release</h2>
+              <p>Use the guided release builder to prepare your submission in four steps. Your existing release fields, IDs, upload logic, and Firebase submission data stay exactly the same.</p>
+            </div>
+            <button class="rf-ghost" type="button" onclick="openReleaseStartModal()">Start New Release</button>
+          </div>
+
+          <div class="rf-stepbar">
+            <button class="rf-step active" id="rf-stepbtn-0" type="button" onclick="setReleaseStep(0)"><span class="rf-step-num">1</span><span>Release Level</span></button>
+            <button class="rf-step" id="rf-stepbtn-1" type="button" onclick="setReleaseStep(1)"><span class="rf-step-num">2</span><span>Track Level</span></button>
+            <button class="rf-step" id="rf-stepbtn-2" type="button" onclick="setReleaseStep(2)"><span class="rf-step-num">3</span><span>Delivery Option</span></button>
+            <button class="rf-step" id="rf-stepbtn-3" type="button" onclick="setReleaseStep(3)"><span class="rf-step-num">4</span><span>Review</span></button>
+          </div>
+
+          <div class="rf-body on" id="rf-body-0">
+            <div class="rf-grid">
+              <div class="rf-art-panel">
+                <div class="rf-section-title">Upload artwork</div>
+                <div class="rf-section-sub">Use the same upload component already connected to your current portal.</div>
                 <div>
                   <div class="form-group2" style="margin-bottom:8px"><label>Cover Artwork <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--txt3)">3000×3000px JPG/PNG</span></label></div>
                   <div class="upload-zone artwork-zone" id="artwork-zone" ondragover="handleDrag(event,'artwork-zone')" ondragleave="handleDragLeave('artwork-zone')" ondrop="handleDrop(event,'artwork')" onclick="document.getElementById('artwork-input').click()">
@@ -688,7 +736,7 @@ input[type=file]{display:none}
                     </div>
                     <div class="uz-c">
                       <div class="uz-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
-                      <div><div class="uz-title">Drop artwork here</div><div class="uz-sub">JPG or PNG · 3000×3000px</div></div>
+                      <div><div class="uz-title">Browse or drag and drop image file</div><div class="uz-sub">JPG or PNG · minimum 3000×3000px</div></div>
                       <div class="uz-browse">Browse Files</div>
                     </div>
                     <div id="artwork-uploading" style="display:none;flex-direction:column;align-items:center;gap:10px">
@@ -703,11 +751,187 @@ input[type=file]{display:none}
                   </div>
                 </div>
               </div>
-              <div class="form-full" style="display:flex;gap:12px;margin-top:20px;flex-wrap:wrap">
-                <button class="btn-submit" id="bsub" onclick="submitRelease()">Submit Release</button>
-                <button class="btn-cancel" onclick="goPage('home','ni-home')">Cancel</button>
+
+              <div class="rf-side-card">
+                <div class="rf-section-title">Release setup</div>
+                <div class="rf-section-sub">This mirrors the reference flow, but all live submission fields still use your current IDs and existing backend payload.</div>
+                <div class="rf-fields">
+                  <div class="form-group2 form-full"><label>Release Title *</label><input type="text" id="s0" placeholder="Release title" oninput="syncReleaseReview()"/></div>
+                  <div class="form-group2 form-full"><label>Version (optional)</label><input type="text" id="rf-version" placeholder="e.g., Remastered or Japanese Version" oninput="syncReleaseReview()"/></div>
+                  <div class="form-group2"><label>Primary Artist *</label><input type="text" id="s2" oninput="syncReleaseReview()"/></div>
+                  <div class="form-group2"><label>Featured Artists</label><input type="text" id="s3" placeholder="ft. Name (optional)" oninput="syncReleaseReview()"/></div>
+                  <div class="form-group2"><label>Label *</label><input type="text" id="s10" value="The Imaginary Records" oninput="syncReleaseReview()"/></div>
+                  <div class="form-group2"><label>Album Format *</label><select id="s1" onchange="syncReleaseReview()"><option value="">Please select album format</option><option>Single</option><option>EP</option><option>Album</option><option>Mixtape</option></select></div>
+                  <div class="form-group2"><label>Primary Genre *</label><select id="s4" onchange="syncReleaseReview()"><option value="">Please select primary genre</option><option>Hip Hop / Trap</option><option>UK Drill</option><option>R&amp;B / Soul</option><option>Pop</option><option>Electronic / EDM</option><option>Lofi / Chillhop</option><option>Nasheed / Islamic</option><option>Devotional</option><option>Instrumental</option><option>Folk / Acoustic</option><option>Other</option></select></div>
+                  <div class="form-group2"><label>Secondary Genre</label><input type="text" id="s5" placeholder="Please select genre" oninput="syncReleaseReview()"/></div>
+                  <div class="form-group2"><label>Language *</label><select id="s6" onchange="syncReleaseReview()"><option value="">— Select —</option><option>English</option><option>Hindi / Urdu</option><option>Kashmiri</option><option>Arabic</option><option>Punjabi</option><option>Instrumental (No Lyrics)</option><option>Other</option></select></div>
+                  <div class="form-group2"><label>Release UPC code</label><input type="text" id="s11" placeholder="Leave blank to auto-assign" oninput="syncReleaseReview()"/></div>
+                  <div class="form-group2"><label>Copyright Year</label><input type="number" id="s9" value="2025" min="2000" max="2035" oninput="syncReleaseReview()"/></div>
+                  <div class="form-group2"><label>Explicit?</label><select id="s8" onchange="syncReleaseReview()"><option value="no">No — Clean</option><option value="yes">Yes — Explicit</option></select></div>
+                  <div class="form-group2 form-full"><label>Songwriter(s) / Composer(s) *</label><input type="text" id="s12" placeholder="Full legal names of all writers" oninput="syncReleaseReview()"/></div>
+                  <div class="form-group2 form-full"><label>Producer(s)</label><input type="text" id="s13" placeholder="Producer credits" oninput="syncReleaseReview()"/></div>
+                </div>
+                <div class="rf-actions">
+                  <div></div>
+                  <div class="rf-actions-right">
+                    <button class="rf-primary" type="button" onclick="validateAndGoReleaseStep(1)">Save &amp; Continue</button>
+                  </div>
+                </div>
               </div>
             </div>
+          </div>
+
+          <div class="rf-body" id="rf-body-1">
+            <div class="rf-track-grid">
+              <div class="rf-track-box">
+                <div class="rf-mini-title">Add track audio</div>
+                <div class="rf-mini-sub">Your current portal supports one audio file per release submission. This step keeps that existing logic unchanged.</div>
+                <div>
+                  <div class="form-group2" style="margin-bottom:8px"><label>Audio File * <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--txt3)">WAV · FLAC · AIFF</span></label></div>
+                  <div class="upload-zone audio-zone" id="audio-zone" ondragover="handleDrag(event,'audio-zone')" ondragleave="handleDragLeave('audio-zone')" ondrop="handleDrop(event,'audio')" onclick="document.getElementById('audio-input').click()">
+                    <input type="file" id="audio-input" accept=".wav,.flac,.aiff,.aif" onchange="handleFileSelect(event,'audio')"/>
+                    <div class="uz-content">
+                      <div class="uz-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>
+                      <div><div class="uz-title">From Computer</div><div class="uz-sub">Drop audio file here or click to browse</div></div>
+                      <div class="uz-browse">Browse Files</div>
+                    </div>
+                    <div id="audio-uploading" style="display:none;flex-direction:column;align-items:center;gap:12px;width:100%">
+                      <div class="wav-anim"><div class="wav-bar"></div><div class="wav-bar"></div><div class="wav-bar"></div><div class="wav-bar"></div><div class="wav-bar"></div><div class="wav-bar"></div><div class="wav-bar"></div><div class="wav-bar"></div></div>
+                      <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--txt2)"><div class="uspinner"></div><span id="audio-upload-msg">Uploading...</span></div>
+                      <div class="uprog" style="width:100%"><div class="uprog-fill" id="audio-prog"></div></div>
+                    </div>
+                    <div class="audio-done">
+                      <div class="audio-file-box"><div class="afi-name" id="audio-filename">—</div><div class="afi-meta" id="audio-filemeta">—</div></div>
+                      <div style="display:flex;align-items:center;gap:8px;font-size:12px"><div class="ucheck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20,6 9,17 4,12"/></svg></div><span style="color:var(--green);font-weight:600">Uploaded successfully</span></div>
+                      <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center"><span class="ubadge ub-ok" id="audio-fmt-badge">WAV</span><button class="rm-btn" onclick="removeFile(event,'audio')">✕ Remove</button></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="rf-track-box">
+                <div class="rf-mini-title">Your release</div>
+                <div class="rf-mini-sub">A simple track panel inspired by the reference flow.</div>
+                <div class="rf-album-drop" id="rf-track-summary">
+                  <div style="font-size:34px;opacity:.2;margin-bottom:10px">♪</div>
+                  <div style="font-size:14px;color:var(--txt2);font-weight:700;margin-bottom:4px">No track assigned yet.</div>
+                  <div style="font-size:12px;color:var(--txt3)">Add a track from your computer to continue.</div>
+                </div>
+              </div>
+            </div>
+            <div class="rf-actions">
+              <button class="rf-ghost" type="button" onclick="setReleaseStep(0)">Back</button>
+              <div class="rf-actions-right"><button class="rf-primary" type="button" onclick="validateAndGoReleaseStep(2)">Save &amp; Continue</button></div>
+            </div>
+          </div>
+
+          <div class="rf-body" id="rf-body-2">
+            <div class="rf-delivery-grid">
+              <div class="rf-card">
+                <div class="rf-mini-title">Release date</div>
+                <div class="rf-mini-sub">Choose when the release should go live.</div>
+                <div class="form-group2"><label>Desired Release Date *</label><input type="date" id="s7" onchange="syncReleaseReview()"/></div>
+              </div>
+              <div class="rf-card">
+                <div class="rf-mini-title">Territories</div>
+                <div class="rf-mini-sub">Pick how broad your distribution should be.</div>
+                <div style="display:flex;gap:10px;flex-wrap:wrap">
+                  <label class="rf-check on" id="rf-territory-world"><input type="radio" name="rf-territory" checked onchange="setTerritoryValue('worldwide')"/>Entire World</label>
+                  <label class="rf-check" id="rf-territory-india"><input type="radio" name="rf-territory" onchange="setTerritoryValue('india')"/>India Only</label>
+                </div>
+                <select id="s15" class="rf-hidden"><option value="worldwide" selected>Worldwide</option><option value="india">India Only</option></select>
+              </div>
+
+              <div class="rf-service-group">
+                <div class="rf-service-head">
+                  <div><h4>Streaming &amp; Download Services</h4><p>Styled like the reference screens, while still saving to your current simplified distribution field.</p></div>
+                </div>
+                <div class="rf-service-grid">
+                  <label class="rf-check on"><input type="checkbox" checked onchange="setPlatformPreset('all')"/>Spotify</label>
+                  <label class="rf-check on"><input type="checkbox" checked onchange="setPlatformPreset('all')"/>Apple Music</label>
+                  <label class="rf-check on"><input type="checkbox" checked onchange="setPlatformPreset('all')"/>Amazon Music</label>
+                  <label class="rf-check on"><input type="checkbox" checked onchange="setPlatformPreset('all')"/>YouTube Music</label>
+                  <label class="rf-check on"><input type="checkbox" checked onchange="setPlatformPreset('all')"/>JioSaavn</label>
+                  <label class="rf-check on"><input type="checkbox" checked onchange="setPlatformPreset('all')"/>Gaana</label>
+                  <label class="rf-check on"><input type="checkbox" checked onchange="setPlatformPreset('all')"/>Tidal</label>
+                  <label class="rf-check on"><input type="checkbox" checked onchange="setPlatformPreset('all')"/>Deezer</label>
+                  <label class="rf-check on"><input type="checkbox" checked onchange="setPlatformPreset('all')"/>Anghami</label>
+                </div>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px">
+                  <button class="rf-ghost" type="button" onclick="setPlatformPreset('all')">All Platforms</button>
+                  <button class="rf-ghost" type="button" onclick="setPlatformPreset('streaming')">Streaming Only</button>
+                  <button class="rf-ghost" type="button" onclick="setPlatformPreset('india')">India Only</button>
+                </div>
+                <select id="s14" class="rf-hidden"><option value="all" selected>All Platforms (Recommended)</option><option value="streaming">Streaming Only</option><option value="india">India Only</option></select>
+              </div>
+
+              <div class="rf-card form-full">
+                <div class="rf-inline-split">
+                  <div class="form-group2"><label>Lyrics (optional)</label><textarea id="s16" placeholder="Paste full lyrics here..." oninput="syncReleaseReview()"></textarea></div>
+                  <div class="form-group2"><label>Notes for TIR</label><textarea id="s17" placeholder="Anything else..." style="min-height:80px" oninput="syncReleaseReview()"></textarea></div>
+                </div>
+              </div>
+            </div>
+            <div class="rf-actions">
+              <button class="rf-ghost" type="button" onclick="setReleaseStep(1)">Back</button>
+              <div class="rf-actions-right"><button class="rf-primary" type="button" onclick="validateAndGoReleaseStep(3)">Save &amp; Continue</button></div>
+            </div>
+          </div>
+
+          <div class="rf-body" id="rf-body-3">
+            <div class="rf-summary-card" style="padding:20px">
+              <div class="rf-review-top">
+                <div class="rf-review-art" id="rf-review-art">🎵</div>
+                <div class="rf-review-meta">
+                  <h3 id="rf-review-title">Untitled release</h3>
+                  <div class="rf-review-tagrow">
+                    <span class="rf-review-tag" id="rf-review-type">Single</span>
+                    <span class="rf-review-tag" id="rf-review-genre">—</span>
+                    <span class="rf-review-tag" id="rf-review-language">—</span>
+                    <span class="rf-review-tag" id="rf-review-version">No version</span>
+                  </div>
+                  <div class="rf-review-status">Incomplete</div>
+                </div>
+              </div>
+
+              <div class="rf-review-grid">
+                <div class="rf-review-list" id="rf-review-list-a"></div>
+                <div class="rf-review-list" id="rf-review-list-b"></div>
+              </div>
+
+              <div class="rf-warning">Please review all release information and track details before distributing. Once submitted, certain metadata may no longer be editable.</div>
+
+              <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px">
+                <button class="rf-ghost" type="button" onclick="setReleaseStep(0)">Edit Release</button>
+                <button class="rf-ghost" type="button" onclick="setReleaseStep(1)">Edit Tracks</button>
+                <button class="rf-ghost" type="button" onclick="setReleaseStep(2)">Edit Delivery</button>
+              </div>
+
+              <div class="rf-actions" style="margin-top:0;padding-top:0;border-top:none">
+                <button class="rf-ghost" type="button" onclick="setReleaseStep(2)">Back</button>
+                <div class="rf-actions-right">
+                  <button class="btn-submit" id="bsub" onclick="submitRelease()">Submit for distribution</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rf-modal" id="rf-start-modal" onclick="if(event.target===this)closeReleaseStartModal()">
+        <div class="rf-modal-box">
+          <button class="rf-modal-close" type="button" onclick="closeReleaseStartModal()">×</button>
+          <h3>Create a new release</h3>
+          <p>Provide the release title to get started.</p>
+          <div class="form-group2" style="margin-bottom:10px"><label>Release title</label><input type="text" id="rf-start-title" placeholder="Release title" onkeydown="if(event.key==='Enter'){event.preventDefault();applyStartReleaseTitle();}"/></div>
+          <ul>
+            <li>If single-track release, title must match the track title.</li>
+            <li>Only capitalize the first character.</li>
+            <li>Use the Version field for remix/remaster info.</li>
+          </ul>
+          <div class="rf-modal-actions">
+            <button class="rf-ghost" type="button" onclick="closeReleaseStartModal()">Cancel</button>
+            <button class="rf-primary" type="button" onclick="applyStartReleaseTitle()">Create release</button>
           </div>
         </div>
       </div>
@@ -1325,6 +1549,162 @@ function openRelDetail(id) {
 function closeRelModal() { document.getElementById('rel-modal').classList.remove('on'); document.body.style.overflow = ''; }
 
 // ═══════════════════════════════════════════════════════════
+// RELEASE FLOW UI
+// ═══════════════════════════════════════════════════════════
+var releaseStep = 0;
+var releaseFlowStarted = false;
+
+function setReleaseStep(step) {
+  releaseStep = Math.max(0, Math.min(3, step));
+  for (var i=0;i<4;i++) {
+    var body = document.getElementById('rf-body-'+i);
+    var btn = document.getElementById('rf-stepbtn-'+i);
+    if (body) body.classList.toggle('on', i===releaseStep);
+    if (btn) {
+      btn.classList.toggle('active', i===releaseStep);
+      btn.classList.toggle('done', i<releaseStep);
+    }
+  }
+  syncReleaseReview();
+  window.scrollTo(0,0);
+}
+
+function openReleaseStartModal() {
+  var m = document.getElementById('rf-start-modal');
+  if (!m) return;
+  var currentTitle = document.getElementById('s0');
+  var startTitle = document.getElementById('rf-start-title');
+  if (startTitle && currentTitle && currentTitle.value.trim()) startTitle.value = currentTitle.value.trim();
+  m.classList.add('on');
+  document.body.style.overflow = 'hidden';
+  setTimeout(function(){ if (startTitle) startTitle.focus(); }, 10);
+}
+
+function closeReleaseStartModal() {
+  var m = document.getElementById('rf-start-modal');
+  if (m) m.classList.remove('on');
+  document.body.style.overflow = '';
+}
+
+function applyStartReleaseTitle() {
+  var startTitle = document.getElementById('rf-start-title');
+  var title = startTitle ? startTitle.value.trim() : '';
+  if (!title) { showAl('sub-e', 'Please enter a release title.'); return; }
+  document.getElementById('sub-e').classList.remove('on');
+  document.getElementById('s0').value = title;
+  releaseFlowStarted = true;
+  closeReleaseStartModal();
+  setReleaseStep(0);
+  syncReleaseReview();
+}
+
+function validateAndGoReleaseStep(step) {
+  if (step===1) {
+    if (!document.getElementById('s0').value.trim()) return showAl('sub-e','Please enter a release title.');
+    if (!document.getElementById('s2').value.trim()) return showAl('sub-e','Please enter the primary artist name.');
+    if (!document.getElementById('s1').value.trim()) return showAl('sub-e','Please select a release type.');
+    if (!document.getElementById('s4').value.trim()) return showAl('sub-e','Please select a genre.');
+    if (!document.getElementById('s6').value.trim()) return showAl('sub-e','Please select a language.');
+    if (!document.getElementById('s12').value.trim()) return showAl('sub-e','Please enter songwriter name(s).');
+  }
+  if (step===2) {
+    if (!uploadState.audio.url) return showAl('sub-e','Please upload your audio file (WAV or FLAC).');
+  }
+  if (step===3) {
+    if (!document.getElementById('s7').value.trim()) return showAl('sub-e','Please select a release date.');
+  }
+  document.getElementById('sub-e').classList.remove('on');
+  setReleaseStep(step);
+}
+
+function setTerritoryValue(value) {
+  var el = document.getElementById('s15');
+  if (el) el.value = value;
+  document.getElementById('rf-territory-world').classList.toggle('on', value==='worldwide');
+  document.getElementById('rf-territory-india').classList.toggle('on', value==='india');
+  syncReleaseReview();
+}
+
+function setPlatformPreset(value) {
+  var el = document.getElementById('s14');
+  if (el) el.value = value;
+  syncReleaseReview();
+}
+
+function syncTrackSummary() {
+  var box = document.getElementById('rf-track-summary');
+  if (!box) return;
+  if (uploadState.audio && uploadState.audio.url) {
+    box.classList.add('has-track');
+    box.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px"><div><div style="font-size:15px;font-weight:800;color:var(--txt);margin-bottom:3px">'+escapeHtml(uploadState.audio.filename||'Track uploaded')+'</div><div style="font-size:12px;color:var(--txt3)">'+escapeHtml((uploadState.audio.format||'AUDIO') + (uploadState.audio.size ? ' · ' + uploadState.audio.size : ''))+'</div></div><span class="ubadge ub-ok">Ready</span></div><audio controls src="'+uploadState.audio.url+'" style="width:100%;accent-color:var(--green)"></audio>';
+  } else {
+    box.classList.remove('has-track');
+    box.innerHTML = '<div style="font-size:34px;opacity:.2;margin-bottom:10px">♪</div><div style="font-size:14px;color:var(--txt2);font-weight:700;margin-bottom:4px">No track assigned yet.</div><div style="font-size:12px;color:var(--txt3)">Add a track from your computer to continue.</div>';
+  }
+}
+
+function syncReleaseReview() {
+  syncTrackSummary();
+  var title = val('s0') || 'Untitled release';
+  var type = val('s1') || 'Release type';
+  var genre = val('s4') || val('s5') || 'Genre';
+  var language = val('s6') || 'Language';
+  var version = val('rf-version') || 'No version';
+  var art = document.getElementById('rf-review-art');
+  var artPrev = document.getElementById('artwork-preview');
+  document.getElementById('rf-review-title').textContent = title;
+  document.getElementById('rf-review-type').textContent = type;
+  document.getElementById('rf-review-genre').textContent = genre;
+  document.getElementById('rf-review-language').textContent = language;
+  document.getElementById('rf-review-version').textContent = version;
+  if (art) {
+    art.innerHTML = (artPrev && artPrev.src && artPrev.style.display !== 'none') ? '<img src="'+artPrev.src+'" alt=""/>' : '🎵';
+  }
+  var listA = [
+    ['Primary artist', val('s2') || '—'],
+    ['Featured artists', val('s3') || '—'],
+    ['Label', val('s10') || '—'],
+    ['Songwriters', val('s12') || '—'],
+    ['Producers', val('s13') || '—'],
+    ['Explicit', document.getElementById('s8').value === 'yes' ? 'Yes' : 'No']
+  ];
+  var listB = [
+    ['Release date', val('s7') || '—'],
+    ['Platforms', platformLabel()],
+    ['Territories', territoryLabel()],
+    ['UPC / ISRC', val('s11') || 'Auto-assign'],
+    ['Copyright year', val('s9') || '—'],
+    ['Audio file', uploadState.audio && uploadState.audio.filename ? uploadState.audio.filename : 'Not uploaded']
+  ];
+  fillReviewList('rf-review-list-a', listA);
+  fillReviewList('rf-review-list-b', listB);
+}
+
+function fillReviewList(id, rows) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  el.innerHTML = rows.map(function(row){ return '<div class="rf-review-row"><div class="rf-review-k">'+row[0]+'</div><div class="rf-review-v">'+escapeHtml(String(row[1] || '—'))+'</div></div>'; }).join('');
+}
+
+function platformLabel() {
+  var v = document.getElementById('s14').value;
+  return v === 'streaming' ? 'Streaming Only' : v === 'india' ? 'India Only' : 'All Platforms';
+}
+
+function territoryLabel() {
+  return document.getElementById('s15').value === 'india' ? 'India Only' : 'Worldwide';
+}
+
+function val(id) {
+  var el = document.getElementById(id);
+  return el ? el.value.trim() : '';
+}
+
+function escapeHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// ═══════════════════════════════════════════════════════════
 // SUBMIT RELEASE
 // ═══════════════════════════════════════════════════════════
 async function submitRelease() {
@@ -1372,12 +1752,20 @@ async function submitRelease() {
         });
       }
     } catch(e) { console.log('Email:', e); }
-    ['s0','s3','s5','s11','s12','s13','s16','s17'].forEach(function(id){ document.getElementById(id).value=''; });
+    ['s0','s3','s5','s11','s12','s13','s16','s17','rf-version'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
     ['s1','s4','s6'].forEach(function(id){ document.getElementById(id).value=''; });
+    document.getElementById('s7').value = '';
+    document.getElementById('s8').value = 'no';
+    document.getElementById('s9').value = '2025';
     document.getElementById('s10').value = 'The Imaginary Records';
     resetAudioZone(); resetArtworkZone();
     uploadState.audio   = {url:null,pid:null,filename:null,size:null,format:null};
     uploadState.artwork = {url:null,pid:null,filename:null,dims:null};
+    releaseFlowStarted = false;
+    setPlatformPreset('all');
+    setTerritoryValue('worldwide');
+    setReleaseStep(0);
+    syncReleaseReview();
     showAl('sub-s','✓ Release submitted! We will review within 3–5 business days.');
     await loadReleases();
     toast('🎵 Release submitted successfully!');
@@ -1559,6 +1947,13 @@ function goPage(name, niId) {
   document.getElementById('page-title').textContent = pageNames[name]||'Dashboard';
   if (name==='royalties') loadRoyalties();
   if (name==='blog') loadBlog();
+  if (name==='submit') {
+    syncReleaseReview();
+    setTimeout(function(){
+      if (!releaseFlowStarted && !document.getElementById('s0').value.trim()) openReleaseStartModal();
+      else setReleaseStep(releaseStep||0);
+    }, 20);
+  }
   window.scrollTo(0,0);
 }
 function openDrawer() { document.getElementById('mob-drawer').classList.add('on'); document.getElementById('mob-overlay').classList.add('on'); document.body.style.overflow='hidden'; }

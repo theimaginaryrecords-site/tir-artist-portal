@@ -776,7 +776,7 @@ input[type=file]{display:none}
                   </label>
                   <label class="rf-medium-option" id="rf-medium-video">
                     <input type="radio" name="rf-medium" onchange="setReleaseMedium('video')"/>
-                    <div class="rf-medium-copy"><strong>Music Video</strong><span>Video distribution using a hosted video URL, thumbnail, and artwork.</span></div>
+                    <div class="rf-medium-copy"><strong>Music Video</strong><span>Video distribution using a hosted video URL, soundtrack audio upload, thumbnail, and artwork.</span></div>
                   </label>
                 </div>
                 <div class="rf-fields">
@@ -839,7 +839,7 @@ input[type=file]{display:none}
 
               <div class="rf-track-box rf-hidden" id="rf-video-box">
                 <div class="rf-mini-title">Video distribution details</div>
-                <div class="rf-mini-sub">Use a hosted video URL instead of uploading the video file directly.</div>
+                <div class="rf-mini-sub">Use a hosted video URL instead of uploading the video file directly. The soundtrack audio upload on the left is still required.</div>
                 <div class="rf-meta-grid">
                   <div class="form-group2 form-full"><label>Video URL *</label><input type="url" id="rf-video-url" placeholder="https://..." oninput="syncReleaseReview()"/></div>
                   <div class="form-group2"><label>Thumbnail Upload *</label>
@@ -1699,8 +1699,12 @@ function setReleaseMedium(mode){
   document.getElementById('rf-medium-audio').classList.toggle('on', !isVideo);
   document.getElementById('rf-medium-video').classList.toggle('on', isVideo);
   ['rf-video-field-director','rf-video-field-channel','rf-video-field-credits','rf-video-box'].forEach(function(id){ var el=document.getElementById(id); if(el) el.classList.toggle('rf-hidden', !isVideo); });
-  var ab=document.getElementById('rf-audio-box'); if(ab) ab.classList.toggle('rf-hidden', isVideo);
-  var titleBox=document.querySelector('#rf-audio-box .rf-mini-title'); if(titleBox) titleBox.textContent='Add track audio';
+  var ab=document.getElementById('rf-audio-box');
+  if(ab) ab.classList.remove('rf-hidden');
+  var titleBox=document.querySelector('#rf-audio-box .rf-mini-title');
+  if(titleBox) titleBox.textContent = isVideo ? 'Upload soundtrack audio' : 'Add track audio';
+  var audioSub=document.querySelector('#rf-audio-box .rf-mini-sub');
+  if(audioSub) audioSub.textContent = isVideo ? 'Music video releases also need the mastered audio file for distributor delivery and reference.' : 'For audio distribution, upload your mastered file just like before.';
   var artTitle=document.querySelector('#rf-body-0 .rf-art-panel .rf-section-title'); if(artTitle) artTitle.textContent = isVideo ? 'Upload artwork / poster' : 'Upload artwork';
   var artSub=document.querySelector('#rf-body-0 .rf-art-panel .rf-section-sub'); if(artSub) artSub.textContent = isVideo ? 'Music videos require artwork/poster plus a separate thumbnail in the next step.' : 'Use the same upload component already connected to your current portal.';
   syncReleaseReview();
@@ -1761,16 +1765,12 @@ function validateAndGoReleaseStep(step) {
     if (!document.getElementById('s12').value.trim()) return showAl('sub-e','Please enter songwriter name(s).');
   }
   if (step===2) {
+    if (!uploadState.audio.url) return showAl('sub-e','Please upload your audio file (WAV or FLAC).');
     if (releaseMedium()==='video') {
       if (!document.getElementById('rf-video-url').value.trim()) return showAl('sub-e','Please enter the hosted video URL.');
       if (!uploadState.thumbnail.url) return showAl('sub-e','Please upload the video thumbnail.');
-    } else {
-      if (releaseMedium()==='video') {
-    if (!document.getElementById('rf-video-url').value.trim()) return showAl('sub-e','Please enter the hosted video URL.');
-    if (!uploadState.thumbnail.url) return showAl('sub-e','Please upload the video thumbnail.');
-    if (!uploadState.artwork.url) return showAl('sub-e','Please upload the artwork / poster.');
-    if (!gv('rf-video-director')) return showAl('sub-e','Please enter the video director.');
-  } else if (!uploadState.audio.url) return showAl('sub-e','Please upload your audio file (WAV or FLAC).');
+      if (!uploadState.artwork.url) return showAl('sub-e','Please upload the artwork / poster.');
+      if (!gv('rf-video-director')) return showAl('sub-e','Please enter the video director.');
     }
   }
   if (step===3) {
@@ -1801,7 +1801,7 @@ function syncTrackSummary() {
     if (val('rf-video-url')) {
       box.classList.add('has-track');
       var thumb = uploadState.thumbnail && uploadState.thumbnail.url ? '<img src="'+uploadState.thumbnail.url+'" alt="" style="width:100%;max-height:190px;object-fit:cover;border-radius:10px;margin-bottom:12px"/>' : '';
-      box.innerHTML = thumb + '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px"><div><div style="font-size:15px;font-weight:800;color:var(--txt);margin-bottom:3px">Music video ready</div><div style="font-size:12px;color:var(--txt3)">Hosted URL provided' + (uploadState.thumbnail && uploadState.thumbnail.dims ? ' · Thumbnail ' + escapeHtml(uploadState.thumbnail.dims) : '') + '</div></div><span class="ubadge ub-ok">Video</span></div><div class="rf-video-preview">'+escapeHtml(val('rf-video-url'))+'</div>';
+      box.innerHTML = thumb + '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px"><div><div style="font-size:15px;font-weight:800;color:var(--txt);margin-bottom:3px">Music video ready</div><div style="font-size:12px;color:var(--txt3)">Hosted URL provided' + (uploadState.audio && uploadState.audio.filename ? ' · Audio ' + escapeHtml(uploadState.audio.filename) : '') + (uploadState.thumbnail && uploadState.thumbnail.dims ? ' · Thumbnail ' + escapeHtml(uploadState.thumbnail.dims) : '') + '</div></div><span class="ubadge ub-ok">Video</span></div><div class="rf-video-preview">'+escapeHtml(val('rf-video-url'))+'</div>';
     } else {
       box.classList.remove('has-track');
       box.innerHTML = '<div style="font-size:34px;opacity:.2;margin-bottom:10px">▣</div><div style="font-size:14px;color:var(--txt2);font-weight:700;margin-bottom:4px">No video details yet.</div><div style="font-size:12px;color:var(--txt3)">Add the hosted video URL and thumbnail to continue.</div>';
@@ -1858,7 +1858,7 @@ function syncReleaseReview() {
     ['Copyright year', val('s9') || '—'],
     [medium==='video' ? 'Video URL' : 'Audio file', medium==='video' ? (val('rf-video-url') || 'Not added') : (uploadState.audio && uploadState.audio.filename ? uploadState.audio.filename : 'Not uploaded')]
   ];
-  if (medium==='video') listB.push(['Thumbnail', uploadState.thumbnail && uploadState.thumbnail.filename ? uploadState.thumbnail.filename : 'Not uploaded']);
+  if (medium==='video') { listB.push(['Soundtrack Audio', uploadState.audio && uploadState.audio.filename ? uploadState.audio.filename : 'Not uploaded']); listB.push(['Thumbnail', uploadState.thumbnail && uploadState.thumbnail.filename ? uploadState.thumbnail.filename : 'Not uploaded']); }
   fillReviewList('rf-review-list-a', listA);
   fillReviewList('rf-review-list-b', listB);
 }
@@ -1918,9 +1918,9 @@ async function submitRelease() {
     lyrics:gv('s16'), notes:gv('s17'),
     releaseMedium: medium,
     releaseCategory: medium==='video' ? 'music-video' : 'audio',
-    audioUrl: medium==='audio' ? uploadState.audio.url : null, audioPublicId: medium==='audio' ? uploadState.audio.pid : null,
-    audioFilename: medium==='audio' ? uploadState.audio.filename : null, audioFormat: medium==='audio' ? uploadState.audio.format : null,
-    audioSize: medium==='audio' ? uploadState.audio.size : null,
+    audioUrl: uploadState.audio.url || null, audioPublicId: uploadState.audio.pid || null,
+    audioFilename: uploadState.audio.filename || null, audioFormat: uploadState.audio.format || null,
+    audioSize: uploadState.audio.size || null,
     videoUrl: medium==='video' ? gv('rf-video-url') : null,
     videoDirector: medium==='video' ? gv('rf-video-director') : null,
     videoChannel: medium==='video' ? gv('rf-video-channel') : null,

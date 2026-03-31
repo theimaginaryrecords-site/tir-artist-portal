@@ -4,6 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>TIR Artist Portal</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230c0c0c'/%3E%3Cpath d='M18 42V22l28-5v20' fill='none' stroke='%2339e75f' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='18' cy='42' r='6' fill='%2339e75f'/%3E%3Ccircle cx='46' cy='37' r='6' fill='%2339e75f'/%3E%3C/svg%3E"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
@@ -185,6 +186,11 @@ nav{flex:1;padding:8px 0;overflow-y:auto}
 
 /* RELEASE CARD GRID */
 .releases-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px}
+.release-search-wrap{position:relative;margin-bottom:16px}
+.release-search-input{width:100%;background:var(--card);border:1px solid var(--brd2);border-radius:var(--r);color:var(--txt);padding:11px 14px 11px 40px;font-family:'Inter',sans-serif;font-size:13px;outline:none;transition:border-color .2s}
+.release-search-input:focus{border-color:var(--green)}
+.release-search-ic{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--txt3)}
+.release-empty-inline{grid-column:1/-1;text-align:center;padding:34px 16px;border:1px dashed var(--brd);border-radius:12px;color:var(--txt3);background:rgba(255,255,255,.01)}
 .rel-card{background:var(--card);border:1px solid var(--brd);border-radius:12px;overflow:hidden;cursor:pointer;transition:all .25s}
 .rel-card:hover{border-color:var(--brd2);transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,0,0,.5)}
 .rel-card-art{width:100%;aspect-ratio:1;background:linear-gradient(135deg,#1a1a1e,#222228);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
@@ -692,6 +698,10 @@ input[type=file]{display:none}
             </div>
           </div>
           <div class="section-body">
+            <div class="release-search-wrap">
+              <svg class="release-search-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input class="release-search-input" id="release-search-input" type="text" placeholder="Search releases by title, artist, genre or status..." oninput="applyArtistReleaseSearch(this.value)"/>
+            </div>
             <div class="releases-grid" id="all-releases">
               <div class="empty" style="grid-column:1/-1"><div class="empty-icon">🎵</div><div class="empty-title">No releases yet</div></div>
             </div>
@@ -1474,6 +1484,7 @@ function resetArtworkZone() {
 // ═══════════════════════════════════════════════════════════
 // RELEASES
 // ═══════════════════════════════════════════════════════════
+var artistReleaseSearchQuery = "";
 async function loadReleases() {
   var snap = await _db.collection('releases').where('userId','==',CU.uid).get();
   allRels = [];
@@ -1482,7 +1493,22 @@ async function loadReleases() {
   document.getElementById('rel-count').textContent = allRels.length + ' release' + (allRels.length!==1?'s':'');
   document.getElementById('rel-count2').textContent = allRels.length + ' total · View all →';
   renderHomeRels(allRels.slice(0,4));
-  renderRelGrid('all-releases', allRels);
+  applyArtistReleaseSearch(artistReleaseSearchQuery);
+}
+
+function applyArtistReleaseSearch(query) {
+  artistReleaseSearchQuery = (query || '').toLowerCase().trim();
+  var list = allRels.slice();
+  if (artistReleaseSearchQuery) {
+    list = list.filter(function(r){
+      return [r.title,r.artistName,r.primaryArtist,r.genre,r.status,r.type,r.releaseDate].some(function(v){
+        return String(v||'').toLowerCase().indexOf(artistReleaseSearchQuery) !== -1;
+      });
+    });
+  }
+  renderRelGrid('all-releases', list);
+  var rc = document.getElementById('rel-count');
+  if (rc) rc.textContent = list.length + ' release' + (list.length!==1?'s':'') + (artistReleaseSearchQuery ? ' found' : '');
 }
 
 function renderHomeRels(list) {
@@ -1500,7 +1526,7 @@ function renderHomeRels(list) {
 
 function renderRelGrid(cid, list) {
   var el = document.getElementById(cid);
-  if (!list.length) { el.innerHTML = '<div class="empty" style="grid-column:1/-1"><div class="empty-icon">🎵</div><div class="empty-title">No releases yet</div></div>'; return; }
+  if (!list.length) { el.innerHTML = '<div class="release-empty-inline"><div style="font-size:28px;opacity:.22;margin-bottom:8px">🎵</div><div style="font-size:14px;color:var(--txt2);font-weight:700;margin-bottom:4px">No releases found</div><div style="font-size:12px;color:var(--txt3)">Try a different search keyword or submit a new release.</div></div>'; return; }
   var bc = {pending:'rb-pending',review:'rb-review',approved:'rb-approved',live:'rb-live',rejected:'rb-rejected'};
   el.innerHTML = list.map(function(r, i) {
     return '<div class="rel-card" style="animation:fadeUp .4s '+( i*.05)+'s ease both" onclick="openRelDetail(\''+r.id+'\')">'+

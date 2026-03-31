@@ -4,7 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>TIR Artist Portal</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230c0c0c'/%3E%3Cpath d='M18 42V22l28-5v20' fill='none' stroke='%2339e75f' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='18' cy='42' r='6' fill='%2339e75f'/%3E%3Ccircle cx='46' cy='37' r='6' fill='%2339e75f'/%3E%3C/svg%3E"/>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2214%22 fill=%22%230c0c0c%22/%3E%3Cpath d=%22M16 42V18l24-4v24%22 stroke=%22%2339e75f%22 stroke-width=%224%22 fill=%22none%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3Ccircle cx=%2218%22 cy=%2244%22 r=%226%22 fill=%22%2339e75f%22/%3E%3Ccircle cx=%2240%22 cy=%2240%22 r=%226%22 fill=%22%2339e75f%22/%3E%3C/svg%3E"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
@@ -186,11 +186,6 @@ nav{flex:1;padding:8px 0;overflow-y:auto}
 
 /* RELEASE CARD GRID */
 .releases-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px}
-.release-search-wrap{position:relative;margin-bottom:16px}
-.release-search-input{width:100%;background:var(--card);border:1px solid var(--brd2);border-radius:var(--r);color:var(--txt);padding:11px 14px 11px 40px;font-family:'Inter',sans-serif;font-size:13px;outline:none;transition:border-color .2s}
-.release-search-input:focus{border-color:var(--green)}
-.release-search-ic{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--txt3)}
-.release-empty-inline{grid-column:1/-1;text-align:center;padding:34px 16px;border:1px dashed var(--brd);border-radius:12px;color:var(--txt3);background:rgba(255,255,255,.01)}
 .rel-card{background:var(--card);border:1px solid var(--brd);border-radius:12px;overflow:hidden;cursor:pointer;transition:all .25s}
 .rel-card:hover{border-color:var(--brd2);transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,0,0,.5)}
 .rel-card-art{width:100%;aspect-ratio:1;background:linear-gradient(135deg,#1a1a1e,#222228);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
@@ -393,6 +388,18 @@ input[type=file]{display:none}
 .rf-review-v{font-size:13px;color:var(--txt);text-align:right;max-width:60%}
 .rf-warning{padding:14px 16px;border-radius:12px;background:rgba(249,115,22,.08);border:1px solid rgba(249,115,22,.22);color:#fdba74;font-size:12px;line-height:1.7;margin-bottom:18px}
 .rf-hidden{display:none!important}
+
+.rf-medium-switch{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.rf-medium-option{flex:1;min-width:180px;display:flex;align-items:flex-start;gap:12px;padding:14px;border:1px solid var(--brd);border-radius:12px;background:var(--card);cursor:pointer;transition:all .2s}
+.rf-medium-option input{accent-color:var(--green);margin-top:2px}
+.rf-medium-option.on{border-color:rgba(57,231,95,.35);background:rgba(57,231,95,.05)}
+.rf-medium-copy strong{display:block;font-size:13px;color:var(--txt);margin-bottom:4px}
+.rf-medium-copy span{display:block;font-size:11px;color:var(--txt3);line-height:1.6}
+.rf-thumb-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.rf-video-card{background:var(--sidebar);border:1px solid var(--brd);border-radius:14px;padding:18px}
+.rf-video-preview{margin-top:12px;padding:12px;border:1px solid var(--brd);border-radius:10px;background:var(--card);font-size:12px;color:var(--txt2);word-break:break-all}
+.rf-meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+
 .rf-modal{position:fixed;inset:0;background:rgba(0,0,0,.82);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;z-index:2500;padding:20px}
 .rf-modal.on{display:flex;animation:fadeIn .2s ease}
 .rf-modal-box{width:450px;max-width:96vw;background:var(--sidebar);border:1px solid var(--brd);border-radius:18px;box-shadow:0 40px 120px rgba(0,0,0,.85);padding:22px 22px 20px;position:relative}
@@ -698,10 +705,6 @@ input[type=file]{display:none}
             </div>
           </div>
           <div class="section-body">
-            <div class="release-search-wrap">
-              <svg class="release-search-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-              <input class="release-search-input" id="release-search-input" type="text" placeholder="Search releases by title, artist, genre or status..." oninput="applyArtistReleaseSearch(this.value)"/>
-            </div>
             <div class="releases-grid" id="all-releases">
               <div class="empty" style="grid-column:1/-1"><div class="empty-icon">🎵</div><div class="empty-title">No releases yet</div></div>
             </div>
@@ -764,7 +767,18 @@ input[type=file]{display:none}
 
               <div class="rf-side-card">
                 <div class="rf-section-title">Release setup</div>
-                <div class="rf-section-sub">This mirrors the reference flow, but all live submission fields still use your current IDs and existing backend payload.</div>
+                <div class="rf-section-sub">Choose whether this submission is an audio release or a music video release. Existing audio release IDs still work exactly as before.</div>
+                <input type="hidden" id="rf-release-medium" value="audio"/>
+                <div class="rf-medium-switch">
+                  <label class="rf-medium-option on" id="rf-medium-audio">
+                    <input type="radio" name="rf-medium" checked onchange="setReleaseMedium('audio')"/>
+                    <div class="rf-medium-copy"><strong>Audio Release</strong><span>Standard music distribution using audio upload.</span></div>
+                  </label>
+                  <label class="rf-medium-option" id="rf-medium-video">
+                    <input type="radio" name="rf-medium" onchange="setReleaseMedium('video')"/>
+                    <div class="rf-medium-copy"><strong>Music Video</strong><span>Video distribution using a hosted video URL, thumbnail, and artwork.</span></div>
+                  </label>
+                </div>
                 <div class="rf-fields">
                   <div class="form-group2 form-full"><label>Release Title *</label><input type="text" id="s0" placeholder="Release title" oninput="syncReleaseReview()"/></div>
                   <div class="form-group2 form-full"><label>Version (optional)</label><input type="text" id="rf-version" placeholder="e.g., Remastered or Japanese Version" oninput="syncReleaseReview()"/></div>
@@ -780,6 +794,9 @@ input[type=file]{display:none}
                   <div class="form-group2"><label>Explicit?</label><select id="s8" onchange="syncReleaseReview()"><option value="no">No — Clean</option><option value="yes">Yes — Explicit</option></select></div>
                   <div class="form-group2 form-full"><label>Songwriter(s) / Composer(s) *</label><input type="text" id="s12" placeholder="Full legal names of all writers" oninput="syncReleaseReview()"/></div>
                   <div class="form-group2 form-full"><label>Producer(s)</label><input type="text" id="s13" placeholder="Producer credits" oninput="syncReleaseReview()"/></div>
+                  <div class="form-group2 rf-hidden" id="rf-video-field-director"><label>Video Director *</label><input type="text" id="rf-video-director" placeholder="Director name" oninput="syncReleaseReview()"/></div>
+                  <div class="form-group2 rf-hidden" id="rf-video-field-channel"><label>Channel / Vevo Name</label><input type="text" id="rf-video-channel" placeholder="Official channel name" oninput="syncReleaseReview()"/></div>
+                  <div class="form-group2 form-full rf-hidden" id="rf-video-field-credits"><label>Video Credits</label><textarea id="rf-video-credits" placeholder="Director, editor, cinematographer, performers..." oninput="syncReleaseReview()"></textarea></div>
                 </div>
                 <div class="rf-actions">
                   <div></div>
@@ -791,11 +808,12 @@ input[type=file]{display:none}
             </div>
           </div>
 
+          
           <div class="rf-body" id="rf-body-1">
             <div class="rf-track-grid">
-              <div class="rf-track-box">
+              <div class="rf-track-box" id="rf-audio-box">
                 <div class="rf-mini-title">Add track audio</div>
-                <div class="rf-mini-sub">Your current portal supports one audio file per release submission. This step keeps that existing logic unchanged.</div>
+                <div class="rf-mini-sub">For audio distribution, upload your mastered file just like before.</div>
                 <div>
                   <div class="form-group2" style="margin-bottom:8px"><label>Audio File * <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--txt3)">WAV · FLAC · AIFF</span></label></div>
                   <div class="upload-zone audio-zone" id="audio-zone" ondragover="handleDrag(event,'audio-zone')" ondragleave="handleDragLeave('audio-zone')" ondrop="handleDrop(event,'audio')" onclick="document.getElementById('audio-input').click()">
@@ -819,13 +837,46 @@ input[type=file]{display:none}
                 </div>
               </div>
 
+              <div class="rf-track-box rf-hidden" id="rf-video-box">
+                <div class="rf-mini-title">Video distribution details</div>
+                <div class="rf-mini-sub">Use a hosted video URL instead of uploading the video file directly.</div>
+                <div class="rf-meta-grid">
+                  <div class="form-group2 form-full"><label>Video URL *</label><input type="url" id="rf-video-url" placeholder="https://..." oninput="syncReleaseReview()"/></div>
+                  <div class="form-group2"><label>Thumbnail Upload *</label>
+                    <div class="upload-zone artwork-zone" id="thumbnail-zone" ondragover="handleDrag(event,'thumbnail-zone')" ondragleave="handleDragLeave('thumbnail-zone')" ondrop="handleDrop(event,'thumbnail')" onclick="document.getElementById('thumbnail-input').click()">
+                      <input type="file" id="thumbnail-input" accept=".jpg,.jpeg,.png" onchange="handleFileSelect(event,'thumbnail')"/>
+                      <img class="aw-prev" id="thumbnail-preview" alt=""/>
+                      <div class="aw-ov" id="thumbnail-overlay">
+                        <button class="ov-btn" onclick="event.stopPropagation();document.getElementById('thumbnail-input').click()">Change</button>
+                        <button class="ov-btn" style="background:rgba(239,68,68,.3)" onclick="removeFile(event,'thumbnail')">Remove</button>
+                      </div>
+                      <div class="uz-c">
+                        <div class="uz-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
+                        <div><div class="uz-title">Upload thumbnail</div><div class="uz-sub">JPG or PNG · 1280×720 recommended</div></div>
+                        <div class="uz-browse">Browse Files</div>
+                      </div>
+                      <div id="thumbnail-uploading" style="display:none;flex-direction:column;align-items:center;gap:10px">
+                        <div class="uspinner" style="width:28px;height:28px;border-width:3px"></div>
+                        <div style="font-size:12px;color:var(--txt2)"><span id="thumbnail-upload-msg">Uploading thumbnail...</span></div>
+                        <div class="uprog" style="width:80%"><div class="uprog-fill" id="thumbnail-prog"></div></div>
+                      </div>
+                    </div>
+                    <div id="thumbnail-status-row" style="display:none;margin-top:8px;align-items:center;gap:8px;flex-wrap:wrap">
+                      <div style="display:flex;align-items:center;gap:8px;font-size:12px" id="thumbnail-ok-msg"><div class="ucheck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20,6 9,17 4,12"/></svg></div><span style="color:var(--green);font-weight:600">Thumbnail uploaded</span></div>
+                      <span class="ubadge ub-ok" id="thumbnail-dim-badge" style="display:none"></span>
+                    </div>
+                  </div>
+                  <div class="form-group2"><label>Video Notes</label><textarea id="rf-video-notes" placeholder="Optional notes for the video delivery team" oninput="syncReleaseReview()"></textarea></div>
+                </div>
+              </div>
+
               <div class="rf-track-box">
                 <div class="rf-mini-title">Your release</div>
-                <div class="rf-mini-sub">A simple track panel inspired by the reference flow.</div>
+                <div class="rf-mini-sub">A simple media panel inspired by the reference flow.</div>
                 <div class="rf-album-drop" id="rf-track-summary">
                   <div style="font-size:34px;opacity:.2;margin-bottom:10px">♪</div>
-                  <div style="font-size:14px;color:var(--txt2);font-weight:700;margin-bottom:4px">No track assigned yet.</div>
-                  <div style="font-size:12px;color:var(--txt3)">Add a track from your computer to continue.</div>
+                  <div style="font-size:14px;color:var(--txt2);font-weight:700;margin-bottom:4px">No media assigned yet.</div>
+                  <div style="font-size:12px;color:var(--txt3)">Add your audio file or video details to continue.</div>
                 </div>
               </div>
             </div>
@@ -895,6 +946,7 @@ input[type=file]{display:none}
                 <div class="rf-review-meta">
                   <h3 id="rf-review-title">Untitled release</h3>
                   <div class="rf-review-tagrow">
+                    <span class="rf-review-tag" id="rf-review-medium">Audio Release</span>
                     <span class="rf-review-tag" id="rf-review-type">Single</span>
                     <span class="rf-review-tag" id="rf-review-genre">—</span>
                     <span class="rf-review-tag" id="rf-review-language">—</span>
@@ -1172,7 +1224,8 @@ var CLOUDINARY_CLOUD = 'dxl7tss5t';
 var CLOUDINARY_PRESET = 'tir_uploads';
 var uploadState = {
   audio:   { url: null, pid: null, filename: null, size: null, format: null },
-  artwork: { url: null, pid: null, filename: null, dims: null }
+  artwork: { url: null, pid: null, filename: null, dims: null },
+  thumbnail: { url: null, pid: null, filename: null, dims: null }
 };
 
 // ═══════════════════════════════════════════════════════════
@@ -1353,9 +1406,9 @@ function validateFile(file, type) {
     if (!['wav','flac','aif','aiff'].includes(ext)) return {ok:false, msg:'Only WAV, FLAC, or AIFF accepted for audio.'};
     if (file.size > 500*1024*1024) return {ok:false, msg:'Audio file must be under 500MB.'};
   }
-  if (type === 'artwork') {
-    if (!['image/jpeg','image/jpg','image/png'].includes(file.type)) return {ok:false, msg:'Only JPG or PNG accepted for artwork.'};
-    if (file.size > 50*1024*1024) return {ok:false, msg:'Artwork must be under 50MB.'};
+  if (type === 'artwork' || type === 'thumbnail') {
+    if (!['image/jpeg','image/jpg','image/png'].includes(file.type)) return {ok:false, msg:'Only JPG or PNG accepted for images.'};
+    if (file.size > 50*1024*1024) return {ok:false, msg:'Image file must be under 50MB.'};
   }
   return {ok:true};
 }
@@ -1365,7 +1418,8 @@ async function processFile(file, type) {
   if (!v.ok) { showAl('sub-e', v.msg); return; }
   document.getElementById('sub-e').classList.remove('on');
   if (type === 'audio') await processAudio(file);
-  else await processArtwork(file);
+  else if (type === 'artwork') await processArtwork(file);
+  else if (type === 'thumbnail') await processThumbnail(file);
 }
 
 async function processAudio(file) {
@@ -1441,14 +1495,81 @@ async function processArtwork(file) {
   }
 }
 
+
+
+async function processThumbnail(file) {
+  var zone = document.getElementById('thumbnail-zone');
+  var up = document.getElementById('thumbnail-uploading');
+  var localUrl = URL.createObjectURL(file);
+  var prev = document.getElementById('thumbnail-preview');
+  prev.src = localUrl; prev.style.display = 'block';
+  var img = new Image();
+  img.src = localUrl;
+  img.onload = function() {
+    var w = img.naturalWidth, h = img.naturalHeight;
+    uploadState.thumbnail.dims = w + '×' + h;
+    var db = document.getElementById('thumbnail-dim-badge');
+    var sr = document.getElementById('thumbnail-status-row');
+    if (db) { db.textContent = w+'×'+h+'px'; db.className = 'ubadge ' + (w>=1280&&h>=720?'ub-ok':'ub-warn'); db.style.display = 'inline-flex'; }
+    if (sr) sr.style.display = 'flex';
+  };
+  zone.querySelector('.uz-c').style.display = 'none';
+  up.style.display = 'flex';
+  zone.classList.add('uploading');
+  zone.onclick = null;
+  try {
+    var r = await uploadCDN(file, 'thumbnail');
+    uploadState.thumbnail = Object.assign({}, uploadState.thumbnail, {url:r.secure_url, pid:r.public_id, filename:file.name, width:r.width, height:r.height});
+    up.style.display = 'none';
+    zone.classList.remove('uploading');
+    zone.classList.add('has-file');
+    zone.onclick = null;
+    document.getElementById('thumbnail-overlay').style.display = 'flex';
+    var om = document.getElementById('thumbnail-ok-msg');
+    if (om) om.style.display = 'flex';
+    toast('Thumbnail uploaded ✓');
+  } catch(err) {
+    up.style.display = 'none';
+    zone.classList.remove('uploading');
+    prev.style.display = 'none';
+    zone.querySelector('.uz-c').style.display = 'flex';
+    zone.classList.add('error');
+    showAl('sub-e', 'Thumbnail upload failed: ' + err.message);
+    zone.onclick = function(){ document.getElementById('thumbnail-input').click(); };
+    setTimeout(function(){ zone.classList.remove('error'); }, 3000);
+  }
+}
+
+function resetThumbnailZone() {
+  var z = document.getElementById('thumbnail-zone');
+  if (!z) return;
+  z.classList.remove('has-file','uploading','error');
+  z.querySelector('.uz-c').style.display = 'flex';
+  document.getElementById('thumbnail-uploading').style.display = 'none';
+  document.getElementById('thumbnail-prog').style.width = '0%';
+  var p = document.getElementById('thumbnail-preview');
+  p.style.display = 'none'; p.src = '';
+  document.getElementById('thumbnail-overlay').style.display = 'none';
+  var om = document.getElementById('thumbnail-ok-msg');
+  if (om) om.style.display = 'none';
+  var db = document.getElementById('thumbnail-dim-badge');
+  if (db) db.style.display = 'none';
+  var sr = document.getElementById('thumbnail-status-row');
+  if (sr) sr.style.display = 'none';
+  document.getElementById('thumbnail-input').value = '';
+  z.onclick = function(){ document.getElementById('thumbnail-input').click(); };
+}
 function removeFile(e, type) {
   e.stopPropagation();
   if (type === 'audio') {
     uploadState.audio = {url:null,pid:null,filename:null,size:null,format:null};
     resetAudioZone();
-  } else {
+  } else if (type === 'artwork') {
     uploadState.artwork = {url:null,pid:null,filename:null,dims:null};
     resetArtworkZone();
+  } else {
+    uploadState.thumbnail = {url:null,pid:null,filename:null,dims:null};
+    resetThumbnailZone();
   }
 }
 
@@ -1484,7 +1605,6 @@ function resetArtworkZone() {
 // ═══════════════════════════════════════════════════════════
 // RELEASES
 // ═══════════════════════════════════════════════════════════
-var artistReleaseSearchQuery = "";
 async function loadReleases() {
   var snap = await _db.collection('releases').where('userId','==',CU.uid).get();
   allRels = [];
@@ -1493,22 +1613,7 @@ async function loadReleases() {
   document.getElementById('rel-count').textContent = allRels.length + ' release' + (allRels.length!==1?'s':'');
   document.getElementById('rel-count2').textContent = allRels.length + ' total · View all →';
   renderHomeRels(allRels.slice(0,4));
-  applyArtistReleaseSearch(artistReleaseSearchQuery);
-}
-
-function applyArtistReleaseSearch(query) {
-  artistReleaseSearchQuery = (query || '').toLowerCase().trim();
-  var list = allRels.slice();
-  if (artistReleaseSearchQuery) {
-    list = list.filter(function(r){
-      return [r.title,r.artistName,r.primaryArtist,r.genre,r.status,r.type,r.releaseDate].some(function(v){
-        return String(v||'').toLowerCase().indexOf(artistReleaseSearchQuery) !== -1;
-      });
-    });
-  }
-  renderRelGrid('all-releases', list);
-  var rc = document.getElementById('rel-count');
-  if (rc) rc.textContent = list.length + ' release' + (list.length!==1?'s':'') + (artistReleaseSearchQuery ? ' found' : '');
+  renderRelGrid('all-releases', allRels);
 }
 
 function renderHomeRels(list) {
@@ -1519,20 +1624,20 @@ function renderHomeRels(list) {
     return '<div class="ri" onclick="openRelDetail(\''+r.id+'\')">' +
       '<div class="r-art">'+(r.artworkUrl?'<img src="'+r.artworkUrl+'" alt=""/>':'🎵')+'</div>' +
       '<div class="r-info"><div class="r-title">'+(r.title||'—')+'</div>' +
-      '<div class="r-meta"><span>'+(r.type||'Single')+'</span><span class="r-dot"></span><span>'+(r.genre||'—')+'</span><span class="r-dot"></span><span>'+(r.releaseDate||'—')+'</span></div></div>' +
+      '<div class="r-meta"><span>'+((r.releaseMedium==='video'?'Music Video':'Audio')+' · '+(r.type||'Single'))+'</span><span class="r-dot"></span><span>'+(r.genre||'—')+'</span><span class="r-dot"></span><span>'+(r.releaseDate||'—')+'</span></div></div>' +
       '<span class="rbadge '+(bc[r.status]||'rb-pending')+'">'+(r.status||'pending')+'</span></div>';
   }).join('');
 }
 
 function renderRelGrid(cid, list) {
   var el = document.getElementById(cid);
-  if (!list.length) { el.innerHTML = '<div class="release-empty-inline"><div style="font-size:28px;opacity:.22;margin-bottom:8px">🎵</div><div style="font-size:14px;color:var(--txt2);font-weight:700;margin-bottom:4px">No releases found</div><div style="font-size:12px;color:var(--txt3)">Try a different search keyword or submit a new release.</div></div>'; return; }
+  if (!list.length) { el.innerHTML = '<div class="empty" style="grid-column:1/-1"><div class="empty-icon">🎵</div><div class="empty-title">No releases yet</div></div>'; return; }
   var bc = {pending:'rb-pending',review:'rb-review',approved:'rb-approved',live:'rb-live',rejected:'rb-rejected'};
   el.innerHTML = list.map(function(r, i) {
     return '<div class="rel-card" style="animation:fadeUp .4s '+( i*.05)+'s ease both" onclick="openRelDetail(\''+r.id+'\')">'+
       '<div class="rel-card-art">'+(r.artworkUrl?'<img src="'+r.artworkUrl+'" alt=""/>':'<div class="art-ph">🎵</div>')+
       '<div class="rel-card-status"><span class="rbadge '+(bc[r.status]||'rb-pending')+'" style="font-size:10px;padding:2px 8px">'+(r.status||'pending')+'</span></div></div>'+
-      '<div class="rel-card-body"><div class="rel-card-title">'+(r.title||'—')+'</div><div class="rel-card-sub">'+(r.type||'Single')+' · '+(r.genre||'—')+'</div><div class="rel-card-sub" style="margin-top:2px;color:var(--txt3)">'+(r.releaseDate||'—')+'</div></div></div>';
+      '<div class="rel-card-body"><div class="rel-card-title">'+(r.title||'—')+'</div><div class="rel-card-sub">'+(r.releaseMedium==='video'?'Music Video':'Audio')+' · '+(r.type||'Single')+' · '+(r.genre||'—')+'</div><div class="rel-card-sub" style="margin-top:2px;color:var(--txt3)">'+(r.releaseDate||'—')+'</div></div></div>';
   }).join('');
 }
 
@@ -1549,23 +1654,29 @@ function openRelDetail(id) {
   }).join('');
   var plats = ['Spotify','Apple Music','Amazon Music','YouTube Music','JioSaavn','Gaana','Tidal','Deezer','Anghami'];
   var pi = {Spotify:'🎧','Apple Music':'🍎','Amazon Music':'📦','YouTube Music':'▶️',JioSaavn:'🎵',Gaana:'🎶',Tidal:'🌊',Deezer:'🎸',Anghami:'🎼'};
+  var mediaBlock = '';
+  if (r.releaseMedium==='video' && r.videoUrl) {
+    mediaBlock = '<div class="rmodal-audio"><div class="rmodal-audio-name">Hosted Video URL</div><div class="rmodal-audio-meta"><span class="fmt-pill">VIDEO</span>'+(r.videoDirector?'<span style="color:var(--txt3)">Director: '+escapeHtml(r.videoDirector)+'</span>':'')+'</div><div style="font-size:12px;line-height:1.7;color:var(--txt2);word-break:break-all">'+escapeHtml(r.videoUrl)+'</div><div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap"><a href="'+r.videoUrl+'" target="_blank" style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;background:var(--green-dim);border:1px solid rgba(57,231,95,.2);border-radius:6px;color:var(--green);font-size:12px;font-weight:600;text-decoration:none">↗ Open Video URL</a>'+(r.thumbnailUrl?'<a href="'+r.thumbnailUrl+'" target="_blank" download style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;background:var(--card);border:1px solid var(--brd);border-radius:6px;color:var(--txt2);font-size:12px;text-decoration:none">↓ Thumbnail</a>':'')+(r.artworkUrl?'<a href="'+r.artworkUrl+'" target="_blank" download style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;background:var(--card);border:1px solid var(--brd);border-radius:6px;color:var(--txt2);font-size:12px;text-decoration:none">↓ Artwork</a>':'')+'</div></div>';
+  } else if (r.audioUrl) {
+    mediaBlock = '<div class="rmodal-audio"><div class="rmodal-audio-name">'+(r.audioFilename||'Audio File')+'</div><div class="rmodal-audio-meta"><span class="fmt-pill">'+(r.audioFormat||'AUDIO')+'</span>'+(r.audioSize?'<span style="color:var(--txt3)">'+r.audioSize+'</span>':'')+'</div><audio controls src="'+r.audioUrl+'" style="width:100%;accent-color:var(--green)"></audio><div style="margin-top:10px;display:flex;gap:8px"><a href="'+r.audioUrl+'" target="_blank" download style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;background:var(--green-dim);border:1px solid rgba(57,231,95,.2);border-radius:6px;color:var(--green);font-size:12px;font-weight:600;text-decoration:none">↓ Download Audio</a>'+(r.artworkUrl?'<a href="'+r.artworkUrl+'" target="_blank" download style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;background:var(--card);border:1px solid var(--brd);border-radius:6px;color:var(--txt2);font-size:12px;text-decoration:none">↓ Artwork</a>':'')+'</div></div>';
+  }
+  var rows = [['Format',r.releaseMedium==='video'?'Music Video':'Audio Release'],['Label',r.label],['Release Date',r.releaseDate],['Copyright',r.copyrightYear],['Songwriters',r.writers],['Producers',r.producers||'—'],['Director',r.videoDirector||'—'],['Channel',r.videoChannel||'—'],['UPC/ISRC',r.upc||'To be assigned by TIR'],['Platforms',r.platforms==='all'?'All Platforms':r.platforms],['Territories',r.territories==='worldwide'?'Worldwide':r.territories],['Submitted',r.submittedAt?r.submittedAt.substring(0,10):'—']];
   document.getElementById('rel-modal-box').innerHTML =
     '<div class="rmodal-head"><div class="rmodal-title">Release Details</div><button class="mclose" onclick="closeRelModal()">✕</button></div>'+
     '<div class="rmodal-body">'+
     '<div class="rmodal-hero">'+
-    '<div class="rmodal-art">'+(r.artworkUrl?'<img src="'+r.artworkUrl+'" alt=""/>':'🎵')+'</div>'+
+    '<div class="rmodal-art">'+(r.artworkUrl?'<img src="'+r.artworkUrl+'" alt=""/>':(r.releaseMedium==='video'?'▣':'🎵'))+'</div>'+
     '<div class="rmodal-info">'+
     '<div class="rmodal-name">'+(r.title||'—')+'</div>'+
     '<div class="rmodal-artist">'+(r.primaryArtist||r.artistName||'—')+(r.featuredArtists?' ft. '+r.featuredArtists:'')+'</div>'+
-    '<div class="rmodal-tags"><span class="rmodal-tag">'+(r.type||'Single')+'</span><span class="rmodal-tag">'+(r.genre||'—')+'</span><span class="rmodal-tag">'+(r.language||'—')+'</span>'+(r.explicit==='yes'?'<span class="rmodal-tag" style="color:#fb923c">🔞 Explicit</span>':'')+'</div>'+
+    '<div class="rmodal-tags"><span class="rmodal-tag">'+(r.releaseMedium==='video'?'Music Video':'Audio Release')+'</span><span class="rmodal-tag">'+(r.type||'Single')+'</span><span class="rmodal-tag">'+(r.genre||'—')+'</span><span class="rmodal-tag">'+(r.language||'—')+'</span>'+(r.explicit==='yes'?'<span class="rmodal-tag" style="color:#fb923c">🔞 Explicit</span>':'')+'</div>'+
     '<span class="rbadge '+(bc[r.status]||'rb-pending')+'">'+(sl[r.status]||'Pending')+'</span>'+
     (r.status==='live'?'<div class="plats-wrap">'+plats.map(function(p){ return '<div class="plat-chip">'+(pi[p]||'🎵')+' '+p+'</div>'; }).join('')+'</div>':'')+
     '</div></div>'+
-    (r.audioUrl?'<div class="rmodal-audio"><div class="rmodal-audio-name">'+(r.audioFilename||'Audio File')+'</div><div class="rmodal-audio-meta"><span class="fmt-pill">'+(r.audioFormat||'AUDIO')+'</span>'+(r.audioSize?'<span style="color:var(--txt3)">'+r.audioSize+'</span>':'')+'</div><audio controls src="'+r.audioUrl+'" style="width:100%;accent-color:var(--green)"></audio><div style="margin-top:10px;display:flex;gap:8px"><a href="'+r.audioUrl+'" target="_blank" download style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;background:var(--green-dim);border:1px solid rgba(57,231,95,.2);border-radius:6px;color:var(--green);font-size:12px;font-weight:600;text-decoration:none">↓ Download Audio</a>'+(r.artworkUrl?'<a href="'+r.artworkUrl+'" target="_blank" download style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;background:var(--card);border:1px solid var(--brd);border-radius:6px;color:var(--txt2);font-size:12px;text-decoration:none">↓ Artwork</a>':'')+'</div></div>':'') +
+    mediaBlock+
     '<div class="rmodal-section"><div class="rmodal-sec-title">Release Info</div>'+
-    [['Label',r.label],['Release Date',r.releaseDate],['Copyright',r.copyrightYear],['Songwriters',r.writers],['Producers',r.producers||'—'],['UPC/ISRC',r.upc||'To be assigned by TIR'],['Platforms',r.platforms==='all'?'All Platforms':r.platforms],['Territories',r.territories==='worldwide'?'Worldwide':r.territories],['Submitted',r.submittedAt?r.submittedAt.substring(0,10):'—']].map(function(kv){
-      return '<div class="rmod-row"><div class="rmod-key">'+kv[0]+'</div><div class="rmod-val">'+(kv[1]||'—')+'</div></div>';
-    }).join('')+'</div>'+
+    rows.map(function(kv){ return '<div class="rmod-row"><div class="rmod-key">'+kv[0]+'</div><div class="rmod-val">'+(kv[1]||'—')+'</div></div>'; }).join('')+
+    '</div>'+
     (r.notes?'<div class="rmodal-section"><div class="rmodal-sec-title">Notes to TIR</div><div style="font-size:13px;color:var(--txt2);line-height:1.7;background:var(--card);border:1px solid var(--brd);border-radius:8px;padding:12px 14px">'+r.notes+'</div></div>':'')+
     '</div>'+
     '<div class="prog-wrap"><div class="prog-label">Release Progress</div><div class="prog-steps">'+stepsHTML+'</div></div>';
@@ -1579,6 +1690,22 @@ function closeRelModal() { document.getElementById('rel-modal').classList.remove
 // ═══════════════════════════════════════════════════════════
 var releaseStep = 0;
 var releaseFlowStarted = false;
+
+function releaseMedium(){ var el=document.getElementById('rf-release-medium'); return el ? el.value : 'audio'; }
+
+function setReleaseMedium(mode){
+  var hidden=document.getElementById('rf-release-medium'); if(hidden) hidden.value=mode;
+  var isVideo = mode==='video';
+  document.getElementById('rf-medium-audio').classList.toggle('on', !isVideo);
+  document.getElementById('rf-medium-video').classList.toggle('on', isVideo);
+  ['rf-video-field-director','rf-video-field-channel','rf-video-field-credits','rf-video-box'].forEach(function(id){ var el=document.getElementById(id); if(el) el.classList.toggle('rf-hidden', !isVideo); });
+  var ab=document.getElementById('rf-audio-box'); if(ab) ab.classList.toggle('rf-hidden', isVideo);
+  var titleBox=document.querySelector('#rf-audio-box .rf-mini-title'); if(titleBox) titleBox.textContent='Add track audio';
+  var artTitle=document.querySelector('#rf-body-0 .rf-art-panel .rf-section-title'); if(artTitle) artTitle.textContent = isVideo ? 'Upload artwork / poster' : 'Upload artwork';
+  var artSub=document.querySelector('#rf-body-0 .rf-art-panel .rf-section-sub'); if(artSub) artSub.textContent = isVideo ? 'Music videos require artwork/poster plus a separate thumbnail in the next step.' : 'Use the same upload component already connected to your current portal.';
+  syncReleaseReview();
+}
+
 
 function setReleaseStep(step) {
   releaseStep = Math.max(0, Math.min(3, step));
@@ -1634,7 +1761,17 @@ function validateAndGoReleaseStep(step) {
     if (!document.getElementById('s12').value.trim()) return showAl('sub-e','Please enter songwriter name(s).');
   }
   if (step===2) {
-    if (!uploadState.audio.url) return showAl('sub-e','Please upload your audio file (WAV or FLAC).');
+    if (releaseMedium()==='video') {
+      if (!document.getElementById('rf-video-url').value.trim()) return showAl('sub-e','Please enter the hosted video URL.');
+      if (!uploadState.thumbnail.url) return showAl('sub-e','Please upload the video thumbnail.');
+    } else {
+      if (releaseMedium()==='video') {
+    if (!document.getElementById('rf-video-url').value.trim()) return showAl('sub-e','Please enter the hosted video URL.');
+    if (!uploadState.thumbnail.url) return showAl('sub-e','Please upload the video thumbnail.');
+    if (!uploadState.artwork.url) return showAl('sub-e','Please upload the artwork / poster.');
+    if (!gv('rf-video-director')) return showAl('sub-e','Please enter the video director.');
+  } else if (!uploadState.audio.url) return showAl('sub-e','Please upload your audio file (WAV or FLAC).');
+    }
   }
   if (step===3) {
     if (!document.getElementById('s7').value.trim()) return showAl('sub-e','Please select a release date.');
@@ -1660,17 +1797,29 @@ function setPlatformPreset(value) {
 function syncTrackSummary() {
   var box = document.getElementById('rf-track-summary');
   if (!box) return;
+  if (releaseMedium()==='video') {
+    if (val('rf-video-url')) {
+      box.classList.add('has-track');
+      var thumb = uploadState.thumbnail && uploadState.thumbnail.url ? '<img src="'+uploadState.thumbnail.url+'" alt="" style="width:100%;max-height:190px;object-fit:cover;border-radius:10px;margin-bottom:12px"/>' : '';
+      box.innerHTML = thumb + '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px"><div><div style="font-size:15px;font-weight:800;color:var(--txt);margin-bottom:3px">Music video ready</div><div style="font-size:12px;color:var(--txt3)">Hosted URL provided' + (uploadState.thumbnail && uploadState.thumbnail.dims ? ' · Thumbnail ' + escapeHtml(uploadState.thumbnail.dims) : '') + '</div></div><span class="ubadge ub-ok">Video</span></div><div class="rf-video-preview">'+escapeHtml(val('rf-video-url'))+'</div>';
+    } else {
+      box.classList.remove('has-track');
+      box.innerHTML = '<div style="font-size:34px;opacity:.2;margin-bottom:10px">▣</div><div style="font-size:14px;color:var(--txt2);font-weight:700;margin-bottom:4px">No video details yet.</div><div style="font-size:12px;color:var(--txt3)">Add the hosted video URL and thumbnail to continue.</div>';
+    }
+    return;
+  }
   if (uploadState.audio && uploadState.audio.url) {
     box.classList.add('has-track');
     box.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px"><div><div style="font-size:15px;font-weight:800;color:var(--txt);margin-bottom:3px">'+escapeHtml(uploadState.audio.filename||'Track uploaded')+'</div><div style="font-size:12px;color:var(--txt3)">'+escapeHtml((uploadState.audio.format||'AUDIO') + (uploadState.audio.size ? ' · ' + uploadState.audio.size : ''))+'</div></div><span class="ubadge ub-ok">Ready</span></div><audio controls src="'+uploadState.audio.url+'" style="width:100%;accent-color:var(--green)"></audio>';
   } else {
     box.classList.remove('has-track');
-    box.innerHTML = '<div style="font-size:34px;opacity:.2;margin-bottom:10px">♪</div><div style="font-size:14px;color:var(--txt2);font-weight:700;margin-bottom:4px">No track assigned yet.</div><div style="font-size:12px;color:var(--txt3)">Add a track from your computer to continue.</div>';
+    box.innerHTML = '<div style="font-size:34px;opacity:.2;margin-bottom:10px">♪</div><div style="font-size:14px;color:var(--txt2);font-weight:700;margin-bottom:4px">No media assigned yet.</div><div style="font-size:12px;color:var(--txt3)">Add your audio file or video details to continue.</div>';
   }
 }
 
 function syncReleaseReview() {
   syncTrackSummary();
+  var medium = releaseMedium();
   var title = val('s0') || 'Untitled release';
   var type = val('s1') || 'Release type';
   var genre = val('s4') || val('s5') || 'Genre';
@@ -1679,29 +1828,37 @@ function syncReleaseReview() {
   var art = document.getElementById('rf-review-art');
   var artPrev = document.getElementById('artwork-preview');
   document.getElementById('rf-review-title').textContent = title;
+  document.getElementById('rf-review-medium').textContent = medium==='video' ? 'Music Video' : 'Audio Release';
   document.getElementById('rf-review-type').textContent = type;
   document.getElementById('rf-review-genre').textContent = genre;
   document.getElementById('rf-review-language').textContent = language;
   document.getElementById('rf-review-version').textContent = version;
   if (art) {
-    art.innerHTML = (artPrev && artPrev.src && artPrev.style.display !== 'none') ? '<img src="'+artPrev.src+'" alt=""/>' : '🎵';
+    art.innerHTML = (artPrev && artPrev.src && artPrev.style.display !== 'none') ? '<img src="'+artPrev.src+'" alt=""/>' : (medium==='video' ? '▣' : '🎵');
   }
   var listA = [
+    ['Release format', medium==='video' ? 'Music Video' : 'Audio'],
     ['Primary artist', val('s2') || '—'],
     ['Featured artists', val('s3') || '—'],
     ['Label', val('s10') || '—'],
     ['Songwriters', val('s12') || '—'],
-    ['Producers', val('s13') || '—'],
-    ['Explicit', document.getElementById('s8').value === 'yes' ? 'Yes' : 'No']
+    ['Producers', val('s13') || '—']
   ];
+  if (medium==='video') {
+    listA.push(['Director', val('rf-video-director') || '—']);
+    listA.push(['Channel', val('rf-video-channel') || '—']);
+  } else {
+    listA.push(['Explicit', document.getElementById('s8').value === 'yes' ? 'Yes' : 'No']);
+  }
   var listB = [
     ['Release date', val('s7') || '—'],
     ['Platforms', platformLabel()],
     ['Territories', territoryLabel()],
     ['UPC / ISRC', val('s11') || 'Auto-assign'],
     ['Copyright year', val('s9') || '—'],
-    ['Audio file', uploadState.audio && uploadState.audio.filename ? uploadState.audio.filename : 'Not uploaded']
+    [medium==='video' ? 'Video URL' : 'Audio file', medium==='video' ? (val('rf-video-url') || 'Not added') : (uploadState.audio && uploadState.audio.filename ? uploadState.audio.filename : 'Not uploaded')]
   ];
+  if (medium==='video') listB.push(['Thumbnail', uploadState.thumbnail && uploadState.thumbnail.filename ? uploadState.thumbnail.filename : 'Not uploaded']);
   fillReviewList('rf-review-list-a', listA);
   fillReviewList('rf-review-list-b', listB);
 }
@@ -1748,6 +1905,7 @@ async function submitRelease() {
   if (!uploadState.audio.url) return showAl('sub-e','Please upload your audio file (WAV or FLAC).');
   var btn = document.getElementById('bsub');
   btn.disabled = true; btn.textContent = 'Submitting...';
+  var medium = releaseMedium();
   var data = {
     userId:CU.uid, artistName:AD.name||CU.displayName||artist,
     title, type, primaryArtist:artist,
@@ -1758,9 +1916,20 @@ async function submitRelease() {
     platforms:document.getElementById('s14').value,
     territories:document.getElementById('s15').value,
     lyrics:gv('s16'), notes:gv('s17'),
-    audioUrl:uploadState.audio.url, audioPublicId:uploadState.audio.pid,
-    audioFilename:uploadState.audio.filename, audioFormat:uploadState.audio.format,
-    audioSize:uploadState.audio.size,
+    releaseMedium: medium,
+    releaseCategory: medium==='video' ? 'music-video' : 'audio',
+    audioUrl: medium==='audio' ? uploadState.audio.url : null, audioPublicId: medium==='audio' ? uploadState.audio.pid : null,
+    audioFilename: medium==='audio' ? uploadState.audio.filename : null, audioFormat: medium==='audio' ? uploadState.audio.format : null,
+    audioSize: medium==='audio' ? uploadState.audio.size : null,
+    videoUrl: medium==='video' ? gv('rf-video-url') : null,
+    videoDirector: medium==='video' ? gv('rf-video-director') : null,
+    videoChannel: medium==='video' ? gv('rf-video-channel') : null,
+    videoCredits: medium==='video' ? gv('rf-video-credits') : null,
+    videoNotes: medium==='video' ? gv('rf-video-notes') : null,
+    thumbnailUrl: medium==='video' ? (uploadState.thumbnail.url||null) : null,
+    thumbnailPublicId: medium==='video' ? (uploadState.thumbnail.pid||null) : null,
+    thumbnailFilename: medium==='video' ? (uploadState.thumbnail.filename||null) : null,
+    thumbnailDimensions: medium==='video' ? (uploadState.thumbnail.dims||null) : null,
     artworkUrl:uploadState.artwork.url||null, artworkPublicId:uploadState.artwork.pid||null,
     artworkFilename:uploadState.artwork.filename||null,
     artworkDimensions:uploadState.artwork.dims||null,
@@ -1773,28 +1942,30 @@ async function submitRelease() {
         await emailjs.send('service_3bit5yi','eg3omh9',{
           artist_name:data.artistName, release_title:title,
           release_type:type, genre, release_date:date,
-          audio_link:uploadState.audio.url,
+          audio_link: medium==='video' ? (gv('rf-video-url')||'Video URL not provided') : uploadState.audio.url,
           artwork_link:uploadState.artwork.url||'Not provided'
         });
       }
     } catch(e) { console.log('Email:', e); }
-    ['s0','s3','s5','s11','s12','s13','s16','s17','rf-version'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
+    ['s0','s3','s5','s11','s12','s13','s16','s17','rf-version','rf-video-url','rf-video-director','rf-video-channel','rf-video-credits','rf-video-notes'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
     ['s1','s4','s6'].forEach(function(id){ document.getElementById(id).value=''; });
     document.getElementById('s7').value = '';
     document.getElementById('s8').value = 'no';
     document.getElementById('s9').value = '2025';
     document.getElementById('s10').value = 'The Imaginary Records';
-    resetAudioZone(); resetArtworkZone();
+    resetAudioZone(); resetArtworkZone(); resetThumbnailZone();
     uploadState.audio   = {url:null,pid:null,filename:null,size:null,format:null};
     uploadState.artwork = {url:null,pid:null,filename:null,dims:null};
+    uploadState.thumbnail = {url:null,pid:null,filename:null,dims:null};
     releaseFlowStarted = false;
+    setReleaseMedium('audio');
     setPlatformPreset('all');
     setTerritoryValue('worldwide');
     setReleaseStep(0);
     syncReleaseReview();
-    showAl('sub-s','✓ Release submitted! We will review within 3–5 business days.');
+    showAl('sub-s','✓ Submission sent! We will review within 3–5 business days.');
     await loadReleases();
-    toast('🎵 Release submitted successfully!');
+    toast((medium==='video' ? '🎬 Music video submitted successfully!' : '🎵 Release submitted successfully!'));
   } catch(e) { showAl('sub-e','Submission failed: '+e.message); }
   btn.disabled = false; btn.textContent = 'Submit Release';
 }

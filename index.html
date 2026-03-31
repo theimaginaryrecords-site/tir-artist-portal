@@ -1770,7 +1770,7 @@ function validateAndGoReleaseStep(step) {
       if (!document.getElementById('rf-video-url').value.trim()) return showAl('sub-e','Please enter the hosted video URL.');
       if (!uploadState.thumbnail.url) return showAl('sub-e','Please upload the video thumbnail.');
       if (!uploadState.artwork.url) return showAl('sub-e','Please upload the artwork / poster.');
-      if (!gv('rf-video-director')) return showAl('sub-e','Please enter the video director.');
+      if (!val('rf-video-director')) return showAl('sub-e','Please enter the video director.');
     }
   }
   if (step===3) {

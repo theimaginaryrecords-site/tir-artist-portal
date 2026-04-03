@@ -2392,5 +2392,103 @@ document.addEventListener('DOMContentLoaded', function(){ setTimeout(function(){
 })();
 </script>
 
+
+<style>
+.track-item-card{background:var(--card);border:1px solid var(--brd);border-radius:12px;padding:14px;margin-bottom:12px}
+.track-item-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.track-item-name{font-size:14px;font-weight:800;color:var(--txt);margin-bottom:4px}
+.track-item-meta{font-size:11px;color:var(--txt3);line-height:1.5;margin-bottom:8px}
+.track-chip-row{display:flex;gap:6px;flex-wrap:wrap}
+.track-chip{display:inline-flex;align-items:center;padding:3px 8px;border-radius:999px;background:rgba(57,231,95,.08);border:1px solid rgba(57,231,95,.18);font-size:10px;font-weight:700;color:var(--green)}
+.track-item-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.track-audio-row{margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.05);display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}
+.track-audio-copy strong{display:block;font-size:12px;color:var(--txt);margin-bottom:3px}
+.track-audio-copy span{display:block;font-size:11px;color:var(--txt3)}
+.track-mgr-empty{border:1px dashed var(--brd2);border-radius:12px;padding:26px 18px;text-align:center;color:var(--txt3);background:rgba(255,255,255,.01)}
+@media(max-width:768px){.track-item-top,.track-audio-row{flex-direction:column;align-items:stretch}.track-item-actions{justify-content:stretch}.track-item-actions button,.track-audio-row .rf-ghost{width:100%}}
+</style>
+<script>
+(function(){
+  function isMulti(){ var el=document.getElementById('s1'); return !!el && ['EP','Album','Mixtape'].indexOf(el.value)>-1; }
+  function esc(s){ return (window.escapeHtml?window.escapeHtml(String(s||'')):String(s||'').replace(/[&<>"']/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];})); }
+  function summaryLine(t){
+    var parts=[];
+    if(t && t.audio && t.audio.filename) parts.push(t.audio.filename);
+    if(t && t.artist) parts.push(t.artist);
+    return parts.join(' · ') || 'Upload audio first, then add track details.';
+  }
+  function getState(){ return Array.isArray(window.trackState) ? window.trackState : (Array.isArray(window.trackItems) ? window.trackItems : []); }
+  function setState(v){ if(Array.isArray(window.trackState)) window.trackState=v; if(Array.isArray(window.trackItems)) window.trackItems=v; }
+  function syncLayout(){
+    var audioBox=document.getElementById('rf-audio-box');
+    var summary=document.getElementById('rf-track-summary');
+    if(audioBox){
+      if(isMulti()){
+        audioBox.classList.add('rf-hidden');
+      } else {
+        audioBox.classList.remove('rf-hidden');
+      }
+    }
+    if(summary){
+      if(isMulti()) summary.parentElement.querySelector('.rf-mini-title').textContent='Your Album';
+      else summary.parentElement.querySelector('.rf-mini-title').textContent='Your release';
+    }
+  }
+  window.addTrackItem=function(seed){
+    var state=getState();
+    var base={title:'',artist:(document.getElementById('s2')||{}).value||((window.AD&&AD.name)||''),featured:'',writers:'',composers:'',producers:'',contributors:(document.getElementById('s12')||{}).value||'',lyrics:'',language:(document.getElementById('s6')||{}).value||'',explicit:(document.getElementById('s8')||{}).value||'no',version:'',notes:'',previewStartTime:'',audio:null};
+    state.push(Object.assign(base, seed||{}));
+    setState(state);
+    if(window.renderTrackList) window.renderTrackList();
+    if(window.syncReleaseReview) window.syncReleaseReview();
+    if(window.syncTrackSummary) window.syncTrackSummary();
+  };
+  window.renderTrackList=function(){
+    var card=document.getElementById('rf-multitrack-card'), list=document.getElementById('rf-track-list');
+    var state=getState();
+    if(!card||!list) return;
+    card.classList.toggle('rf-hidden', !isMulti());
+    syncLayout();
+    if(!isMulti()) return;
+    if(!state.length){
+      list.innerHTML='<div class="track-mgr-empty"><div style="font-size:32px;opacity:.15;margin-bottom:8px">♫</div><div style="font-size:14px;color:var(--txt2);font-weight:700;margin-bottom:4px">No tracks added yet</div><div style="font-size:12px">Click <strong>Add Track</strong> to upload the first track for this album, EP, or mixtape.</div></div>';
+      return;
+    }
+    list.innerHTML=state.map(function(t,idx){
+      var detailsLabel = (t.title||t.artist||t.writers||t.composers||t.lyrics||t.contributors) ? 'Edit Track Details' : 'Add Track Details';
+      return '<div class="track-item-card">'
+        + '<div class="track-item-top">'
+          + '<div style="min-width:0;flex:1"><div class="track-item-name">'+(idx+1)+'. '+esc(t.title||('Track '+(idx+1)))+'</div><div class="track-item-meta">'+esc(summaryLine(t))+'</div><div class="track-chip-row">'
+          + (t.audio&&t.audio.url?'<span class="track-chip">Audio uploaded</span>':'<span class="track-chip" style="color:#fb923c;border-color:rgba(249,115,22,.22);background:rgba(249,115,22,.08)">Upload required</span>')
+          + ((t.title||t.artist||t.writers||t.composers||t.lyrics||t.contributors)?'<span class="track-chip">Details added</span>':'')
+          + '</div></div>'
+          + '<div class="track-item-actions"><button class="rf-ghost" type="button" onclick="openTrackEditor('+idx+')">'+detailsLabel+'</button><button class="btn-del-demo" type="button" onclick="removeTrackItem('+idx+')">Delete</button></div>'
+        + '</div>'
+        + '<div class="track-audio-row"><div class="track-audio-copy"><strong>'+(t.audio&&t.audio.filename?esc(t.audio.filename):'No audio uploaded yet')+'</strong><span>'+(t.audio&&t.audio.size?esc(t.audio.size):'Upload WAV, FLAC or AIFF for this track first')+'</span></div><label class="rf-ghost" style="cursor:pointer;margin:0">'+(t.audio&&t.audio.url?'Replace Audio':'Upload Audio')+'<input type="file" accept=".wav,.flac,.aiff,.aif" style="display:none" onchange="uploadTrackAudio(event,'+idx+')"></label></div>'
+      + '</div>';
+    }).join('');
+  };
+  window.removeTrackItem=function(idx){
+    var state=getState(); state.splice(idx,1); setState(state);
+    if(window.renderTrackList) window.renderTrackList();
+    if(window.syncReleaseReview) window.syncReleaseReview();
+    if(window.syncTrackSummary) window.syncTrackSummary();
+  };
+  if(window.openTrackEditor){
+    var oldOpen=window.openTrackEditor;
+    window.openTrackEditor=function(idx){ oldOpen(idx); var m=document.getElementById('rf-track-editor-modal'); if(m) m.classList.add('on'); };
+  }
+  if(window.uploadTrackAudio){
+    var oldUpload=window.uploadTrackAudio;
+    window.uploadTrackAudio=async function(ev,idx){ await oldUpload(ev,idx); if(window.renderTrackList) window.renderTrackList(); if(window.syncTrackSummary) window.syncTrackSummary(); };
+  }
+  if(window.syncTrackSummary){
+    var oldSync=window.syncTrackSummary;
+    window.syncTrackSummary=function(){ syncLayout(); return oldSync.apply(this,arguments); };
+  }
+  document.addEventListener('DOMContentLoaded', function(){ setTimeout(function(){ syncLayout(); if(window.renderTrackList) window.renderTrackList(); }, 150); });
+})();
+</script>
+
 </body>
 </html>

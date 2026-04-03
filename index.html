@@ -2163,5 +2163,112 @@ function setMob(name) { document.querySelectorAll('.mob-ni').forEach(function(n)
 function showAl(id, m) { var e=document.getElementById(id); if(e){ e.textContent=m; e.classList.add('on'); } }
 function toast(m) { var t=document.getElementById('toast'); document.getElementById('toast-msg').textContent=m; t.classList.add('on'); setTimeout(function(){ t.classList.remove('on'); },3500); }
 </script>
+
+<style>
+.rf-service-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.track-admin-card{background:var(--card);border:1px solid var(--brd);border-radius:12px;padding:14px}
+.track-admin-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.track-admin-grid .full{grid-column:1/-1}
+@media(max-width:768px){.track-admin-grid{grid-template-columns:1fr}.track-admin-grid .full{grid-column:1}}
+</style>
+<script>
+(function(){
+var SERVICE_PLATFORM_OPTIONS=[
+  {key:'spotify',label:'Spotify'},{key:'appleMusic',label:'Apple Music'},{key:'youtubeMusic',label:'YouTube Music'},{key:'amazonMusic',label:'Amazon Music'},{key:'jioSaavn',label:'JioSaavn'},{key:'gaana',label:'Gaana'},{key:'tidal',label:'Tidal'},{key:'deezer',label:'Deezer'},{key:'anghami',label:'Anghami'},{key:'youtubeContentId',label:'YouTube Content ID'},{key:'facebookInstagramAudio',label:'Facebook / Instagram Audio'}
+];
+var trackItems=[];
+function ensureSetup(){
+  if(document.getElementById('rf-service-access-note')) return;
+  var sideCard=document.querySelector('#rf-body-0 .rf-side-card');
+  if(sideCard){
+    var note=document.createElement('div');note.id='rf-service-access-note';note.className='notice-box';note.style.marginBottom='14px';
+    var sub=sideCard.querySelector('.rf-section-sub'); if(sub) sub.insertAdjacentElement('afterend',note);
+  }
+  var step1=document.getElementById('rf-body-1');
+  if(step1 && !document.getElementById('rf-multitrack-card')){
+    var actions=step1.querySelector('.rf-actions');
+    var card=document.createElement('div');
+    card.id='rf-multitrack-card'; card.className='rf-card rf-hidden'; card.style.marginTop='18px';
+    card.innerHTML='<div class="rf-mini-title">Album / multi-track manager</div><div class="rf-mini-sub">For EPs, albums, and mixtapes, add every track with title, artist line, contributors, and audio upload. Singles can continue using the single audio upload above.</div><div id="rf-track-list" style="display:flex;flex-direction:column;gap:14px"></div><div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px"><button class="rf-ghost" type="button" onclick="addTrackItem()">+ Add Track</button><button class="rf-ghost" type="button" onclick="seedTracksFromReleaseType()">Auto setup from release type</button></div>';
+    actions.parentNode.insertBefore(card,actions);
+  }
+  var deliveryHead=document.querySelector('#rf-body-2 .rf-service-group');
+  if(deliveryHead && !document.getElementById('rf-service-grid')){
+    deliveryHead.innerHTML='<div class="rf-service-head"><div><h4>Delivery services</h4><p>Choose services manually, including YouTube Content ID and Facebook / Instagram audio. Use all platforms to enable everything instantly.</p></div></div><div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px"><label class="rf-check on" id="rf-all-platforms-toggle"><input type="checkbox" id="rf-all-platforms" checked onchange="toggleAllPlatforms(this.checked)"/>All platforms</label></div><div class="rf-service-grid" id="rf-service-grid"></div><div class="rf-inline-split" style="margin-top:16px"><div class="form-group2"><label>Preview Start Time (seconds)</label><input type="number" id="rf-preview-start" min="0" step="1" placeholder="e.g. 62" oninput="syncReleaseReview()"/><div style="font-size:11px;color:var(--txt3);line-height:1.7">Used for services that allow clips such as TikTok, Facebook Audio Library, and Instagram.</div></div><div class="form-group2"><label>Distribution Preset</label><select id="s14" onchange="syncReleaseReview()"><option value="all" selected>All Platforms</option><option value="custom">Custom Selection</option><option value="india">India Focus</option></select></div></div>';
+    renderDeliveryServices();
+  }
+}
+function normalizeArtistServices(){
+  var rs=(window.AD&& (AD.releaseServices||AD.services)) || {};
+  if(Array.isArray(rs)) AD.releaseServices={audio:rs.indexOf('audio')>-1, video:rs.indexOf('video')>-1};
+  else AD.releaseServices={audio:rs.audio!==false, video:!!rs.video};
+}
+window.artistCanUse=function(mode){ normalizeArtistServices(); return mode==='video'?!!AD.releaseServices.video:AD.releaseServices.audio!==false; };
+window.applyArtistServiceAccess=function(){
+  ensureSetup(); normalizeArtistServices();
+  var audioWrap=document.getElementById('rf-medium-audio'), videoWrap=document.getElementById('rf-medium-video');
+  [audioWrap,videoWrap].forEach(function(el){ if(!el) return; el.style.opacity='1'; });
+  var audioInput=audioWrap&&audioWrap.querySelector('input'), videoInput=videoWrap&&videoWrap.querySelector('input');
+  if(audioInput) audioInput.disabled=!artistCanUse('audio');
+  if(videoInput) videoInput.disabled=!artistCanUse('video');
+  if(audioWrap && !artistCanUse('audio')) audioWrap.style.opacity='.45';
+  if(videoWrap && !artistCanUse('video')) videoWrap.style.opacity='.45';
+  var note=document.getElementById('rf-service-access-note');
+  if(note){ var msg=[]; if(artistCanUse('audio')) msg.push('Audio release access enabled'); if(artistCanUse('video')) msg.push('Music video access enabled'); note.textContent=msg.length?('Services enabled for your account: '+msg.join(' · ')):'No release service is enabled for this account yet. Contact TIR admin.'; }
+  if(!artistCanUse(releaseMedium())){ if(artistCanUse('audio')) setReleaseMedium('audio'); else if(artistCanUse('video')) setReleaseMedium('video'); }
+};
+window.isMultiTrackRelease=function(){ var t=(document.getElementById('s1')||{}).value||''; return ['EP','Album','Mixtape'].indexOf(t)>-1; };
+window.defaultTrackCountForType=function(){ var t=(document.getElementById('s1')||{}).value||''; return t==='EP'?4:(t==='Single'?1:8); };
+window.addTrackItem=function(seed){ trackItems.push(seed||{title:'',artist:(window.val?val('s2'):'')||'',featured:'',contributors:(window.val?val('s12'):'')||'',audio:null}); renderTrackList(); if(window.syncReleaseReview) syncReleaseReview(); };
+window.removeTrackItem=function(idx){ trackItems.splice(idx,1); renderTrackList(); if(window.syncReleaseReview) syncReleaseReview(); };
+window.seedTracksFromReleaseType=function(){ trackItems=[]; for(var i=0;i<defaultTrackCountForType();i++) addTrackItem({title:i===0&&window.val?val('s0'):'',artist:window.val?val('s2'):'',featured:'',contributors:window.val?val('s12'):'',audio:null}); };
+window.uploadTrackAudio=async function(ev,idx){ var file=ev.target.files[0]; if(!file) return; var v=validateFile(file,'audio'); if(!v.ok) return showAl('sub-e',v.msg); try{ var r=await uploadCDN(file,null); var ext=file.name.split('.').pop().toUpperCase(); trackItems[idx].audio={url:r.secure_url,pid:r.public_id,filename:file.name,size:fmtSz(file.size),format:ext}; renderTrackList(); syncReleaseReview(); toast('Track audio uploaded ✓'); }catch(err){ showAl('sub-e','Track upload failed: '+err.message); } };
+window.renderTrackList=function(){ ensureSetup(); var card=document.getElementById('rf-multitrack-card'), list=document.getElementById('rf-track-list'); if(!card||!list) return; card.classList.toggle('rf-hidden',!isMultiTrackRelease()); if(!isMultiTrackRelease()) return; if(!trackItems.length) seedTracksFromReleaseType(); list.innerHTML=trackItems.map(function(t,idx){ return '<div class="track-admin-card"><div style="display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:12px"><strong>Track '+(idx+1)+'</strong>'+(trackItems.length>1?'<button class="btn-del-demo" type="button" onclick="removeTrackItem('+idx+')">Remove</button>':'')+'</div><div class="track-admin-grid"><div class="form-group2 full"><label>Track title *</label><input value="'+(window.escapeHtml?escapeHtml(t.title||''):(t.title||''))+'" oninput="trackItems['+idx+'].title=this.value;syncReleaseReview()"/></div><div class="form-group2"><label>Track artist *</label><input value="'+(window.escapeHtml?escapeHtml(t.artist||''):(t.artist||''))+'" oninput="trackItems['+idx+'].artist=this.value;syncReleaseReview()"/></div><div class="form-group2"><label>Featuring artists</label><input value="'+(window.escapeHtml?escapeHtml(t.featured||''):(t.featured||''))+'" oninput="trackItems['+idx+'].featured=this.value;syncReleaseReview()"/></div><div class="form-group2 full"><label>Contributors *</label><textarea oninput="trackItems['+idx+'].contributors=this.value;syncReleaseReview()">'+(window.escapeHtml?escapeHtml(t.contributors||''):(t.contributors||''))+'</textarea></div><div class="form-group2"><label>Audio file *</label><input type="file" accept=".wav,.flac,.aiff,.aif" onchange="uploadTrackAudio(event,'+idx+')"/></div><div class="form-group2"><label>Upload status</label><div style="padding:10px 13px;border:1px solid var(--brd);border-radius:8px;background:var(--card);font-size:12px;color:var(--txt2)">'+(t.audio&&t.audio.filename?((window.escapeHtml?escapeHtml(t.audio.filename):t.audio.filename)+' · '+(t.audio.size||'')):'No track audio uploaded yet')+'</div></div></div></div>'; }).join(''); };
+window.selectedPlatforms=function(){ return SERVICE_PLATFORM_OPTIONS.filter(function(opt){var el=document.getElementById('svc-'+opt.key); return el&&el.checked;}).map(function(opt){return opt.label;}); };
+window.renderDeliveryServices=function(){ var grid=document.getElementById('rf-service-grid'); if(!grid) return; grid.innerHTML=SERVICE_PLATFORM_OPTIONS.map(function(opt){ return '<label class="rf-check on" id="svc-wrap-'+opt.key+'"><input type="checkbox" id="svc-'+opt.key+'" checked onchange="syncServiceChecks()"/>'+opt.label+'</label>'; }).join(''); syncServiceChecks(); };
+window.toggleAllPlatforms=function(checked){ SERVICE_PLATFORM_OPTIONS.forEach(function(opt){ var el=document.getElementById('svc-'+opt.key); if(el) el.checked=checked; }); syncServiceChecks(); };
+window.syncServiceChecks=function(){ var all=true; SERVICE_PLATFORM_OPTIONS.forEach(function(opt){ var el=document.getElementById('svc-'+opt.key), wrap=document.getElementById('svc-wrap-'+opt.key); if(wrap&&el) wrap.classList.toggle('on',!!el.checked); if(!el||!el.checked) all=false; }); var ae=document.getElementById('rf-all-platforms'); if(ae) ae.checked=all; var aw=document.getElementById('rf-all-platforms-toggle'); if(aw) aw.classList.toggle('on',all); var s14=document.getElementById('s14'); if(s14) s14.value=all?'all':'custom'; if(window.syncReleaseReview) syncReleaseReview(); };
+var _origLoadProfile=window.loadProfile;
+window.loadProfile=async function(){ await _origLoadProfile(); applyArtistServiceAccess(); ensureSetup(); renderTrackList(); renderDeliveryServices(); };
+var _origShowDash=window.showDash;
+window.showDash=async function(user){ await _origShowDash(user); applyArtistServiceAccess(); ensureSetup(); renderTrackList(); renderDeliveryServices(); };
+var _origSetReleaseMedium=window.setReleaseMedium;
+window.setReleaseMedium=function(mode){ if(!artistCanUse(mode)){ showAl('sub-e', mode==='video'?'Music video distribution is not enabled for your artist account.':'Audio distribution is not enabled for your artist account.'); return; } _origSetReleaseMedium(mode); renderTrackList(); };
+var _origSyncTrackSummary=window.syncTrackSummary;
+window.syncTrackSummary=function(){
+  if(isMultiTrackRelease()){
+    var box=document.getElementById('rf-track-summary'); if(!box) return;
+    box.classList.add('has-track');
+    var done=trackItems.filter(function(t){return t.audio&&t.audio.filename;}).length;
+    box.innerHTML='<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px"><div><div style="font-size:15px;font-weight:800;color:var(--txt);margin-bottom:3px">'+((document.getElementById('s1').value)||'Release')+' configured</div><div style="font-size:12px;color:var(--txt3)">'+trackItems.length+' track(s) added · '+done+' audio upload(s) complete</div></div><span class="ubadge ub-ok">Multi-track</span></div>'+trackItems.map(function(t,idx){ return '<div style="padding:10px 0;border-top:1px solid rgba(255,255,255,.05)"><div style="font-size:13px;font-weight:700;color:var(--txt)">'+(idx+1)+'. '+(window.escapeHtml?escapeHtml(t.title||'Untitled track'):(t.title||'Untitled track'))+'</div><div style="font-size:11px;color:var(--txt3)">'+(window.escapeHtml?escapeHtml(t.artist||'No artist set'):(t.artist||'No artist set'))+' · '+(t.audio&&t.audio.filename?(window.escapeHtml?escapeHtml(t.audio.filename):t.audio.filename):'No audio uploaded')+'</div></div>'; }).join('');
+    return;
+  }
+  _origSyncTrackSummary();
+};
+window.platformLabel=function(){ var s=selectedPlatforms(); return s.length?s.join(', '):'No platforms selected'; };
+window.trackValidationMessage=function(){ if(!isMultiTrackRelease()) return ''; if(!trackItems.length) return 'Please add track details for this multi-track release.'; for(var i=0;i<trackItems.length;i++){ var t=trackItems[i]||{}; if(!String(t.title||'').trim()) return 'Please enter the title for track '+(i+1)+'.'; if(!String(t.artist||'').trim()) return 'Please enter the artist for track '+(i+1)+'.'; if(!String(t.contributors||'').trim()) return 'Please enter contributors for track '+(i+1)+'.'; if(!t.audio||!t.audio.url) return 'Please upload the audio for track '+(i+1)+'.'; } return ''; };
+window.validateAndGoReleaseStep=function(step){
+  if(step===1){ if(!document.getElementById('s0').value.trim()) return showAl('sub-e','Please enter a release title.'); if(!document.getElementById('s2').value.trim()) return showAl('sub-e','Please enter the primary artist name.'); if(!document.getElementById('s1').value.trim()) return showAl('sub-e','Please select a release type.'); if(!document.getElementById('s4').value.trim()) return showAl('sub-e','Please select a genre.'); if(!document.getElementById('s6').value.trim()) return showAl('sub-e','Please select a language.'); if(!document.getElementById('s12').value.trim()) return showAl('sub-e','Please enter songwriter name(s).'); }
+  if(step===2){ if(isMultiTrackRelease()){ var msg=trackValidationMessage(); if(msg) return showAl('sub-e',msg); } else if(!uploadState.audio.url) return showAl('sub-e','Please upload your audio file (WAV or FLAC).'); if(releaseMedium()==='video'){ if(!document.getElementById('rf-video-url').value.trim()) return showAl('sub-e','Please enter the hosted video URL.'); if(!uploadState.thumbnail.url) return showAl('sub-e','Please upload the video thumbnail.'); if(!uploadState.artwork.url) return showAl('sub-e','Please upload the artwork / poster.'); if(!(window.val?val('rf-video-director'):document.getElementById('rf-video-director').value.trim())) return showAl('sub-e','Please enter the video director.'); } }
+  if(step===3){ if(!document.getElementById('s7').value.trim()) return showAl('sub-e','Please select a release date.'); if(!selectedPlatforms().length) return showAl('sub-e','Please choose at least one delivery platform.'); var pst=document.getElementById('rf-preview-start'); if(pst&&pst.value.trim()&&Number(pst.value)<0) return showAl('sub-e','Preview start time cannot be negative.'); }
+  document.getElementById('sub-e').classList.remove('on'); setReleaseStep(step);
+};
+window.submitRelease=async function(){
+  var gv=function(id){ var el=document.getElementById(id); return el?el.value.trim():''; };
+  var title=gv('s0'),type=gv('s1'),artist=gv('s2'),genre=gv('s4'),lang=gv('s6'),date=gv('s7'),writers=gv('s12');
+  document.getElementById('sub-e').classList.remove('on'); document.getElementById('sub-s').classList.remove('on');
+  if(!title) return showAl('sub-e','Please enter a release title.'); if(!type) return showAl('sub-e','Please select a release type.'); if(!artist) return showAl('sub-e','Please enter the primary artist name.'); if(!genre) return showAl('sub-e','Please select a genre.'); if(!lang) return showAl('sub-e','Please select a language.'); if(!date) return showAl('sub-e','Please select a release date.'); if(!writers) return showAl('sub-e','Please enter songwriter name(s).'); if(!selectedPlatforms().length) return showAl('sub-e','Please choose at least one delivery platform.');
+  var tmsg=trackValidationMessage(); if(tmsg) return showAl('sub-e',tmsg); if(!isMultiTrackRelease() && !uploadState.audio.url) return showAl('sub-e','Please upload your audio file (WAV or FLAC).');
+  var btn=document.getElementById('bsub'); btn.disabled=true; btn.textContent='Submitting...'; var medium=releaseMedium();
+  var data={ userId:CU.uid, artistName:AD.name||CU.displayName||artist, title:title, type:type, primaryArtist:artist, featuredArtists:gv('s3'), genre:genre, subGenre:gv('s5'), language:lang, releaseDate:date, explicit:document.getElementById('s8').value, copyrightYear:gv('s9'), label:gv('s10'), upc:gv('s11'), writers:writers, producers:gv('s13'), platforms:document.getElementById('s14').value, selectedPlatforms:selectedPlatforms(), territories:document.getElementById('s15').value, previewStartTime:gv('rf-preview-start')?Number(gv('rf-preview-start')):null, lyrics:gv('s16'), notes:gv('s17'), version:gv('rf-version'), releaseMedium:medium, releaseCategory:medium==='video'?'music-video':'audio', audioUrl:!isMultiTrackRelease()?(uploadState.audio.url||null):null, audioPublicId:!isMultiTrackRelease()?(uploadState.audio.pid||null):null, audioFilename:!isMultiTrackRelease()?(uploadState.audio.filename||null):null, audioFormat:!isMultiTrackRelease()?(uploadState.audio.format||null):null, audioSize:!isMultiTrackRelease()?(uploadState.audio.size||null):null, trackItems:isMultiTrackRelease()?trackItems.map(function(t,idx){ return {trackNumber:idx+1,title:t.title||'',artist:t.artist||'',featured:t.featured||'',contributors:t.contributors||'',audioUrl:t.audio?t.audio.url:null,audioFilename:t.audio?t.audio.filename:null,audioFormat:t.audio?t.audio.format:null,audioSize:t.audio?t.audio.size:null}; }):[], videoUrl:medium==='video'?gv('rf-video-url'):null, videoDirector:medium==='video'?gv('rf-video-director'):null, videoChannel:medium==='video'?gv('rf-video-channel'):null, videoCredits:medium==='video'?gv('rf-video-credits'):null, videoNotes:medium==='video'?gv('rf-video-notes'):null, thumbnailUrl:medium==='video'?(uploadState.thumbnail.url||null):null, thumbnailPublicId:medium==='video'?(uploadState.thumbnail.pid||null):null, thumbnailFilename:medium==='video'?(uploadState.thumbnail.filename||null):null, thumbnailDimensions:medium==='video'?(uploadState.thumbnail.dims||null):null, artworkUrl:uploadState.artwork.url||null, artworkPublicId:uploadState.artwork.pid||null, artworkFilename:uploadState.artwork.filename||null, artworkDimensions:uploadState.artwork.dims||null, status:'pending', submittedAt:new Date().toISOString() };
+  try{ await _db.collection('releases').add(data); try{ if(typeof emailjs!=='undefined'){ await emailjs.send('service_3bit5yi','eg3omh9',{ artist_name:data.artistName, release_title:title, release_type:type, genre:genre, release_date:date, audio_link: medium==='video'?(gv('rf-video-url')||'Video URL not provided'):(isMultiTrackRelease()?'Multi-track release':uploadState.audio.url), artwork_link:uploadState.artwork.url||'Not provided' }); } }catch(e){ console.log('Email:',e);} ['s0','s3','s5','s11','s12','s13','s16','s17','rf-version','rf-video-url','rf-video-director','rf-video-channel','rf-video-credits','rf-video-notes','rf-preview-start'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; }); ['s1','s4','s6'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; }); document.getElementById('s7').value=''; document.getElementById('s8').value='no'; document.getElementById('s9').value='2025'; document.getElementById('s10').value='The Imaginary Records'; if(window.resetAudioZone) resetAudioZone(); if(window.resetArtworkZone) resetArtworkZone(); if(window.resetThumbnailZone) resetThumbnailZone(); uploadState.audio={url:null,pid:null,filename:null,size:null,format:null}; uploadState.artwork={url:null,pid:null,filename:null,dims:null}; uploadState.thumbnail={url:null,pid:null,filename:null,dims:null}; trackItems=[]; renderTrackList(); toggleAllPlatforms(true); showAl('sub-s','✓ Release submitted! We will review within 3–5 business days.'); if(window.loadReleases) await loadReleases(); toast('🎵 Release submitted successfully!'); }catch(e){ showAl('sub-e','Submission failed: '+e.message); }
+  btn.disabled=false; btn.textContent='Submit for distribution';
+};
+window.resetThumbnailZone=function(){ var z=document.getElementById('thumbnail-zone'); if(!z) return; z.classList.remove('has-file','uploading','error'); var c=z.querySelector('.uz-c'); if(c) c.style.display='flex'; var u=document.getElementById('thumbnail-uploading'); if(u) u.style.display='none'; var p=document.getElementById('thumbnail-preview'); if(p){ p.style.display='none'; p.src=''; } var ov=document.getElementById('thumbnail-overlay'); if(ov) ov.style.display='none'; var sr=document.getElementById('thumbnail-status-row'); if(sr) sr.style.display='none'; var inp=document.getElementById('thumbnail-input'); if(inp) inp.value=''; z.onclick=function(){ document.getElementById('thumbnail-input').click(); }; };
+var origSyncReleaseReview=window.syncReleaseReview;
+window.syncReleaseReview=function(){ ensureSetup(); renderTrackList(); if(origSyncReleaseReview) origSyncReleaseReview(); };
+document.addEventListener('DOMContentLoaded', function(){ setTimeout(function(){ ensureSetup(); renderDeliveryServices(); renderTrackList(); }, 100); });
+})();
+</script>
 </body>
 </html>

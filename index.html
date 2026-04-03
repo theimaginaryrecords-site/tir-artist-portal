@@ -411,32 +411,6 @@ input[type=file]{display:none}
 @media(max-width:1024px){.rf-grid,.rf-track-grid,.rf-review-top,.rf-delivery-grid{grid-template-columns:1fr}.rf-service-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:768px){.rf-title-row{flex-direction:column}.rf-fields,.rf-inline-split,.rf-review-grid{grid-template-columns:1fr}.rf-service-grid{grid-template-columns:1fr}.rf-actions{flex-direction:column;align-items:stretch}.rf-actions-right{width:100%}.rf-actions-right .rf-primary,.rf-actions-right .rf-ghost,.rf-actions > .rf-ghost{width:100%}.rf-modal-box{padding:20px 18px}}
 
-
-.rf-track-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
-.rf-track-helper{font-size:12px;color:var(--txt3);line-height:1.7}
-.rf-track-list{display:flex;flex-direction:column;gap:12px}
-.rf-track-item{border:1px solid var(--brd);border-radius:12px;background:var(--card);padding:14px}
-.rf-track-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px}
-.rf-track-name{font-size:14px;font-weight:800;color:var(--txt)}
-.rf-track-sub{font-size:11px;color:var(--txt3);margin-top:3px;line-height:1.6}
-.rf-track-actions{display:flex;gap:8px;flex-wrap:wrap}
-.rf-track-upload{border:1px dashed var(--brd2);border-radius:10px;background:rgba(255,255,255,.01);padding:14px;cursor:pointer;transition:all .2s}
-.rf-track-upload:hover{border-color:var(--green);background:rgba(57,231,95,.03)}
-.rf-track-upload.has-file{border-style:solid;border-color:rgba(57,231,95,.25);background:rgba(57,231,95,.05)}
-.rf-track-file{font-size:12px;color:var(--txt2);line-height:1.7}
-.rf-track-empty{padding:18px;border:1px dashed var(--brd2);border-radius:12px;text-align:center;color:var(--txt3);font-size:12px;line-height:1.8;background:rgba(255,255,255,.01)}
-.rf-track-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border-radius:999px;background:rgba(57,231,95,.09);border:1px solid rgba(57,231,95,.18);font-size:10px;font-weight:800;text-transform:uppercase;color:var(--green)}
-.rf-track-meta{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
-.rf-track-meta div{font-size:11px;color:var(--txt3);line-height:1.6}
-.rf-track-meta strong{display:block;color:var(--txt2);font-size:10px;text-transform:uppercase;letter-spacing:.8px;margin-bottom:2px}
-.rf-track-modal{position:fixed;inset:0;background:rgba(0,0,0,.86);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;z-index:2600;padding:20px}
-.rf-track-modal.on{display:flex;animation:fadeIn .2s ease}
-.rf-track-modal-box{width:760px;max-width:96vw;max-height:88vh;overflow:auto;background:var(--sidebar);border:1px solid var(--brd);border-radius:18px;box-shadow:0 40px 120px rgba(0,0,0,.85);padding:22px;position:relative}
-.rf-track-modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.rf-track-modal-grid .form-full{grid-column:1/-1}
-.rf-track-modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}
-@media(max-width:768px){.rf-track-meta,.rf-track-modal-grid{grid-template-columns:1fr}}
-
 /* BLOG */
 .blog-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .blog-card{background:var(--card);border:1px solid var(--brd);border-radius:12px;overflow:hidden;cursor:pointer;transition:all .2s}
@@ -811,7 +785,7 @@ input[type=file]{display:none}
                   <div class="form-group2"><label>Primary Artist *</label><input type="text" id="s2" oninput="syncReleaseReview()"/></div>
                   <div class="form-group2"><label>Featured Artists</label><input type="text" id="s3" placeholder="ft. Name (optional)" oninput="syncReleaseReview()"/></div>
                   <div class="form-group2"><label>Label *</label><input type="text" id="s10" value="The Imaginary Records" oninput="syncReleaseReview()"/></div>
-                  <div class="form-group2"><label>Album Format *</label><select id="s1" onchange="syncTrackMode();syncReleaseReview()"><option value="">Please select album format</option><option>Single</option><option>EP</option><option>Album</option><option>Mixtape</option></select></div>
+                  <div class="form-group2"><label>Album Format *</label><select id="s1" onchange="syncReleaseReview()"><option value="">Please select album format</option><option>Single</option><option>EP</option><option>Album</option><option>Mixtape</option></select></div>
                   <div class="form-group2"><label>Primary Genre *</label><select id="s4" onchange="syncReleaseReview()"><option value="">Please select primary genre</option><option>Hip Hop / Trap</option><option>UK Drill</option><option>R&amp;B / Soul</option><option>Pop</option><option>Electronic / EDM</option><option>Lofi / Chillhop</option><option>Nasheed / Islamic</option><option>Devotional</option><option>Instrumental</option><option>Folk / Acoustic</option><option>Other</option></select></div>
                   <div class="form-group2"><label>Secondary Genre</label><input type="text" id="s5" placeholder="Please select genre" oninput="syncReleaseReview()"/></div>
                   <div class="form-group2"><label>Language *</label><select id="s6" onchange="syncReleaseReview()"><option value="">— Select —</option><option>English</option><option>Hindi / Urdu</option><option>Kashmiri</option><option>Arabic</option><option>Punjabi</option><option>Instrumental (No Lyrics)</option><option>Other</option></select></div>
@@ -838,10 +812,9 @@ input[type=file]{display:none}
           <div class="rf-body" id="rf-body-1">
             <div class="rf-track-grid">
               <div class="rf-track-box" id="rf-audio-box">
-                <div class="rf-mini-title">Track delivery</div>
-                <div class="rf-mini-sub" id="rf-track-mode-sub">For single and music video releases, upload one mastered soundtrack file. For EPs, albums, and mixtapes, add tracks one by one below.</div>
-
-                <div id="rf-single-track-wrap">
+                <div class="rf-mini-title">Add track audio</div>
+                <div class="rf-mini-sub">For audio distribution, upload your mastered file just like before.</div>
+                <div>
                   <div class="form-group2" style="margin-bottom:8px"><label>Audio File * <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--txt3)">WAV · FLAC · AIFF</span></label></div>
                   <div class="upload-zone audio-zone" id="audio-zone" ondragover="handleDrag(event,'audio-zone')" ondragleave="handleDragLeave('audio-zone')" ondrop="handleDrop(event,'audio')" onclick="document.getElementById('audio-input').click()">
                     <input type="file" id="audio-input" accept=".wav,.flac,.aiff,.aif" onchange="handleFileSelect(event,'audio')"/>
@@ -861,17 +834,6 @@ input[type=file]{display:none}
                       <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center"><span class="ubadge ub-ok" id="audio-fmt-badge">WAV</span><button class="rm-btn" onclick="removeFile(event,'audio')">✕ Remove</button></div>
                     </div>
                   </div>
-                </div>
-
-                <div id="rf-multitrack-wrap" class="rf-hidden">
-                  <div class="rf-track-toolbar">
-                    <div>
-                      <div class="rf-track-badge"><span>Multi-track release</span></div>
-                      <div class="rf-track-helper">Click <strong style="color:var(--txt2)">Add track</strong>, upload a file, then open <strong style="color:var(--txt2)">Edit track</strong> to enter title, artist, writers, composers, lyrics, and other metadata.</div>
-                    </div>
-                    <button class="rf-primary" type="button" onclick="addTrackEntry()">+ Add track</button>
-                  </div>
-                  <div class="rf-track-list" id="rf-track-list"></div>
                 </div>
               </div>
 
@@ -910,7 +872,7 @@ input[type=file]{display:none}
 
               <div class="rf-track-box">
                 <div class="rf-mini-title">Your release</div>
-                <div class="rf-mini-sub">Track and media summary.</div>
+                <div class="rf-mini-sub">A simple media panel inspired by the reference flow.</div>
                 <div class="rf-album-drop" id="rf-track-summary">
                   <div style="font-size:34px;opacity:.2;margin-bottom:10px">♪</div>
                   <div style="font-size:14px;color:var(--txt2);font-weight:700;margin-bottom:4px">No media assigned yet.</div>
@@ -1014,32 +976,6 @@ input[type=file]{display:none}
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="rf-track-modal" id="rf-track-editor" onclick="if(event.target===this)closeTrackEditor()">
-        <div class="rf-track-modal-box">
-          <button class="rf-modal-close" type="button" onclick="closeTrackEditor()">×</button>
-          <h3 style="font-size:18px;font-weight:900;margin-bottom:6px">Edit track details</h3>
-          <p style="font-size:13px;color:var(--txt2);line-height:1.7;margin-bottom:16px">Add the metadata for this uploaded track. These details are saved inside the release submission.</p>
-          <div class="rf-track-modal-grid">
-            <div class="form-group2"><label>Track Title *</label><input type="text" id="te-title"/></div>
-            <div class="form-group2"><label>Version</label><input type="text" id="te-version" placeholder="Remix, Acoustic, Live..."/></div>
-            <div class="form-group2"><label>Track Artist *</label><input type="text" id="te-artist"/></div>
-            <div class="form-group2"><label>Featured Artists</label><input type="text" id="te-featured" placeholder="ft. Name"/></div>
-            <div class="form-group2"><label>Writer(s) *</label><input type="text" id="te-writers"/></div>
-            <div class="form-group2"><label>Composer(s)</label><input type="text" id="te-composers"/></div>
-            <div class="form-group2"><label>Producer(s)</label><input type="text" id="te-producers"/></div>
-            <div class="form-group2"><label>Language</label><input type="text" id="te-language" placeholder="English"/></div>
-            <div class="form-group2"><label>Explicit?</label><select id="te-explicit"><option value="no">No — Clean</option><option value="yes">Yes — Explicit</option></select></div>
-            <div class="form-group2"><label>Preview Start Time (seconds)</label><input type="number" min="0" id="te-preview-start" placeholder="62"/></div>
-            <div class="form-group2 form-full"><label>Lyrics</label><textarea id="te-lyrics" placeholder="Paste lyrics here"></textarea></div>
-            <div class="form-group2 form-full"><label>Additional Notes</label><textarea id="te-notes" placeholder="Optional notes for this track"></textarea></div>
-          </div>
-          <div class="rf-track-modal-actions">
-            <button class="rf-ghost" type="button" onclick="closeTrackEditor()">Cancel</button>
-            <button class="rf-primary" type="button" onclick="saveTrackEditor()">Save track</button>
           </div>
         </div>
       </div>
@@ -1307,7 +1243,6 @@ async function showDash(user) {
   try { await loadTickets(); } catch(e) {}
   loadFAQ();
   loadBlog();
-  syncTrackMode();
 }
 
 function setAvatars(init, name) {
@@ -1755,8 +1690,6 @@ function closeRelModal() { document.getElementById('rel-modal').classList.remove
 // ═══════════════════════════════════════════════════════════
 var releaseStep = 0;
 var releaseFlowStarted = false;
-var trackEntries = [];
-var activeTrackIndex = null;
 
 function releaseMedium(){ var el=document.getElementById('rf-release-medium'); return el ? el.value : 'audio'; }
 
@@ -1774,7 +1707,6 @@ function setReleaseMedium(mode){
   if(audioSub) audioSub.textContent = isVideo ? 'Music video releases also need the mastered audio file for distributor delivery and reference.' : 'For audio distribution, upload your mastered file just like before.';
   var artTitle=document.querySelector('#rf-body-0 .rf-art-panel .rf-section-title'); if(artTitle) artTitle.textContent = isVideo ? 'Upload artwork / poster' : 'Upload artwork';
   var artSub=document.querySelector('#rf-body-0 .rf-art-panel .rf-section-sub'); if(artSub) artSub.textContent = isVideo ? 'Music videos require artwork/poster plus a separate thumbnail in the next step.' : 'Use the same upload component already connected to your current portal.';
-  syncTrackMode();
   syncReleaseReview();
 }
 
@@ -1833,18 +1765,7 @@ function validateAndGoReleaseStep(step) {
     if (!document.getElementById('s12').value.trim()) return showAl('sub-e','Please enter songwriter name(s).');
   }
   if (step===2) {
-    if (isMultiTrackRelease()) {
-      if (!trackEntries.length) return showAl('sub-e','Please add at least one track for this release.');
-      for (var ti=0; ti<trackEntries.length; ti++) {
-        var tr = trackEntries[ti];
-        if (!tr.audioUrl) return showAl('sub-e','Please upload audio for Track ' + (ti+1) + '.');
-        if (!tr.title) return showAl('sub-e','Please save the title for Track ' + (ti+1) + '.');
-        if (!tr.artist) return showAl('sub-e','Please set the artist for Track ' + (ti+1) + '.');
-        if (!tr.writers) return showAl('sub-e','Please add writer information for Track ' + (ti+1) + '.');
-      }
-    } else {
-      if (!uploadState.audio.url) return showAl('sub-e','Please upload your audio file (WAV or FLAC).');
-    }
+    if (!uploadState.audio.url) return showAl('sub-e','Please upload your audio file (WAV or FLAC).');
     if (releaseMedium()==='video') {
       if (!document.getElementById('rf-video-url').value.trim()) return showAl('sub-e','Please enter the hosted video URL.');
       if (!uploadState.thumbnail.url) return showAl('sub-e','Please upload the video thumbnail.');
@@ -1873,159 +1794,9 @@ function setPlatformPreset(value) {
   syncReleaseReview();
 }
 
-function isMultiTrackRelease() {
-  var type = val('s1');
-  return ['EP','Album','Mixtape'].indexOf(type) !== -1 && releaseMedium() !== 'video';
-}
-
-function syncTrackMode() {
-  var multi = isMultiTrackRelease();
-  var singleWrap = document.getElementById('rf-single-track-wrap');
-  var multiWrap = document.getElementById('rf-multitrack-wrap');
-  var sub = document.getElementById('rf-track-mode-sub');
-  if (singleWrap) singleWrap.classList.toggle('rf-hidden', multi);
-  if (multiWrap) multiWrap.classList.toggle('rf-hidden', !multi);
-  if (sub) sub.textContent = multi ? 'Add and manage each track for your EP, album, or mixtape. Upload audio, then open Edit track to complete metadata.' : (releaseMedium()==='video' ? 'Music video releases still need one soundtrack audio file.' : 'For single releases, upload one mastered audio file.');
-  renderTrackEntries();
-  syncTrackSummary();
-}
-
-function buildTrackEntry() {
-  return {title:'',version:'',artist:val('s2')||AD.name||CU.displayName||'',featuredArtists:'',writers:val('s12')||'',composers:'',producers:'',language:val('s6')||'',explicit:document.getElementById('s8') ? document.getElementById('s8').value : 'no',previewStart:'',lyrics:'',notes:'',audioUrl:'',audioPublicId:'',audioFilename:'',audioSize:'',audioFormat:''};
-}
-
-function addTrackEntry() {
-  trackEntries.push(buildTrackEntry());
-  renderTrackEntries();
-  syncReleaseReview();
-}
-
-function renderTrackEntries() {
-  var list = document.getElementById('rf-track-list');
-  if (!list) return;
-  if (!isMultiTrackRelease()) { list.innerHTML = ''; return; }
-  if (!trackEntries.length) {
-    list.innerHTML = '<div class="rf-track-empty"><div style="font-size:30px;opacity:.18;margin-bottom:8px">♫</div><div style="font-size:14px;color:var(--txt2);font-weight:700;margin-bottom:4px">No tracks added yet</div><div>Add your first track to begin building the release.</div></div>';
-    return;
-  }
-  list.innerHTML = trackEntries.map(function(t, i){
-    var title = escapeHtml(t.title || ('Track ' + (i+1)));
-    var metaArtist = escapeHtml(t.artist || 'Artist not set');
-    var fileMeta = t.audioFilename ? ('<div class="rf-track-file"><strong style="color:var(--txt2)">File:</strong> ' + escapeHtml(t.audioFilename) + (t.audioFormat ? ' · ' + escapeHtml(t.audioFormat) : '') + (t.audioSize ? ' · ' + escapeHtml(t.audioSize) : '') + '</div>') : '<div class="rf-track-file">No audio uploaded yet.</div>';
-    var detailsReady = t.title && t.artist && t.writers;
-    return '<div class="rf-track-item">'
-      + '<div class="rf-track-top"><div><div class="rf-track-name">' + title + '</div><div class="rf-track-sub">' + metaArtist + (t.featuredArtists ? ' · ft. ' + escapeHtml(t.featuredArtists) : '') + (detailsReady ? ' · metadata ready' : ' · metadata incomplete') + '</div></div>'
-      + '<div class="rf-track-actions"><button class="rf-ghost" type="button" onclick="openTrackEditor(' + i + ')">Edit track</button><button class="rf-ghost" type="button" onclick="deleteTrackEntry(' + i + ')">Delete</button></div></div>'
-      + '<div class="rf-track-upload ' + (t.audioUrl ? 'has-file' : '') + '" onclick="document.getElementById(\'track-audio-input-' + i + '\').click()">'
-      + '<input type="file" id="track-audio-input-' + i + '" accept=".wav,.flac,.aiff,.aif" style="display:none" onchange="handleTrackFileSelect(event,' + i + ')"/>'
-      + fileMeta
-      + '<div style="font-size:11px;color:var(--txt3);margin-top:8px">Click to ' + (t.audioUrl ? 'replace' : 'upload') + ' audio for this track.</div></div>'
-      + '<div class="rf-track-meta"><div><strong>Writer(s)</strong>' + escapeHtml(t.writers || 'Not set') + '</div><div><strong>Composer(s)</strong>' + escapeHtml(t.composers || 'Not set') + '</div><div><strong>Language</strong>' + escapeHtml(t.language || 'Not set') + '</div><div><strong>Preview Start</strong>' + escapeHtml((t.previewStart || t.previewStart===0) ? String(t.previewStart) + ' sec' : 'Not set') + '</div></div>'
-      + '</div>';
-  }).join('');
-}
-
-function handleTrackFileSelect(e, index) {
-  var file = e.target.files[0];
-  if (!file) return;
-  processTrackFile(file, index);
-}
-
-async function processTrackFile(file, index) {
-  var v = validateFile(file, 'audio');
-  if (!v.ok) { showAl('sub-e', v.msg); return; }
-  var item = trackEntries[index];
-  if (!item) return;
-  showAl('sub-s', 'Uploading track ' + (index+1) + '...');
-  try {
-    var r = await uploadCDN(file, null);
-    var ext = file.name.split('.').pop().toUpperCase();
-    item.audioUrl = r.secure_url;
-    item.audioPublicId = r.public_id;
-    item.audioFilename = file.name;
-    item.audioSize = fmtSz(file.size);
-    item.audioFormat = ext;
-    if (!item.title) item.title = file.name.replace(/\.[^.]+$/, '');
-    renderTrackEntries();
-    syncTrackSummary();
-    syncReleaseReview();
-    showAl('sub-s', '✓ Track uploaded successfully.');
-  } catch (err) {
-    showAl('sub-e', 'Track upload failed: ' + err.message);
-  }
-}
-
-function openTrackEditor(index) {
-  var t = trackEntries[index];
-  if (!t) return;
-  activeTrackIndex = index;
-  document.getElementById('te-title').value = t.title || '';
-  document.getElementById('te-version').value = t.version || '';
-  document.getElementById('te-artist').value = t.artist || '';
-  document.getElementById('te-featured').value = t.featuredArtists || '';
-  document.getElementById('te-writers').value = t.writers || '';
-  document.getElementById('te-composers').value = t.composers || '';
-  document.getElementById('te-producers').value = t.producers || '';
-  document.getElementById('te-language').value = t.language || '';
-  document.getElementById('te-explicit').value = t.explicit || 'no';
-  document.getElementById('te-preview-start').value = t.previewStart || '';
-  document.getElementById('te-lyrics').value = t.lyrics || '';
-  document.getElementById('te-notes').value = t.notes || '';
-  document.getElementById('rf-track-editor').classList.add('on');
-  document.body.style.overflow = 'hidden';
-}
-
-function closeTrackEditor() {
-  document.getElementById('rf-track-editor').classList.remove('on');
-  document.body.style.overflow = '';
-  activeTrackIndex = null;
-}
-
-function saveTrackEditor() {
-  if (activeTrackIndex===null || !trackEntries[activeTrackIndex]) return;
-  var t = trackEntries[activeTrackIndex];
-  if (!document.getElementById('te-title').value.trim()) return showAl('sub-e', 'Each track needs a track title.');
-  if (!document.getElementById('te-artist').value.trim()) return showAl('sub-e', 'Each track needs an artist name.');
-  if (!document.getElementById('te-writers').value.trim()) return showAl('sub-e', 'Each track needs writer information.');
-  t.title = document.getElementById('te-title').value.trim();
-  t.version = document.getElementById('te-version').value.trim();
-  t.artist = document.getElementById('te-artist').value.trim();
-  t.featuredArtists = document.getElementById('te-featured').value.trim();
-  t.writers = document.getElementById('te-writers').value.trim();
-  t.composers = document.getElementById('te-composers').value.trim();
-  t.producers = document.getElementById('te-producers').value.trim();
-  t.language = document.getElementById('te-language').value.trim();
-  t.explicit = document.getElementById('te-explicit').value;
-  t.previewStart = document.getElementById('te-preview-start').value.trim();
-  t.lyrics = document.getElementById('te-lyrics').value.trim();
-  t.notes = document.getElementById('te-notes').value.trim();
-  renderTrackEntries();
-  syncTrackSummary();
-  syncReleaseReview();
-  closeTrackEditor();
-}
-
-function deleteTrackEntry(index) {
-  trackEntries.splice(index, 1);
-  renderTrackEntries();
-  syncTrackSummary();
-  syncReleaseReview();
-}
-
 function syncTrackSummary() {
   var box = document.getElementById('rf-track-summary');
   if (!box) return;
-  if (isMultiTrackRelease()) {
-    if (trackEntries.length) {
-      var ready = trackEntries.filter(function(t){ return t.audioUrl && t.title && t.artist && t.writers; }).length;
-      box.classList.add('has-track');
-      box.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px"><div><div style="font-size:15px;font-weight:800;color:var(--txt);margin-bottom:3px">' + trackEntries.length + ' track' + (trackEntries.length!==1?'s':'') + ' added</div><div style="font-size:12px;color:var(--txt3)">' + ready + ' ready for delivery · ' + (trackEntries.length-ready) + ' still need details or audio</div></div><span class="ubadge ' + (ready===trackEntries.length ? 'ub-ok' : 'ub-warn') + '">' + (ready===trackEntries.length ? 'Ready' : 'Check tracks') + '</span></div>' + trackEntries.map(function(t, i){ return '<div style="padding:10px 12px;border:1px solid rgba(255,255,255,.05);border-radius:10px;background:rgba(255,255,255,.02);margin-bottom:8px;text-align:left"><div style="font-size:13px;font-weight:700;color:var(--txt)">' + escapeHtml(t.title || ('Track ' + (i+1))) + '</div><div style="font-size:11px;color:var(--txt3);margin-top:3px">' + escapeHtml(t.artist || 'Artist not set') + (t.audioFilename ? ' · ' + escapeHtml(t.audioFilename) : ' · No audio uploaded') + '</div></div>'; }).join('');
-    } else {
-      box.classList.remove('has-track');
-      box.innerHTML = '<div style="font-size:34px;opacity:.2;margin-bottom:10px">♫</div><div style="font-size:14px;color:var(--txt2);font-weight:700;margin-bottom:4px">No tracks added yet.</div><div style="font-size:12px;color:var(--txt3)">Use Add track to upload and manage every song in this release.</div>';
-    }
-    return;
-  }
   if (releaseMedium()==='video') {
     if (val('rf-video-url')) {
       box.classList.add('has-track');
@@ -2042,7 +1813,7 @@ function syncTrackSummary() {
     box.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px"><div><div style="font-size:15px;font-weight:800;color:var(--txt);margin-bottom:3px">'+escapeHtml(uploadState.audio.filename||'Track uploaded')+'</div><div style="font-size:12px;color:var(--txt3)">'+escapeHtml((uploadState.audio.format||'AUDIO') + (uploadState.audio.size ? ' · ' + uploadState.audio.size : ''))+'</div></div><span class="ubadge ub-ok">Ready</span></div><audio controls src="'+uploadState.audio.url+'" style="width:100%;accent-color:var(--green)"></audio>';
   } else {
     box.classList.remove('has-track');
-    box.innerHTML = '<div style="font-size:34px;opacity:.2;margin-bottom:10px">♪</div><div style="font-size:14px;color:var(--txt2);font-weight:700;margin-bottom:4px">No track assigned yet.</div><div style="font-size:12px;color:var(--txt3)">Add a track from your computer to continue.</div>';
+    box.innerHTML = '<div style="font-size:34px;opacity:.2;margin-bottom:10px">♪</div><div style="font-size:14px;color:var(--txt2);font-weight:700;margin-bottom:4px">No media assigned yet.</div><div style="font-size:12px;color:var(--txt3)">Add your audio file or video details to continue.</div>';
   }
 }
 
@@ -2392,5 +2163,234 @@ function setMob(name) { document.querySelectorAll('.mob-ni').forEach(function(n)
 function showAl(id, m) { var e=document.getElementById(id); if(e){ e.textContent=m; e.classList.add('on'); } }
 function toast(m) { var t=document.getElementById('toast'); document.getElementById('toast-msg').textContent=m; t.classList.add('on'); setTimeout(function(){ t.classList.remove('on'); },3500); }
 </script>
+
+<style>
+.rf-service-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.track-admin-card{background:var(--card);border:1px solid var(--brd);border-radius:12px;padding:14px}
+.track-admin-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.track-admin-grid .full{grid-column:1/-1}
+@media(max-width:768px){.track-admin-grid{grid-template-columns:1fr}.track-admin-grid .full{grid-column:1}}
+</style>
+<script>
+(function(){
+var SERVICE_PLATFORM_OPTIONS=[
+  {key:'spotify',label:'Spotify'},{key:'appleMusic',label:'Apple Music'},{key:'youtubeMusic',label:'YouTube Music'},{key:'amazonMusic',label:'Amazon Music'},{key:'jioSaavn',label:'JioSaavn'},{key:'gaana',label:'Gaana'},{key:'tidal',label:'Tidal'},{key:'deezer',label:'Deezer'},{key:'anghami',label:'Anghami'},{key:'youtubeContentId',label:'YouTube Content ID'},{key:'facebookInstagramAudio',label:'Facebook / Instagram Audio'}
+];
+var trackItems=[];
+function ensureSetup(){
+  if(document.getElementById('rf-service-access-note')) return;
+  var sideCard=document.querySelector('#rf-body-0 .rf-side-card');
+  if(sideCard){
+    var note=document.createElement('div');note.id='rf-service-access-note';note.className='notice-box';note.style.marginBottom='14px';
+    var sub=sideCard.querySelector('.rf-section-sub'); if(sub) sub.insertAdjacentElement('afterend',note);
+  }
+  var step1=document.getElementById('rf-body-1');
+  if(step1 && !document.getElementById('rf-multitrack-card')){
+    var actions=step1.querySelector('.rf-actions');
+    var card=document.createElement('div');
+    card.id='rf-multitrack-card'; card.className='rf-card rf-hidden'; card.style.marginTop='18px';
+    card.innerHTML='<div class="rf-mini-title">Album / multi-track manager</div><div class="rf-mini-sub">For EPs, albums, and mixtapes, add every track with title, artist line, contributors, and audio upload. Singles can continue using the single audio upload above.</div><div id="rf-track-list" style="display:flex;flex-direction:column;gap:14px"></div><div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px"><button class="rf-ghost" type="button" onclick="addTrackItem()">+ Add Track</button><button class="rf-ghost" type="button" onclick="seedTracksFromReleaseType()">Auto setup from release type</button></div>';
+    actions.parentNode.insertBefore(card,actions);
+  }
+  var deliveryHead=document.querySelector('#rf-body-2 .rf-service-group');
+  if(deliveryHead && !document.getElementById('rf-service-grid')){
+    deliveryHead.innerHTML='<div class="rf-service-head"><div><h4>Delivery services</h4><p>Choose services manually, including YouTube Content ID and Facebook / Instagram audio. Use all platforms to enable everything instantly.</p></div></div><div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px"><label class="rf-check on" id="rf-all-platforms-toggle"><input type="checkbox" id="rf-all-platforms" checked onchange="toggleAllPlatforms(this.checked)"/>All platforms</label></div><div class="rf-service-grid" id="rf-service-grid"></div><div class="rf-inline-split" style="margin-top:16px"><div class="form-group2"><label>Preview Start Time (seconds)</label><input type="number" id="rf-preview-start" min="0" step="1" placeholder="e.g. 62" oninput="syncReleaseReview()"/><div style="font-size:11px;color:var(--txt3);line-height:1.7">Used for services that allow clips such as TikTok, Facebook Audio Library, and Instagram.</div></div><div class="form-group2"><label>Distribution Preset</label><select id="s14" onchange="syncReleaseReview()"><option value="all" selected>All Platforms</option><option value="custom">Custom Selection</option><option value="india">India Focus</option></select></div></div>';
+    renderDeliveryServices();
+  }
+}
+function normalizeArtistServices(){
+  var rs=(window.AD&& (AD.releaseServices||AD.services)) || {};
+  if(Array.isArray(rs)) AD.releaseServices={audio:rs.indexOf('audio')>-1, video:rs.indexOf('video')>-1};
+  else AD.releaseServices={audio:rs.audio!==false, video:!!rs.video};
+}
+window.artistCanUse=function(mode){ normalizeArtistServices(); return mode==='video'?!!AD.releaseServices.video:AD.releaseServices.audio!==false; };
+window.applyArtistServiceAccess=function(){
+  ensureSetup(); normalizeArtistServices();
+  var audioWrap=document.getElementById('rf-medium-audio'), videoWrap=document.getElementById('rf-medium-video');
+  [audioWrap,videoWrap].forEach(function(el){ if(!el) return; el.style.opacity='1'; });
+  var audioInput=audioWrap&&audioWrap.querySelector('input'), videoInput=videoWrap&&videoWrap.querySelector('input');
+  if(audioInput) audioInput.disabled=!artistCanUse('audio');
+  if(videoInput) videoInput.disabled=!artistCanUse('video');
+  if(audioWrap && !artistCanUse('audio')) audioWrap.style.opacity='.45';
+  if(videoWrap && !artistCanUse('video')) videoWrap.style.opacity='.45';
+  var note=document.getElementById('rf-service-access-note');
+  if(note){ var msg=[]; if(artistCanUse('audio')) msg.push('Audio release access enabled'); if(artistCanUse('video')) msg.push('Music video access enabled'); note.textContent=msg.length?('Services enabled for your account: '+msg.join(' · ')):'No release service is enabled for this account yet. Contact TIR admin.'; }
+  if(!artistCanUse(releaseMedium())){ if(artistCanUse('audio')) setReleaseMedium('audio'); else if(artistCanUse('video')) setReleaseMedium('video'); }
+};
+window.isMultiTrackRelease=function(){ var t=(document.getElementById('s1')||{}).value||''; return ['EP','Album','Mixtape'].indexOf(t)>-1; };
+window.defaultTrackCountForType=function(){ var t=(document.getElementById('s1')||{}).value||''; return t==='EP'?4:(t==='Single'?1:8); };
+window.addTrackItem=function(seed){ trackItems.push(seed||{title:'',artist:(window.val?val('s2'):'')||'',featured:'',contributors:(window.val?val('s12'):'')||'',audio:null}); renderTrackList(); if(window.syncReleaseReview) syncReleaseReview(); };
+window.removeTrackItem=function(idx){ trackItems.splice(idx,1); renderTrackList(); if(window.syncReleaseReview) syncReleaseReview(); };
+window.seedTracksFromReleaseType=function(){ trackItems=[]; for(var i=0;i<defaultTrackCountForType();i++) addTrackItem({title:i===0&&window.val?val('s0'):'',artist:window.val?val('s2'):'',featured:'',contributors:window.val?val('s12'):'',audio:null}); };
+window.uploadTrackAudio=async function(ev,idx){ var file=ev.target.files[0]; if(!file) return; var v=validateFile(file,'audio'); if(!v.ok) return showAl('sub-e',v.msg); try{ var r=await uploadCDN(file,null); var ext=file.name.split('.').pop().toUpperCase(); trackItems[idx].audio={url:r.secure_url,pid:r.public_id,filename:file.name,size:fmtSz(file.size),format:ext}; renderTrackList(); syncReleaseReview(); toast('Track audio uploaded ✓'); }catch(err){ showAl('sub-e','Track upload failed: '+err.message); } };
+window.renderTrackList=function(){ ensureSetup(); var card=document.getElementById('rf-multitrack-card'), list=document.getElementById('rf-track-list'); if(!card||!list) return; card.classList.toggle('rf-hidden',!isMultiTrackRelease()); if(!isMultiTrackRelease()) return; if(!trackItems.length) seedTracksFromReleaseType(); list.innerHTML=trackItems.map(function(t,idx){ return '<div class="track-admin-card"><div style="display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:12px"><strong>Track '+(idx+1)+'</strong>'+(trackItems.length>1?'<button class="btn-del-demo" type="button" onclick="removeTrackItem('+idx+')">Remove</button>':'')+'</div><div class="track-admin-grid"><div class="form-group2 full"><label>Track title *</label><input value="'+(window.escapeHtml?escapeHtml(t.title||''):(t.title||''))+'" oninput="trackItems['+idx+'].title=this.value;syncReleaseReview()"/></div><div class="form-group2"><label>Track artist *</label><input value="'+(window.escapeHtml?escapeHtml(t.artist||''):(t.artist||''))+'" oninput="trackItems['+idx+'].artist=this.value;syncReleaseReview()"/></div><div class="form-group2"><label>Featuring artists</label><input value="'+(window.escapeHtml?escapeHtml(t.featured||''):(t.featured||''))+'" oninput="trackItems['+idx+'].featured=this.value;syncReleaseReview()"/></div><div class="form-group2 full"><label>Contributors *</label><textarea oninput="trackItems['+idx+'].contributors=this.value;syncReleaseReview()">'+(window.escapeHtml?escapeHtml(t.contributors||''):(t.contributors||''))+'</textarea></div><div class="form-group2"><label>Audio file *</label><input type="file" accept=".wav,.flac,.aiff,.aif" onchange="uploadTrackAudio(event,'+idx+')"/></div><div class="form-group2"><label>Upload status</label><div style="padding:10px 13px;border:1px solid var(--brd);border-radius:8px;background:var(--card);font-size:12px;color:var(--txt2)">'+(t.audio&&t.audio.filename?((window.escapeHtml?escapeHtml(t.audio.filename):t.audio.filename)+' · '+(t.audio.size||'')):'No track audio uploaded yet')+'</div></div></div></div>'; }).join(''); };
+window.selectedPlatforms=function(){ return SERVICE_PLATFORM_OPTIONS.filter(function(opt){var el=document.getElementById('svc-'+opt.key); return el&&el.checked;}).map(function(opt){return opt.label;}); };
+window.renderDeliveryServices=function(){ var grid=document.getElementById('rf-service-grid'); if(!grid) return; grid.innerHTML=SERVICE_PLATFORM_OPTIONS.map(function(opt){ return '<label class="rf-check on" id="svc-wrap-'+opt.key+'"><input type="checkbox" id="svc-'+opt.key+'" checked onchange="syncServiceChecks()"/>'+opt.label+'</label>'; }).join(''); syncServiceChecks(); };
+window.toggleAllPlatforms=function(checked){ SERVICE_PLATFORM_OPTIONS.forEach(function(opt){ var el=document.getElementById('svc-'+opt.key); if(el) el.checked=checked; }); syncServiceChecks(); };
+window.syncServiceChecks=function(){ var all=true; SERVICE_PLATFORM_OPTIONS.forEach(function(opt){ var el=document.getElementById('svc-'+opt.key), wrap=document.getElementById('svc-wrap-'+opt.key); if(wrap&&el) wrap.classList.toggle('on',!!el.checked); if(!el||!el.checked) all=false; }); var ae=document.getElementById('rf-all-platforms'); if(ae) ae.checked=all; var aw=document.getElementById('rf-all-platforms-toggle'); if(aw) aw.classList.toggle('on',all); var s14=document.getElementById('s14'); if(s14) s14.value=all?'all':'custom'; if(window.syncReleaseReview) syncReleaseReview(); };
+var _origLoadProfile=window.loadProfile;
+window.loadProfile=async function(){ await _origLoadProfile(); applyArtistServiceAccess(); ensureSetup(); renderTrackList(); renderDeliveryServices(); };
+var _origShowDash=window.showDash;
+window.showDash=async function(user){ await _origShowDash(user); applyArtistServiceAccess(); ensureSetup(); renderTrackList(); renderDeliveryServices(); };
+var _origSetReleaseMedium=window.setReleaseMedium;
+window.setReleaseMedium=function(mode){ if(!artistCanUse(mode)){ showAl('sub-e', mode==='video'?'Music video distribution is not enabled for your artist account.':'Audio distribution is not enabled for your artist account.'); return; } _origSetReleaseMedium(mode); renderTrackList(); };
+var _origSyncTrackSummary=window.syncTrackSummary;
+window.syncTrackSummary=function(){
+  if(isMultiTrackRelease()){
+    var box=document.getElementById('rf-track-summary'); if(!box) return;
+    box.classList.add('has-track');
+    var done=trackItems.filter(function(t){return t.audio&&t.audio.filename;}).length;
+    box.innerHTML='<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px"><div><div style="font-size:15px;font-weight:800;color:var(--txt);margin-bottom:3px">'+((document.getElementById('s1').value)||'Release')+' configured</div><div style="font-size:12px;color:var(--txt3)">'+trackItems.length+' track(s) added · '+done+' audio upload(s) complete</div></div><span class="ubadge ub-ok">Multi-track</span></div>'+trackItems.map(function(t,idx){ return '<div style="padding:10px 0;border-top:1px solid rgba(255,255,255,.05)"><div style="font-size:13px;font-weight:700;color:var(--txt)">'+(idx+1)+'. '+(window.escapeHtml?escapeHtml(t.title||'Untitled track'):(t.title||'Untitled track'))+'</div><div style="font-size:11px;color:var(--txt3)">'+(window.escapeHtml?escapeHtml(t.artist||'No artist set'):(t.artist||'No artist set'))+' · '+(t.audio&&t.audio.filename?(window.escapeHtml?escapeHtml(t.audio.filename):t.audio.filename):'No audio uploaded')+'</div></div>'; }).join('');
+    return;
+  }
+  _origSyncTrackSummary();
+};
+window.platformLabel=function(){ var s=selectedPlatforms(); return s.length?s.join(', '):'No platforms selected'; };
+window.trackValidationMessage=function(){ if(!isMultiTrackRelease()) return ''; if(!trackItems.length) return 'Please add track details for this multi-track release.'; for(var i=0;i<trackItems.length;i++){ var t=trackItems[i]||{}; if(!String(t.title||'').trim()) return 'Please enter the title for track '+(i+1)+'.'; if(!String(t.artist||'').trim()) return 'Please enter the artist for track '+(i+1)+'.'; if(!String(t.contributors||'').trim()) return 'Please enter contributors for track '+(i+1)+'.'; if(!t.audio||!t.audio.url) return 'Please upload the audio for track '+(i+1)+'.'; } return ''; };
+window.validateAndGoReleaseStep=function(step){
+  if(step===1){ if(!document.getElementById('s0').value.trim()) return showAl('sub-e','Please enter a release title.'); if(!document.getElementById('s2').value.trim()) return showAl('sub-e','Please enter the primary artist name.'); if(!document.getElementById('s1').value.trim()) return showAl('sub-e','Please select a release type.'); if(!document.getElementById('s4').value.trim()) return showAl('sub-e','Please select a genre.'); if(!document.getElementById('s6').value.trim()) return showAl('sub-e','Please select a language.'); if(!document.getElementById('s12').value.trim()) return showAl('sub-e','Please enter songwriter name(s).'); }
+  if(step===2){ if(isMultiTrackRelease()){ var msg=trackValidationMessage(); if(msg) return showAl('sub-e',msg); } else if(!uploadState.audio.url) return showAl('sub-e','Please upload your audio file (WAV or FLAC).'); if(releaseMedium()==='video'){ if(!document.getElementById('rf-video-url').value.trim()) return showAl('sub-e','Please enter the hosted video URL.'); if(!uploadState.thumbnail.url) return showAl('sub-e','Please upload the video thumbnail.'); if(!uploadState.artwork.url) return showAl('sub-e','Please upload the artwork / poster.'); if(!(window.val?val('rf-video-director'):document.getElementById('rf-video-director').value.trim())) return showAl('sub-e','Please enter the video director.'); } }
+  if(step===3){ if(!document.getElementById('s7').value.trim()) return showAl('sub-e','Please select a release date.'); if(!selectedPlatforms().length) return showAl('sub-e','Please choose at least one delivery platform.'); var pst=document.getElementById('rf-preview-start'); if(pst&&pst.value.trim()&&Number(pst.value)<0) return showAl('sub-e','Preview start time cannot be negative.'); }
+  document.getElementById('sub-e').classList.remove('on'); setReleaseStep(step);
+};
+window.submitRelease=async function(){
+  var gv=function(id){ var el=document.getElementById(id); return el?el.value.trim():''; };
+  var title=gv('s0'),type=gv('s1'),artist=gv('s2'),genre=gv('s4'),lang=gv('s6'),date=gv('s7'),writers=gv('s12');
+  document.getElementById('sub-e').classList.remove('on'); document.getElementById('sub-s').classList.remove('on');
+  if(!title) return showAl('sub-e','Please enter a release title.'); if(!type) return showAl('sub-e','Please select a release type.'); if(!artist) return showAl('sub-e','Please enter the primary artist name.'); if(!genre) return showAl('sub-e','Please select a genre.'); if(!lang) return showAl('sub-e','Please select a language.'); if(!date) return showAl('sub-e','Please select a release date.'); if(!writers) return showAl('sub-e','Please enter songwriter name(s).'); if(!selectedPlatforms().length) return showAl('sub-e','Please choose at least one delivery platform.');
+  var tmsg=trackValidationMessage(); if(tmsg) return showAl('sub-e',tmsg); if(!isMultiTrackRelease() && !uploadState.audio.url) return showAl('sub-e','Please upload your audio file (WAV or FLAC).');
+  var btn=document.getElementById('bsub'); btn.disabled=true; btn.textContent='Submitting...'; var medium=releaseMedium();
+  var data={ userId:CU.uid, artistName:AD.name||CU.displayName||artist, title:title, type:type, primaryArtist:artist, featuredArtists:gv('s3'), genre:genre, subGenre:gv('s5'), language:lang, releaseDate:date, explicit:document.getElementById('s8').value, copyrightYear:gv('s9'), label:gv('s10'), upc:gv('s11'), writers:writers, producers:gv('s13'), platforms:document.getElementById('s14').value, selectedPlatforms:selectedPlatforms(), territories:document.getElementById('s15').value, previewStartTime:gv('rf-preview-start')?Number(gv('rf-preview-start')):null, lyrics:gv('s16'), notes:gv('s17'), version:gv('rf-version'), releaseMedium:medium, releaseCategory:medium==='video'?'music-video':'audio', audioUrl:!isMultiTrackRelease()?(uploadState.audio.url||null):null, audioPublicId:!isMultiTrackRelease()?(uploadState.audio.pid||null):null, audioFilename:!isMultiTrackRelease()?(uploadState.audio.filename||null):null, audioFormat:!isMultiTrackRelease()?(uploadState.audio.format||null):null, audioSize:!isMultiTrackRelease()?(uploadState.audio.size||null):null, trackItems:isMultiTrackRelease()?trackItems.map(function(t,idx){ return {trackNumber:idx+1,title:t.title||'',artist:t.artist||'',featured:t.featured||'',contributors:t.contributors||'',audioUrl:t.audio?t.audio.url:null,audioFilename:t.audio?t.audio.filename:null,audioFormat:t.audio?t.audio.format:null,audioSize:t.audio?t.audio.size:null}; }):[], videoUrl:medium==='video'?gv('rf-video-url'):null, videoDirector:medium==='video'?gv('rf-video-director'):null, videoChannel:medium==='video'?gv('rf-video-channel'):null, videoCredits:medium==='video'?gv('rf-video-credits'):null, videoNotes:medium==='video'?gv('rf-video-notes'):null, thumbnailUrl:medium==='video'?(uploadState.thumbnail.url||null):null, thumbnailPublicId:medium==='video'?(uploadState.thumbnail.pid||null):null, thumbnailFilename:medium==='video'?(uploadState.thumbnail.filename||null):null, thumbnailDimensions:medium==='video'?(uploadState.thumbnail.dims||null):null, artworkUrl:uploadState.artwork.url||null, artworkPublicId:uploadState.artwork.pid||null, artworkFilename:uploadState.artwork.filename||null, artworkDimensions:uploadState.artwork.dims||null, status:'pending', submittedAt:new Date().toISOString() };
+  try{ await _db.collection('releases').add(data); try{ if(typeof emailjs!=='undefined'){ await emailjs.send('service_3bit5yi','eg3omh9',{ artist_name:data.artistName, release_title:title, release_type:type, genre:genre, release_date:date, audio_link: medium==='video'?(gv('rf-video-url')||'Video URL not provided'):(isMultiTrackRelease()?'Multi-track release':uploadState.audio.url), artwork_link:uploadState.artwork.url||'Not provided' }); } }catch(e){ console.log('Email:',e);} ['s0','s3','s5','s11','s12','s13','s16','s17','rf-version','rf-video-url','rf-video-director','rf-video-channel','rf-video-credits','rf-video-notes','rf-preview-start'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; }); ['s1','s4','s6'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; }); document.getElementById('s7').value=''; document.getElementById('s8').value='no'; document.getElementById('s9').value='2025'; document.getElementById('s10').value='The Imaginary Records'; if(window.resetAudioZone) resetAudioZone(); if(window.resetArtworkZone) resetArtworkZone(); if(window.resetThumbnailZone) resetThumbnailZone(); uploadState.audio={url:null,pid:null,filename:null,size:null,format:null}; uploadState.artwork={url:null,pid:null,filename:null,dims:null}; uploadState.thumbnail={url:null,pid:null,filename:null,dims:null}; trackItems=[]; renderTrackList(); toggleAllPlatforms(true); showAl('sub-s','✓ Release submitted! We will review within 3–5 business days.'); if(window.loadReleases) await loadReleases(); toast('🎵 Release submitted successfully!'); }catch(e){ showAl('sub-e','Submission failed: '+e.message); }
+  btn.disabled=false; btn.textContent='Submit for distribution';
+};
+window.resetThumbnailZone=function(){ var z=document.getElementById('thumbnail-zone'); if(!z) return; z.classList.remove('has-file','uploading','error'); var c=z.querySelector('.uz-c'); if(c) c.style.display='flex'; var u=document.getElementById('thumbnail-uploading'); if(u) u.style.display='none'; var p=document.getElementById('thumbnail-preview'); if(p){ p.style.display='none'; p.src=''; } var ov=document.getElementById('thumbnail-overlay'); if(ov) ov.style.display='none'; var sr=document.getElementById('thumbnail-status-row'); if(sr) sr.style.display='none'; var inp=document.getElementById('thumbnail-input'); if(inp) inp.value=''; z.onclick=function(){ document.getElementById('thumbnail-input').click(); }; };
+var origSyncReleaseReview=window.syncReleaseReview;
+window.syncReleaseReview=function(){ ensureSetup(); renderTrackList(); if(origSyncReleaseReview) origSyncReleaseReview(); };
+document.addEventListener('DOMContentLoaded', function(){ setTimeout(function(){ ensureSetup(); renderDeliveryServices(); renderTrackList(); }, 100); });
+})();
+</script>
+
+<style>
+.track-mgr-empty{padding:18px;border:1px dashed var(--brd2);border-radius:12px;text-align:center;color:var(--txt3);background:rgba(255,255,255,.01)}
+.track-list-wrap{display:flex;flex-direction:column;gap:12px}
+.track-item-card{background:var(--card);border:1px solid var(--brd);border-radius:12px;padding:14px}
+.track-item-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:10px}
+.track-item-name{font-size:14px;font-weight:800;color:var(--txt)}
+.track-item-meta{font-size:11px;color:var(--txt3);line-height:1.6;margin-top:4px}
+.track-item-actions{display:flex;gap:8px;flex-wrap:wrap}
+.track-chip-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.track-chip{padding:3px 8px;border-radius:999px;background:rgba(57,231,95,.08);border:1px solid rgba(57,231,95,.16);font-size:10px;color:var(--green);font-weight:700}
+.track-audio-row{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:10px 12px;border:1px solid var(--brd2);border-radius:10px;background:rgba(255,255,255,.015)}
+.track-audio-copy{font-size:12px;color:var(--txt2);min-width:0}
+.track-audio-copy strong{display:block;color:var(--txt);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.track-editor-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+.track-editor-grid .full{grid-column:1/-1}
+.track-editor-help{font-size:11px;color:var(--txt3);line-height:1.7;margin-top:6px}
+@media(max-width:768px){.track-editor-grid{grid-template-columns:1fr}.track-editor-grid .full{grid-column:1}}
+</style>
+<script>
+(function(){
+  var trackState = [];
+  var activeTrackIndex = -1;
+  function gv(id){ var el=document.getElementById(id); return el?el.value.trim():''; }
+  function escape(s){ return (window.escapeHtml?window.escapeHtml(String(s||'')):String(s||'').replace(/[&<>"']/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];})); }
+  function currentArtist(){ return gv('s2') || ((window.AD&&AD.name)||''); }
+  function currentContributors(){ return gv('s12') || ''; }
+  function isMulti(){ var el=document.getElementById('s1'); return !!el && ['EP','Album','Mixtape'].indexOf(el.value)>-1; }
+  function blankTrack(){ return { title:'', artist:currentArtist(), featured:'', writers:'', composers:'', producers:'', contributors:currentContributors(), lyrics:'', language:gv('s6')||'', explicit:(document.getElementById('s8')||{}).value||'no', version:'', notes:'', previewStartTime:'', audio:null }; }
+  function ensureCard(){
+    if(typeof ensureSetup==='function') ensureSetup();
+    var step1=document.getElementById('rf-body-1');
+    if(step1 && !document.getElementById('rf-multitrack-card')){
+      var actions=step1.querySelector('.rf-actions');
+      var card=document.createElement('div');
+      card.id='rf-multitrack-card';
+      card.className='rf-card rf-hidden';
+      card.style.marginTop='18px';
+      card.innerHTML='<div class="rf-mini-title">Album / EP / Mixtape track manager</div><div class="rf-mini-sub">Add one track at a time. Upload each audio file, then open <strong>Edit Track</strong> to fill artist, writer, composer, lyrics and other track details.</div><div id="rf-track-list" class="track-list-wrap"></div><div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px"><button class="rf-ghost" type="button" onclick="addTrackItem()">+ Add Track</button></div>';
+      actions.parentNode.insertBefore(card,actions);
+    }
+    if(!document.getElementById('rf-track-editor-modal')){
+      var modal=document.createElement('div');
+      modal.id='rf-track-editor-modal';
+      modal.className='rf-modal';
+      modal.innerHTML='<div class="rf-modal-box" style="width:760px;max-width:96vw"><button class="rf-modal-close" type="button" onclick="closeTrackEditor()">×</button><h3>Edit Track</h3><p>Fill the metadata for this track. Audio upload stays attached to the same track card.</p><div class="track-editor-grid">'+
+      '<div class="form-group2 full"><label>Track Title *</label><input id="trk-title" type="text" placeholder="Track title"/></div>'+
+      '<div class="form-group2"><label>Track Artist *</label><input id="trk-artist" type="text" placeholder="Artist name"/></div>'+
+      '<div class="form-group2"><label>Featured Artists</label><input id="trk-featured" type="text" placeholder="Featuring artists"/></div>'+
+      '<div class="form-group2"><label>Writers</label><input id="trk-writers" type="text" placeholder="Writer names"/></div>'+
+      '<div class="form-group2"><label>Composers</label><input id="trk-composers" type="text" placeholder="Composer names"/></div>'+
+      '<div class="form-group2"><label>Producers</label><input id="trk-producers" type="text" placeholder="Producer names"/></div>'+
+      '<div class="form-group2"><label>Language</label><input id="trk-language" type="text" placeholder="Track language"/></div>'+
+      '<div class="form-group2"><label>Explicit</label><select id="trk-explicit"><option value="no">No — Clean</option><option value="yes">Yes — Explicit</option></select></div>'+
+      '<div class="form-group2"><label>Version</label><input id="trk-version" type="text" placeholder="Original / Radio Edit / Remix"/></div>'+
+      '<div class="form-group2"><label>Preview Start Time</label><input id="trk-preview" type="number" min="0" step="1" placeholder="Seconds"/></div>'+
+      '<div class="form-group2 full"><label>Contributors</label><textarea id="trk-contributors" placeholder="Main contributors, performers, arrangers"></textarea></div>'+
+      '<div class="form-group2 full"><label>Lyrics</label><textarea id="trk-lyrics" placeholder="Lyrics for this track"></textarea></div>'+
+      '<div class="form-group2 full"><label>Track Notes</label><textarea id="trk-notes" placeholder="Any extra track notes"></textarea><div class="track-editor-help">These details will be saved inside the release submission for admin review.</div></div>'+
+      '</div><div class="rf-modal-actions" style="margin-top:18px"><button class="rf-ghost" type="button" onclick="closeTrackEditor()">Cancel</button><button class="rf-primary" type="button" onclick="saveTrackEditor()">Save Track</button></div></div>';
+      document.body.appendChild(modal);
+    }
+  }
+  function summaryLine(t){
+    var bits=[];
+    if(t.artist) bits.push(t.artist);
+    if(t.audio && t.audio.filename) bits.push(t.audio.filename);
+    return bits.join(' · ') || 'No details added yet';
+  }
+  function render(){
+    ensureCard();
+    var card=document.getElementById('rf-multitrack-card'), list=document.getElementById('rf-track-list');
+    if(!card||!list) return;
+    card.classList.toggle('rf-hidden', !isMulti());
+    if(!isMulti()) return;
+    if(!trackState.length){
+      list.innerHTML='<div class="track-mgr-empty"><div style="font-size:32px;opacity:.15;margin-bottom:8px">♫</div><div style="font-size:14px;color:var(--txt2);font-weight:700;margin-bottom:4px">No tracks added yet</div><div style="font-size:12px">Click <strong>Add Track</strong> to start building your album, EP, or mixtape.</div></div>';
+      if(window.syncTrackSummary) window.syncTrackSummary();
+      return;
+    }
+    list.innerHTML=trackState.map(function(t,idx){
+      return '<div class="track-item-card">'+
+        '<div class="track-item-top"><div style="min-width:0"><div class="track-item-name">'+(idx+1)+'. '+escape(t.title||('Untitled Track '+(idx+1)))+'</div><div class="track-item-meta">'+escape(summaryLine(t))+'</div><div class="track-chip-row">'+
+          (t.audio&&t.audio.url?'<span class="track-chip">Audio uploaded</span>':'<span class="track-chip" style="color:#fb923c;border-color:rgba(249,115,22,.22);background:rgba(249,115,22,.08)">Audio missing</span>')+
+          (t.writers?'<span class="track-chip">Writers added</span>':'')+
+          (t.composers?'<span class="track-chip">Composers added</span>':'')+
+          (t.lyrics?'<span class="track-chip">Lyrics added</span>':'')+
+        '</div></div><div class="track-item-actions"><button class="rf-ghost" type="button" onclick="openTrackEditor('+idx+')">Edit Track</button><button class="btn-del-demo" type="button" onclick="removeTrackItem('+idx+')">Delete Track</button></div></div>'+
+        '<div class="track-audio-row"><div class="track-audio-copy"><strong>'+(t.audio&&t.audio.filename?escape(t.audio.filename):'No audio uploaded yet')+'</strong><span>'+(t.audio&&t.audio.size?escape(t.audio.size):'Upload WAV, FLAC or AIFF for this track')+'</span></div><label class="rf-ghost" style="cursor:pointer;margin:0">'+(t.audio&&t.audio.url?'Replace Audio':'Upload Audio')+'<input type="file" accept=".wav,.flac,.aiff,.aif" style="display:none" onchange="uploadTrackAudio(event,'+idx+')"></label></div>'+
+      '</div>';
+    }).join('');
+    if(window.syncTrackSummary) window.syncTrackSummary();
+  }
+  window.addTrackItem=function(seed){ trackState.push(Object.assign(blankTrack(), seed||{})); render(); openTrackEditor(trackState.length-1); if(window.syncReleaseReview) window.syncReleaseReview(); };
+  window.removeTrackItem=function(idx){ trackState.splice(idx,1); if(activeTrackIndex===idx) activeTrackIndex=-1; render(); if(window.syncReleaseReview) window.syncReleaseReview(); };
+  window.seedTracksFromReleaseType=function(){ trackState=[]; render(); };
+  window.openTrackEditor=function(idx){ ensureCard(); var t=trackState[idx]; if(!t) return; activeTrackIndex=idx; document.getElementById('trk-title').value=t.title||''; document.getElementById('trk-artist').value=t.artist||''; document.getElementById('trk-featured').value=t.featured||''; document.getElementById('trk-writers').value=t.writers||''; document.getElementById('trk-composers').value=t.composers||''; document.getElementById('trk-producers').value=t.producers||''; document.getElementById('trk-language').value=t.language||''; document.getElementById('trk-explicit').value=t.explicit||'no'; document.getElementById('trk-version').value=t.version||''; document.getElementById('trk-preview').value=t.previewStartTime!=null&&t.previewStartTime!==''?String(t.previewStartTime):''; document.getElementById('trk-contributors').value=t.contributors||''; document.getElementById('trk-lyrics').value=t.lyrics||''; document.getElementById('trk-notes').value=t.notes||''; document.getElementById('rf-track-editor-modal').classList.add('on'); };
+  window.closeTrackEditor=function(){ var m=document.getElementById('rf-track-editor-modal'); if(m) m.classList.remove('on'); activeTrackIndex=-1; };
+  window.saveTrackEditor=function(){ if(activeTrackIndex<0 || !trackState[activeTrackIndex]) return; var t=trackState[activeTrackIndex]; t.title=gv('trk-title'); t.artist=gv('trk-artist'); t.featured=gv('trk-featured'); t.writers=gv('trk-writers'); t.composers=gv('trk-composers'); t.producers=gv('trk-producers'); t.language=gv('trk-language'); t.explicit=(document.getElementById('trk-explicit')||{}).value||'no'; t.version=gv('trk-version'); t.previewStartTime=gv('trk-preview'); t.contributors=gv('trk-contributors'); t.lyrics=gv('trk-lyrics'); t.notes=gv('trk-notes'); render(); closeTrackEditor(); if(window.syncReleaseReview) window.syncReleaseReview(); };
+  window.uploadTrackAudio=async function(ev,idx){ var file=ev.target.files[0]; if(!file || !trackState[idx]) return; var v=validateFile(file,'audio'); if(!v.ok) return showAl('sub-e',v.msg); try{ var r=await uploadCDN(file,null); var ext=file.name.split('.').pop().toUpperCase(); trackState[idx].audio={url:r.secure_url,pid:r.public_id,filename:file.name,size:fmtSz(file.size),format:ext}; render(); if(window.syncReleaseReview) window.syncReleaseReview(); toast('Track audio uploaded ✓'); }catch(err){ showAl('sub-e','Track upload failed: '+err.message); } finally { if(ev.target) ev.target.value=''; } };
+  window.trackValidationMessage=function(){ if(!isMulti()) return ''; if(!trackState.length) return 'Please add at least one track for this release.'; for(var i=0;i<trackState.length;i++){ var t=trackState[i]||{}; if(!String(t.title||'').trim()) return 'Please enter the title for track '+(i+1)+'.'; if(!String(t.artist||'').trim()) return 'Please enter the artist for track '+(i+1)+'.'; if(!t.audio||!t.audio.url) return 'Please upload the audio for track '+(i+1)+'.'; } return ''; };
+  window.syncTrackSummary=function(){ var box=document.getElementById('rf-track-summary'); if(!box) return; if(isMulti()){ var done=trackState.filter(function(t){return t.audio&&t.audio.filename;}).length; if(!trackState.length){ box.classList.remove('has-track'); box.innerHTML='<div style="font-size:34px;opacity:.2;margin-bottom:10px">♪</div><div style="font-size:14px;color:var(--txt2);font-weight:700;margin-bottom:4px">No tracks added yet.</div><div style="font-size:12px;color:var(--txt3)">Use <strong>Add Track</strong> to build this release track by track.</div>'; return; } box.classList.add('has-track'); box.innerHTML='<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px"><div><div style="font-size:15px;font-weight:800;color:var(--txt);margin-bottom:3px">'+((document.getElementById('s1').value)||'Release')+' track list ready</div><div style="font-size:12px;color:var(--txt3)">'+trackState.length+' track(s) added · '+done+' audio upload(s) complete</div></div><span class="ubadge ub-ok">Multi-track</span></div>'+trackState.map(function(t,idx){ return '<div style="padding:10px 0;border-top:1px solid rgba(255,255,255,.05)"><div style="font-size:13px;font-weight:700;color:var(--txt)">'+(idx+1)+'. '+escape(t.title||('Untitled Track '+(idx+1)))+'</div><div style="font-size:11px;color:var(--txt3)">'+escape((t.artist||'No artist set') + ((t.audio&&t.audio.filename)?(' · '+t.audio.filename):' · No audio uploaded'))+'</div></div>'; }).join(''); return; }
+    if(window._origSyncTrackSummary2) return window._origSyncTrackSummary2();
+  };
+  if(window.syncTrackSummary && !window._origSyncTrackSummary2){ window._origSyncTrackSummary2 = window.syncTrackSummary; }
+  var oldSubmit=window.submitRelease;
+  window.submitRelease=async function(){
+    var title=gv('s0'),type=gv('s1'),artist=gv('s2'),genre=gv('s4'),lang=gv('s6'),date=gv('s7'),writers=gv('s12');
+    document.getElementById('sub-e').classList.remove('on'); document.getElementById('sub-s').classList.remove('on');
+    if(!title) return showAl('sub-e','Please enter a release title.'); if(!type) return showAl('sub-e','Please select a release type.'); if(!artist) return showAl('sub-e','Please enter the primary artist name.'); if(!genre) return showAl('sub-e','Please select a genre.'); if(!lang) return showAl('sub-e','Please select a language.'); if(!date) return showAl('sub-e','Please select a release date.'); if(!writers) return showAl('sub-e','Please enter songwriter name(s).'); if(window.selectedPlatforms && !window.selectedPlatforms().length) return showAl('sub-e','Please choose at least one delivery platform.');
+    var tmsg=window.trackValidationMessage?window.trackValidationMessage():''; if(tmsg) return showAl('sub-e',tmsg); if(!isMulti() && !(window.uploadState&&uploadState.audio&&uploadState.audio.url)) return showAl('sub-e','Please upload your audio file (WAV or FLAC).');
+    var btn=document.getElementById('bsub'); btn.disabled=true; btn.textContent='Submitting.'; var medium=(window.releaseMedium?releaseMedium():'audio');
+    var data={ userId:CU.uid, artistName:AD.name||CU.displayName||artist, title:title, type:type, primaryArtist:artist, featuredArtists:gv('s3'), genre:genre, subGenre:gv('s5'), language:lang, releaseDate:date, explicit:document.getElementById('s8').value, copyrightYear:gv('s9'), label:gv('s10'), upc:gv('s11'), writers:writers, producers:gv('s13'), platforms:document.getElementById('s14').value, selectedPlatforms:(window.selectedPlatforms?window.selectedPlatforms():[]), territories:document.getElementById('s15').value, previewStartTime:gv('rf-preview-start')?Number(gv('rf-preview-start')):null, lyrics:gv('s16'), notes:gv('s17'), version:gv('rf-version'), releaseMedium:medium, releaseCategory:medium==='video'?'music-video':'audio', audioUrl:!isMulti()?(uploadState.audio.url||null):null, audioPublicId:!isMulti()?(uploadState.audio.pid||null):null, audioFilename:!isMulti()?(uploadState.audio.filename||null):null, audioFormat:!isMulti()?(uploadState.audio.format||null):null, audioSize:!isMulti()?(uploadState.audio.size||null):null, trackItems:isMulti()?trackState.map(function(t,idx){ return { trackNumber:idx+1, title:t.title||'', artist:t.artist||'', featured:t.featured||'', writers:t.writers||'', composers:t.composers||'', producers:t.producers||'', contributors:t.contributors||'', lyrics:t.lyrics||'', language:t.language||'', explicit:t.explicit||'no', version:t.version||'', notes:t.notes||'', previewStartTime:t.previewStartTime!==''&&t.previewStartTime!=null?Number(t.previewStartTime):null, audioUrl:t.audio?t.audio.url:null, audioPublicId:t.audio?t.audio.pid:null, audioFilename:t.audio?t.audio.filename:null, audioFormat:t.audio?t.audio.format:null, audioSize:t.audio?t.audio.size:null }; }):[], videoUrl:medium==='video'?gv('rf-video-url'):null, videoDirector:medium==='video'?gv('rf-video-director'):null, videoChannel:medium==='video'?gv('rf-video-channel'):null, videoCredits:medium==='video'?gv('rf-video-credits'):null, videoNotes:medium==='video'?gv('rf-video-notes'):null, thumbnailUrl:medium==='video'?(uploadState.thumbnail.url||null):null, thumbnailPublicId:medium==='video'?(uploadState.thumbnail.pid||null):null, thumbnailFilename:medium==='video'?(uploadState.thumbnail.filename||null):null, thumbnailDimensions:medium==='video'?(uploadState.thumbnail.dims||null):null, artworkUrl:uploadState.artwork.url||null, artworkPublicId:uploadState.artwork.pid||null, artworkFilename:uploadState.artwork.filename||null, artworkDimensions:uploadState.artwork.dims||null, status:'pending', submittedAt:new Date().toISOString() };
+    try{ await _db.collection('releases').add(data); try{ if(typeof emailjs!=='undefined'){ await emailjs.send('service_3bit5yi','eg3omh9',{ artist_name:data.artistName, release_title:title, release_type:type, genre:genre, release_date:date, audio_link: medium==='video'?(gv('rf-video-url')||'Video URL not provided'):(isMulti()?'Multi-track release':uploadState.audio.url), artwork_link:uploadState.artwork.url||'Not provided' }); } }catch(e){ console.log('Email:',e);} ['s0','s3','s5','s11','s12','s13','s16','s17','rf-version','rf-video-url','rf-video-director','rf-video-channel','rf-video-credits','rf-video-notes','rf-preview-start'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; }); ['s1','s4','s6'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; }); document.getElementById('s7').value=''; document.getElementById('s8').value='no'; document.getElementById('s9').value='2025'; document.getElementById('s10').value='The Imaginary Records'; if(window.resetAudioZone) resetAudioZone(); if(window.resetArtworkZone) resetArtworkZone(); if(window.resetThumbnailZone) resetThumbnailZone(); uploadState.audio={url:null,pid:null,filename:null,size:null,format:null}; uploadState.artwork={url:null,pid:null,filename:null,dims:null}; uploadState.thumbnail={url:null,pid:null,filename:null,dims:null}; trackState=[]; render(); if(window.toggleAllPlatforms) toggleAllPlatforms(true); showAl('sub-s','✓ Release submitted! We will review within 3–5 business days.'); if(window.loadReleases) await loadReleases(); toast('🎵 Release submitted successfully!'); }catch(e){ showAl('sub-e','Submission failed: '+e.message); } finally { btn.disabled=false; btn.textContent='Submit Release'; }
+  };
+  document.addEventListener('DOMContentLoaded', function(){ setTimeout(render,120); });
+  var oldLoadProfile=window.loadProfile; if(oldLoadProfile){ window.loadProfile=async function(){ await oldLoadProfile.apply(this,arguments); render(); }; }
+  var oldShowDash=window.showDash; if(oldShowDash){ window.showDash=async function(){ await oldShowDash.apply(this,arguments); render(); }; }
+  var oldSetReleaseMedium=window.setReleaseMedium; if(oldSetReleaseMedium){ window.setReleaseMedium=function(){ oldSetReleaseMedium.apply(this,arguments); render(); }; }
+})();
+</script>
+
 </body>
 </html>

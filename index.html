@@ -45,16 +45,8 @@ body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;min-he
 
 /* AUTH */
 #auth{min-height:100vh;display:none;align-items:center;justify-content:center;background:var(--bg)}
-.auth-wrap{display:flex;width:880px;max-width:98vw;border:1px solid var(--brd);border-radius:16px;overflow:hidden;box-shadow:0 32px 80px rgba(0,0,0,.8), 0 0 120px rgba(57,231,95,.06)}
+.auth-wrap{display:flex;width:880px;max-width:98vw;border:1px solid var(--brd);border-radius:16px;overflow:hidden;box-shadow:0 32px 80px rgba(0,0,0,.8)}
 .auth-left{flex:1;background:linear-gradient(160deg,#0d1a0d,#0a0a0a 60%,#111 100%);padding:52px 44px;display:flex;flex-direction:column;justify-content:center;border-right:1px solid var(--brd);position:relative;overflow:hidden}
-.auth-left::before{content:'';position:absolute;inset:0;background-image:radial-gradient(rgba(57,231,95,.14) 1px,transparent 1px);background-size:26px 26px;-webkit-mask-image:radial-gradient(ellipse 70% 60% at 30% 20%,#000 0%,transparent 75%);mask-image:radial-gradient(ellipse 70% 60% at 30% 20%,#000 0%,transparent 75%);pointer-events:none}
-.auth-left::after{content:'';position:absolute;width:420px;height:420px;border-radius:50%;background:radial-gradient(circle,rgba(57,231,95,.16),transparent 70%);top:-160px;right:-160px;filter:blur(10px);animation:pulse 6s ease-in-out infinite;pointer-events:none}
-.auth-logo-wave span{animation:waveAnim 1.1s ease-in-out infinite}
-.auth-logo-wave span:nth-child(1){animation-delay:0s}
-.auth-logo-wave span:nth-child(2){animation-delay:.12s}
-.auth-logo-wave span:nth-child(3){animation-delay:.24s}
-.auth-logo-wave span:nth-child(4){animation-delay:.18s}
-.auth-left>*{position:relative;z-index:1}
 .auth-left::before{content:'';position:absolute;top:-80px;right:-80px;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(57,231,95,.06),transparent 70%)}
 .auth-logo{display:flex;align-items:center;gap:10px;margin-bottom:40px}
 .auth-logo-wave{width:28px;height:18px;display:flex;align-items:flex-end;gap:2px}
@@ -80,12 +72,11 @@ body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;min-he
 .form-group input{width:100%;background:var(--card);border:1px solid var(--brd2);border-radius:var(--r);color:var(--txt);padding:11px 14px;font-family:'Inter',sans-serif;font-size:14px;outline:none;transition:border-color .2s}
 .form-group input:focus{border-color:var(--green)}
 .btn-green{width:100%;padding:12px;background:var(--green);border:none;border-radius:var(--r);color:#000;font-size:14px;font-weight:800;cursor:pointer;transition:all .2s;margin-top:6px}
-.btn-green:hover{background:#4df070;transform:translateY(-1px);box-shadow:0 8px 24px rgba(57,231,95,.35)}
+.btn-green:hover{background:#4df070;transform:translateY(-1px)}
 .btn-green:disabled{background:#1d3d25;color:#555;cursor:not-allowed;transform:none}
 .err-box{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:var(--r);color:#fca5a5;font-size:12px;padding:10px 12px;margin-bottom:12px;display:none}
 .err-box.on{display:block}
 .auth-note{font-size:11px;color:var(--txt3);text-align:center;margin-top:18px;line-height:1.7}
-.auth-tab-btn.on{background:var(--green)!important;color:#000!important;border-color:var(--green)!important}
 
 /* LAYOUT */
 #dash{display:none}
@@ -567,82 +558,13 @@ input[type=file]{display:none}
       </div>
     </div>
     <div class="auth-right">
-      <div class="auth-tabs" style="display:flex;gap:8px;margin-bottom:18px">
-        <button type="button" id="auth-tab-login" class="auth-tab-btn on" onclick="showAuthMode('login')" style="flex:1;padding:10px;border-radius:8px;border:1px solid var(--brd,#333);background:transparent;color:inherit;font-weight:700;cursor:pointer">Log In</button>
-        <button type="button" id="auth-tab-signup" class="auth-tab-btn" onclick="showAuthMode('signup')" style="flex:1;padding:10px;border-radius:8px;border:1px solid var(--brd,#333);background:transparent;color:inherit;font-weight:700;cursor:pointer">Sign Up</button>
-      </div>
-      <div id="auth-view-login">
-        <h2>Welcome back</h2>
-        <p>Sign in to your artist account</p>
-        <div class="err-box" id="aerr"></div>
-        <div class="form-group"><label>Email Address</label><input type="email" id="lem" placeholder="your@email.com" onkeydown="if(event.key==='Enter')doLogin()"/></div>
-        <div class="form-group"><label>Password</label><input type="password" id="lpw" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"/></div>
-        <button class="btn-green" id="blg" onclick="doLogin()">Sign In to Portal</button>
-        <div class="auth-note">Don't have an account?<br><a href="#" onclick="showAuthMode('signup');return false;" style="color:var(--green,#39e75f);font-weight:700">Sign up for free</a></div>
-      </div>
-      <div id="auth-view-signup" style="display:none">
-        <h2>Create your account</h2>
-        <p>Start distributing your music in minutes</p>
-        <div class="err-box" id="serr"></div>
-        <div class="form-group"><label>Artist / Stage Name</label><input type="text" id="sname" placeholder="Your name" onkeydown="if(event.key==='Enter')doSignup()"/></div>
-        <div class="form-group"><label>Email Address</label><input type="email" id="sem" placeholder="your@email.com" onkeydown="if(event.key==='Enter')doSignup()"/></div>
-        <div class="form-group"><label>Password</label><input type="password" id="spw" placeholder="At least 6 characters" onkeydown="if(event.key==='Enter')doSignup()"/></div>
-        <div class="form-group"><label>Confirm Password</label><input type="password" id="spw2" placeholder="••••••••" onkeydown="if(event.key==='Enter')doSignup()"/></div>
-        <button class="btn-green" id="bsg" onclick="doSignup()">Create Account</button>
-        <div class="auth-note">Already have an account?<br><a href="#" onclick="showAuthMode('login');return false;" style="color:var(--green,#39e75f);font-weight:700">Log in instead</a></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ONBOARDING GATE: email verify -> agreement+signature -> ID verification -->
-<div id="onboard" style="display:none;min-height:100vh;align-items:center;justify-content:center;background:var(--bg);padding:24px">
-  <div style="width:720px;max-width:96vw;border:1px solid var(--brd);border-radius:16px;background:var(--sidebar);padding:40px;box-shadow:0 32px 80px rgba(0,0,0,.8)">
-    <div id="ob-verify" style="display:none;text-align:center">
-      <h2 style="margin-bottom:8px">Verify your email</h2>
-      <p style="color:var(--txt2);font-size:13px;margin-bottom:22px">We sent a verification link to <strong id="ob-verify-email" style="color:var(--txt)"></strong>. Click the link, then continue below.</p>
-      <div class="err-box" id="ob-verify-err"></div>
-      <button class="btn-green" style="width:auto;padding:12px 28px" onclick="obCheckVerified()">I've verified — Continue</button>
-      <div class="auth-note"><a href="#" onclick="obResendVerification();return false;" style="color:var(--green);font-weight:700">Resend verification email</a> &nbsp;·&nbsp; <a href="#" onclick="doSignOut();return false;" style="color:var(--txt3)">Sign out</a></div>
-    </div>
-
-    <div id="ob-agreement" style="display:none">
-      <h2 style="margin-bottom:4px">Artist Distribution Agreement</h2>
-      <p style="color:var(--txt2);font-size:13px;margin-bottom:16px">Please read the full agreement below. Scroll to the end to enable acceptance.</p>
-      <div id="ob-agreement-text" style="height:320px;overflow-y:auto;border:1px solid var(--brd);border-radius:10px;padding:18px;background:var(--card);font-size:12.5px;line-height:1.75;color:var(--txt2)"></div>
-      <label style="display:flex;align-items:flex-start;gap:10px;margin-top:16px;font-size:13px;cursor:pointer">
-        <input type="checkbox" id="ob-agree-check" disabled style="margin-top:3px"/>
-        <span>I have read and agree to the Artist Distribution Agreement (v5.0) in full, including the royalty split, lock-in period, and penalty clauses.</span>
-      </label>
-      <div id="ob-agree-hint" style="font-size:11px;color:var(--txt3);margin-top:6px">Scroll to the bottom of the agreement to enable this checkbox.</div>
-
-      <div style="margin-top:22px">
-        <label style="font-size:12px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:8px">Sign below</label>
-        <canvas id="ob-sig-canvas" width="640" height="160" style="width:100%;height:160px;border:1px solid var(--brd);border-radius:10px;background:#fff;touch-action:none;cursor:crosshair"></canvas>
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
-          <span style="font-size:11px;color:var(--txt3)">Draw your signature with your mouse or finger</span>
-          <button type="button" class="rf-ghost" onclick="obClearSignature()">Clear</button>
-        </div>
-      </div>
-      <div class="err-box" id="ob-agree-err"></div>
-      <button class="btn-green" id="ob-agree-btn" style="margin-top:18px" onclick="obSubmitAgreement()">Agree &amp; Sign</button>
-    </div>
-
-    <div id="ob-id" style="display:none">
-      <h2 style="margin-bottom:4px">Identity Verification</h2>
-      <p style="color:var(--txt2);font-size:13px;margin-bottom:20px">For royalty payout compliance, please upload a valid government-issued ID. This is reviewed by TIR and kept confidential.</p>
-      <div class="form-group"><label>ID Type</label>
-        <select id="ob-id-type" class="ss" style="width:100%;padding:10px">
-          <option value="National ID Card">National Identity Card (Aadhaar)</option>
-          <option value="Driving License">Driving License</option>
-          <option value="Voter ID">Voter ID Card</option>
-          <option value="Passport">Passport</option>
-        </select>
-      </div>
-      <div class="form-group"><label>Upload ID (image or PDF, max 10MB)</label><input type="file" id="ob-id-file" accept="image/*,application/pdf"/></div>
-      <div id="ob-id-status" style="font-size:12px;color:var(--txt3);margin-bottom:10px"></div>
-      <div class="err-box" id="ob-id-err"></div>
-      <button class="btn-green" id="ob-id-btn" onclick="obSubmitId()">Submit &amp; Continue to Dashboard</button>
+      <h2>Welcome back</h2>
+      <p>Sign in to your artist account</p>
+      <div class="err-box" id="aerr"></div>
+      <div class="form-group"><label>Email Address</label><input type="email" id="lem" placeholder="your@email.com" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+      <div class="form-group"><label>Password</label><input type="password" id="lpw" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+      <button class="btn-green" id="blg" onclick="doLogin()">Sign In to Portal</button>
+      <div class="auth-note">Don't have an account?<br>Contact TIR at <strong style="color:var(--txt2)">support@theimaginaryrecords.in</strong></div>
     </div>
   </div>
 </div>
@@ -1319,15 +1241,11 @@ function initFirebase() {
     hideLd();
     if (user) {
       CU = user;
-      checkOnboardingGate(user);
+      showDash(user);
     } else {
       CU = null;
       document.getElementById('auth').style.display = 'flex';
       document.getElementById('dash').style.display  = 'none';
-      try {
-        var params = new URLSearchParams(window.location.search);
-        if (params.get('signup') === '1') showAuthMode('signup');
-      } catch(e) {}
     }
   });
 }
@@ -1424,195 +1342,6 @@ async function doLogin() {
   }
 }
 function doSignOut() { _auth.signOut(); }
-function showAuthMode(mode) {
-  var isSignup = mode === 'signup';
-  document.getElementById('auth-view-login').style.display = isSignup ? 'none' : 'block';
-  document.getElementById('auth-view-signup').style.display = isSignup ? 'block' : 'none';
-  document.getElementById('auth-tab-login').classList.toggle('on', !isSignup);
-  document.getElementById('auth-tab-signup').classList.toggle('on', isSignup);
-  var aerr = document.getElementById('aerr'); if (aerr) aerr.classList.remove('on');
-  var serr = document.getElementById('serr'); if (serr) serr.classList.remove('on');
-}
-async function doSignup() {
-  var name = document.getElementById('sname').value.trim();
-  var em = document.getElementById('sem').value.trim();
-  var pw = document.getElementById('spw').value;
-  var pw2 = document.getElementById('spw2').value;
-  var btn = document.getElementById('bsg');
-  var err = document.getElementById('serr');
-  err.classList.remove('on');
-  if (!name) { err.textContent = 'Please enter your artist or stage name.'; err.classList.add('on'); return; }
-  if (!em) { err.textContent = 'Please enter your email address.'; err.classList.add('on'); return; }
-  if (pw.length < 6) { err.textContent = 'Password must be at least 6 characters.'; err.classList.add('on'); return; }
-  if (pw !== pw2) { err.textContent = 'Passwords do not match.'; err.classList.add('on'); return; }
-  btn.disabled = true; btn.textContent = 'Creating account...';
-  try {
-    var cred = await _auth.createUserWithEmailAndPassword(em, pw);
-    await cred.user.updateProfile({ displayName: name });
-    try { await cred.user.sendEmailVerification(); } catch(e) {}
-    await _db.collection('users').doc(cred.user.uid).set({
-      name: name, email: em,
-      releaseServices: { audio: true, video: false },
-      createdAt: new Date().toISOString(),
-      createdBy: 'self-signup'
-    }, { merge: true });
-    // onAuthStateChanged will now fire and show the dashboard automatically
-  } catch(e) {
-    var m = 'Could not create account. ';
-    if (e.code === 'auth/email-already-in-use') m = 'An account with this email already exists. Try logging in instead.';
-    else if (e.code === 'auth/invalid-email') m = 'Please enter a valid email address.';
-    else if (e.code === 'auth/weak-password') m = 'Please choose a stronger password.';
-    else m += e.message;
-    err.textContent = m; err.classList.add('on');
-    btn.disabled = false; btn.textContent = 'Create Account';
-  }
-}
-
-// ═══════════════════════════════════════════════════════════
-// ONBOARDING GATE: email verify -> agreement+signature -> ID upload
-// ═══════════════════════════════════════════════════════════
-var AGREEMENT_VERSION = '5.0';
-var AGREEMENT_TEXT_HTML = '<h3 style="color:var(--txt);margin-bottom:6px">Artist Distribution Agreement — Version 5.0</h3>'
-  + '<p style="margin-bottom:10px"><strong>This is a legally binding agreement between The Imaginary Records ("Label") and the Artist ("You"). By signing below, you agree to all terms contained herein.</strong></p>'
-  + '<p style="margin-bottom:10px"><strong>Section 1 — Parties.</strong> Label: The Imaginary Records, a sole proprietorship owned and operated by Aabyd Khan, Village Gund Saderkote Bala, Block Hajin, District Bandipora, J&amp;K, 193504, India. Artist: the individual, group, or entity registering through this portal.</p>'
-  + '<p style="margin-bottom:10px"><strong>Section 2 — Grant of Rights.</strong> The Artist grants The Imaginary Records a non-exclusive, worldwide license to distribute, stream, download, and monetize the Artist\'s music through TIR\'s distribution partners and their downstream platforms. The Artist retains 100% ownership of their master recordings and publishing rights at all times.</p>'
-  + '<p style="margin-bottom:10px"><strong>Section 3 — Royalty Split.</strong> Artist receives 85% of net royalties; Label retains 15% as a distribution and services fee.</p>'
-  + '<p style="margin-bottom:10px"><strong>Section 4 — Distribution Timeline.</strong> TIR commits to submitting approved releases to distribution platforms within 24 to 48 hours of receiving complete, compliant release materials.</p>'
-  + '<p style="margin-bottom:10px"><strong>Section 5 — Lock-In Period.</strong> Artists agree to a 6-month minimum commitment from the date of first release under TIR.</p>'
-  + '<p style="margin-bottom:10px"><strong>Section 6 — Royalty Payments.</strong> Royalties are processed and paid monthly, typically within 45–60 days of the close of each reporting period.</p>'
-  + '<p style="margin-bottom:10px"><strong>Section 7 — Royalty Disputes.</strong> The Artist has a 30-day window from the date of each royalty statement to raise disputes in writing to support@theimaginaryrecords.in.</p>'
-  + '<p style="margin-bottom:10px"><strong>Section 8 — Copyright Claims.</strong> If a copyright claim is received, TIR will notify the Artist within 48 hours; the Artist must respond within 7 business days.</p>'
-  + '<p style="margin-bottom:10px"><strong>Section 9 — Artist Warranties.</strong> The Artist warrants they own or control all rights to submitted music, that it infringes no third-party rights, that all contributors have consented, and that all metadata provided is accurate.</p>'
-  + '<p style="margin-bottom:10px"><strong>Section 10 — Prohibited Activities.</strong> Stream fraud, copyright infringement, identity fraud, undisclosed AI-generated content where prohibited, metadata fraud, platform manipulation, label impersonation, and duplicate releases without written consent are strictly prohibited.</p>'
-  + '<p style="margin-bottom:10px"><strong>Section 11 — Penalties.</strong> Violations may result in immediate account termination, content takedown, forfeiture of outstanding royalties, financial penalties of ₹50,000–₹1,00,000, full indemnification of TIR\'s costs, reporting to authorities, and blacklisting.</p>'
-  + '<p style="margin-bottom:10px"><strong>Section 12 — Label-Level Consequences.</strong> The Artist bears sole responsibility for any label-level harm caused by their violations, including platform bans affecting TIR\'s entire catalog.</p>'
-  + '<p style="margin-bottom:10px"><strong>Section 13 — Takedowns &amp; DMCA.</strong> TIR will process valid DMCA takedowns as required by law and is not liable for losses from legitimate takedowns of infringing content.</p>'
-  + '<p style="margin-bottom:10px"><strong>Section 14 — Termination.</strong> Either party may terminate with 30 days\' written notice after the 6-month lock-in. TIR may terminate immediately for material breach.</p>'
-  + '<p style="margin-bottom:10px"><strong>Section 15 — ISRC &amp; Metadata.</strong> TIR may register ISRC codes on the Artist\'s behalf; the Artist is responsible for accurate metadata.</p>'
-  + '<p style="margin-bottom:10px"><strong>Section 16 — Confidentiality.</strong> Both parties agree to keep financial terms of this Agreement confidential.</p>'
-  + '<p style="margin-bottom:10px"><strong>Section 17 — Dispute Resolution.</strong> Disputes are resolved first by negotiation, then mediation in Jammu &amp; Kashmir, then binding arbitration under Indian law.</p>'
-  + '<p style="margin-bottom:10px"><strong>Section 18 — Artist Liability.</strong> The Artist is solely liable for consequences suffered by TIR as a result of the Artist\'s actions and agrees to fully indemnify TIR.</p>'
-  + '<p style="margin-bottom:10px"><strong>Section 19 — Governing Law.</strong> This Agreement is governed by the laws of India, applicable in Jammu &amp; Kashmir, and constitutes the entire understanding between the parties.</p>'
-  + '<p style="margin-top:14px"><strong>By checking the box and signing below, you acknowledge that you have read, understood, and agreed to all terms above. This is a legally binding agreement under Indian law. The full text is also available at theimaginaryrecords.in/agreement.</strong></p>';
-
-function checkOnboardingGate(user) {
-  document.getElementById('auth').style.display = 'none';
-  document.getElementById('dash').style.display = 'none';
-  document.getElementById('onboard').style.display = 'none';
-  ['ob-verify','ob-agreement','ob-id'].forEach(function(id){ document.getElementById(id).style.display = 'none'; });
-
-  if (!user.emailVerified) {
-    document.getElementById('onboard').style.display = 'flex';
-    document.getElementById('ob-verify').style.display = 'block';
-    document.getElementById('ob-verify-email').textContent = user.email || '';
-    return;
-  }
-  _db.collection('users').doc(user.uid).get().then(function(doc) {
-    var d = doc.exists ? doc.data() : {};
-    if (!d.agreement || !d.agreement.signed) {
-      document.getElementById('onboard').style.display = 'flex';
-      document.getElementById('ob-agreement').style.display = 'block';
-      document.getElementById('ob-agreement-text').innerHTML = AGREEMENT_TEXT_HTML;
-      obSetupSignaturePad();
-      return;
-    }
-    if (!d.idVerification || !d.idVerification.url) {
-      document.getElementById('onboard').style.display = 'flex';
-      document.getElementById('ob-id').style.display = 'block';
-      return;
-    }
-    showDash(user);
-  }).catch(function() { showDash(user); });
-}
-
-async function obCheckVerified() {
-  var err = document.getElementById('ob-verify-err'); err.classList.remove('on');
-  try {
-    await _auth.currentUser.reload();
-    if (_auth.currentUser.emailVerified) { checkOnboardingGate(_auth.currentUser); }
-    else { err.textContent = 'Still not verified. Please click the link in the email first.'; err.classList.add('on'); }
-  } catch(e) { err.textContent = e.message; err.classList.add('on'); }
-}
-async function obResendVerification() {
-  var err = document.getElementById('ob-verify-err'); err.classList.remove('on');
-  try { await _auth.currentUser.sendEmailVerification(); toast('Verification email sent ✓'); }
-  catch(e) { err.textContent = e.message; err.classList.add('on'); }
-}
-
-var obSigCtx = null, obSigDrawing = false, obSigHasContent = false;
-function obSetupSignaturePad() {
-  var canvas = document.getElementById('ob-sig-canvas');
-  var textBox = document.getElementById('ob-agreement-text');
-  var checkbox = document.getElementById('ob-agree-check');
-  checkbox.checked = false; checkbox.disabled = true;
-  document.getElementById('ob-agree-hint').style.display = 'block';
-  textBox.onscroll = function() {
-    if (textBox.scrollTop + textBox.clientHeight >= textBox.scrollHeight - 10) {
-      checkbox.disabled = false;
-      document.getElementById('ob-agree-hint').style.display = 'none';
-    }
-  };
-  obSigCtx = canvas.getContext('2d');
-  obSigCtx.clearRect(0,0,canvas.width,canvas.height);
-  obSigCtx.strokeStyle = '#111'; obSigCtx.lineWidth = 2; obSigCtx.lineCap = 'round';
-  obSigHasContent = false;
-  function pos(e) {
-    var r = canvas.getBoundingClientRect();
-    var cx = (e.touches ? e.touches[0].clientX : e.clientX) - r.left;
-    var cy = (e.touches ? e.touches[0].clientY : e.clientY) - r.top;
-    return { x: cx * (canvas.width / r.width), y: cy * (canvas.height / r.height) };
-  }
-  function start(e) { obSigDrawing = true; var p = pos(e); obSigCtx.beginPath(); obSigCtx.moveTo(p.x, p.y); e.preventDefault(); }
-  function move(e) { if (!obSigDrawing) return; var p = pos(e); obSigCtx.lineTo(p.x, p.y); obSigCtx.stroke(); obSigHasContent = true; e.preventDefault(); }
-  function end() { obSigDrawing = false; }
-  canvas.onmousedown = start; canvas.onmousemove = move; canvas.onmouseup = end; canvas.onmouseleave = end;
-  canvas.ontouchstart = start; canvas.ontouchmove = move; canvas.ontouchend = end;
-}
-function obClearSignature() {
-  var canvas = document.getElementById('ob-sig-canvas');
-  obSigCtx.clearRect(0,0,canvas.width,canvas.height);
-  obSigHasContent = false;
-}
-async function obSubmitAgreement() {
-  var err = document.getElementById('ob-agree-err'); err.classList.remove('on');
-  if (!document.getElementById('ob-agree-check').checked) { err.textContent = 'Please scroll through and check the agreement box.'; err.classList.add('on'); return; }
-  if (!obSigHasContent) { err.textContent = 'Please draw your signature before continuing.'; err.classList.add('on'); return; }
-  var btn = document.getElementById('ob-agree-btn'); btn.disabled = true; btn.textContent = 'Saving...';
-  try {
-    var canvas = document.getElementById('ob-sig-canvas');
-    var blob = await new Promise(function(resolve) { canvas.toBlob(resolve, 'image/png'); });
-    var file = new File([blob], 'signature-' + CU.uid + '.png', { type: 'image/png' });
-    var r = await uploadCDN(file, null);
-    await _db.collection('users').doc(CU.uid).set({
-      agreement: { signed: true, signedAt: new Date().toISOString(), signatureUrl: r.secure_url, version: AGREEMENT_VERSION }
-    }, { merge: true });
-    checkOnboardingGate(CU);
-  } catch(e) {
-    err.textContent = 'Could not save signature: ' + e.message; err.classList.add('on');
-    btn.disabled = false; btn.textContent = 'Agree & Sign';
-  }
-}
-async function obSubmitId() {
-  var err = document.getElementById('ob-id-err'); err.classList.remove('on');
-  var fileInput = document.getElementById('ob-id-file');
-  var file = fileInput.files[0];
-  if (!file) { err.textContent = 'Please choose a file to upload.'; err.classList.add('on'); return; }
-  if (file.size > 10 * 1024 * 1024) { err.textContent = 'File must be under 10MB.'; err.classList.add('on'); return; }
-  var idType = document.getElementById('ob-id-type').value;
-  var btn = document.getElementById('ob-id-btn'); btn.disabled = true; btn.textContent = 'Uploading...';
-  document.getElementById('ob-id-status').textContent = 'Uploading your ID document...';
-  try {
-    var r = await uploadCDN(file, null);
-    await _db.collection('users').doc(CU.uid).set({
-      idVerification: { type: idType, url: r.secure_url, filename: file.name, status: 'pending', uploadedAt: new Date().toISOString() }
-    }, { merge: true });
-    checkOnboardingGate(CU);
-  } catch(e) {
-    err.textContent = 'Upload failed: ' + e.message; err.classList.add('on');
-    btn.disabled = false; btn.textContent = 'Submit & Continue to Dashboard';
-    document.getElementById('ob-id-status').textContent = '';
-  }
-}
 
 // ═══════════════════════════════════════════════════════════
 // PROFILE
@@ -2542,8 +2271,8 @@ function ensureSetup(){
   if(step1 && !document.getElementById('rf-multitrack-card')){
     var actions=step1.querySelector('.rf-actions');
     var card=document.createElement('div');
-    card.id='rf-multitrack-card'; card.className='rf-card rf-hidden'; card.style.marginTop='18px'; card.style.border='1px solid rgba(57,231,95,.35)'; card.style.background='rgba(57,231,95,.03)';
-    card.innerHTML='<div style="display:flex;align-items:center;gap:10px;margin-bottom:2px"><span class="ubadge ub-ok">Required for this release type</span></div><div class="rf-mini-title">Tracklist — add every song in this release</div><div class="rf-mini-sub">This release type holds more than one song. Add each track below with its own title, artist, and audio file — every track needs its own upload. Nothing is saved until each track shows "Uploaded successfully".</div><div id="rf-track-list" style="display:flex;flex-direction:column;gap:14px"></div><div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px"><button class="rf-ghost" type="button" onclick="addTrackItem()">+ Add Another Track</button><button class="rf-ghost" type="button" onclick="if(confirm(\'Reset the tracklist back to the default number of tracks for this release type?\')) seedTracksFromReleaseType()">Reset to default</button></div>';
+    card.id='rf-multitrack-card'; card.className='rf-card rf-hidden'; card.style.marginTop='18px';
+    card.innerHTML='<div class="rf-mini-title">Album / multi-track manager</div><div class="rf-mini-sub">For EPs, albums, and mixtapes, add every track with title, artist line, contributors, and audio upload. Singles can continue using the single audio upload above.</div><div id="rf-track-list" style="display:flex;flex-direction:column;gap:14px"></div><div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px"><button class="rf-ghost" type="button" onclick="addTrackItem()">+ Add Track</button><button class="rf-ghost" type="button" onclick="seedTracksFromReleaseType()">Auto setup from release type</button></div>';
     actions.parentNode.insertBefore(card,actions);
   }
   var deliveryHead=document.querySelector('#rf-body-2 .rf-service-group');
@@ -2572,12 +2301,12 @@ window.applyArtistServiceAccess=function(){
   if(!artistCanUse(releaseMedium())){ if(artistCanUse('audio')) setReleaseMedium('audio'); else if(artistCanUse('video')) setReleaseMedium('video'); }
 };
 window.isMultiTrackRelease=function(){ var t=(document.getElementById('s1')||{}).value||''; return ['EP','Album','Mixtape'].indexOf(t)>-1; };
-window.defaultTrackCountForType=function(){ var t=(document.getElementById('s1')||{}).value||''; return t==='EP'?3:(t==='Single'?1:2); };
+window.defaultTrackCountForType=function(){ var t=(document.getElementById('s1')||{}).value||''; return t==='EP'?4:(t==='Single'?1:8); };
 window.addTrackItem=function(seed){ trackItems.push(seed||{title:'',artist:(window.val?val('s2'):'')||'',featured:'',contributors:(window.val?val('s12'):'')||'',audio:null}); renderTrackList(); if(window.syncReleaseReview) syncReleaseReview(); };
 window.removeTrackItem=function(idx){ trackItems.splice(idx,1); renderTrackList(); if(window.syncReleaseReview) syncReleaseReview(); };
 window.seedTracksFromReleaseType=function(){ trackItems=[]; for(var i=0;i<defaultTrackCountForType();i++) addTrackItem({title:i===0&&window.val?val('s0'):'',artist:window.val?val('s2'):'',featured:'',contributors:window.val?val('s12'):'',audio:null}); };
-window.uploadTrackAudio=async function(ev,idx){ var file=ev.target.files[0]; if(!file) return; var v=validateFile(file,'audio'); if(!v.ok) return showAl('sub-e',v.msg); trackItems[idx].uploading=true; renderTrackList(); try{ var r=await uploadCDN(file,'track'+idx); var ext=file.name.split('.').pop().toUpperCase(); trackItems[idx].uploading=false; trackItems[idx].audio={url:r.secure_url,pid:r.public_id,filename:file.name,size:fmtSz(file.size),format:ext}; renderTrackList(); syncReleaseReview(); toast('Track '+(idx+1)+' audio uploaded ✓'); }catch(err){ trackItems[idx].uploading=false; renderTrackList(); showAl('sub-e','Track '+(idx+1)+' upload failed: '+err.message); } };
-window.renderTrackList=function(){ ensureSetup(); var card=document.getElementById('rf-multitrack-card'), list=document.getElementById('rf-track-list'); if(!card||!list) return; var multi=isMultiTrackRelease(); card.classList.toggle('rf-hidden',!multi); var ab=document.getElementById('rf-audio-box'); if(ab && releaseMedium()!=='video') ab.classList.toggle('rf-hidden',multi); if(!multi) return; if(!trackItems.length) seedTracksFromReleaseType(); list.innerHTML=trackItems.map(function(t,idx){ return '<div class="track-admin-card"><div style="display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:12px"><strong>Track '+(idx+1)+'</strong>'+(trackItems.length>1?'<button class="btn-del-demo" type="button" onclick="removeTrackItem('+idx+')">Remove</button>':'')+'</div><div class="track-admin-grid"><div class="form-group2 full"><label>Track title *</label><input value="'+(window.escapeHtml?escapeHtml(t.title||''):(t.title||''))+'" oninput="trackItems['+idx+'].title=this.value;syncReleaseReview()"/></div><div class="form-group2"><label>Track artist *</label><input value="'+(window.escapeHtml?escapeHtml(t.artist||''):(t.artist||''))+'" oninput="trackItems['+idx+'].artist=this.value;syncReleaseReview()"/></div><div class="form-group2"><label>Featuring artists</label><input value="'+(window.escapeHtml?escapeHtml(t.featured||''):(t.featured||''))+'" oninput="trackItems['+idx+'].featured=this.value;syncReleaseReview()"/></div><div class="form-group2 full"><label>Contributors *</label><textarea oninput="trackItems['+idx+'].contributors=this.value;syncReleaseReview()">'+(window.escapeHtml?escapeHtml(t.contributors||''):(t.contributors||''))+'</textarea></div><div class="form-group2"><label>Audio file *</label><input type="file" accept=".wav,.flac,.aiff,.aif" onchange="uploadTrackAudio(event,'+idx+')"/></div><div class="form-group2"><label>Upload status</label><div style="padding:10px 13px;border:1px solid '+(t.uploading?'var(--green)':(t.audio&&t.audio.filename?'rgba(57,231,95,.35)':'var(--brd)'))+';border-radius:8px;background:var(--card);font-size:12px;color:'+(t.audio&&t.audio.filename?'var(--green)':'var(--txt2)')+';font-weight:'+(t.audio&&t.audio.filename?'700':'400')+'">'+(t.uploading?'Uploading…':(t.audio&&t.audio.filename?('✓ '+(window.escapeHtml?escapeHtml(t.audio.filename):t.audio.filename)+' · '+(t.audio.size||'')):'No track audio uploaded yet'))+'</div></div></div></div>'; }).join(''); };
+window.uploadTrackAudio=async function(ev,idx){ var file=ev.target.files[0]; if(!file) return; var v=validateFile(file,'audio'); if(!v.ok) return showAl('sub-e',v.msg); try{ var r=await uploadCDN(file,null); var ext=file.name.split('.').pop().toUpperCase(); trackItems[idx].audio={url:r.secure_url,pid:r.public_id,filename:file.name,size:fmtSz(file.size),format:ext}; renderTrackList(); syncReleaseReview(); toast('Track audio uploaded ✓'); }catch(err){ showAl('sub-e','Track upload failed: '+err.message); } };
+window.renderTrackList=function(){ ensureSetup(); var card=document.getElementById('rf-multitrack-card'), list=document.getElementById('rf-track-list'); if(!card||!list) return; card.classList.toggle('rf-hidden',!isMultiTrackRelease()); if(!isMultiTrackRelease()) return; if(!trackItems.length) seedTracksFromReleaseType(); list.innerHTML=trackItems.map(function(t,idx){ return '<div class="track-admin-card"><div style="display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:12px"><strong>Track '+(idx+1)+'</strong>'+(trackItems.length>1?'<button class="btn-del-demo" type="button" onclick="removeTrackItem('+idx+')">Remove</button>':'')+'</div><div class="track-admin-grid"><div class="form-group2 full"><label>Track title *</label><input value="'+(window.escapeHtml?escapeHtml(t.title||''):(t.title||''))+'" oninput="trackItems['+idx+'].title=this.value;syncReleaseReview()"/></div><div class="form-group2"><label>Track artist *</label><input value="'+(window.escapeHtml?escapeHtml(t.artist||''):(t.artist||''))+'" oninput="trackItems['+idx+'].artist=this.value;syncReleaseReview()"/></div><div class="form-group2"><label>Featuring artists</label><input value="'+(window.escapeHtml?escapeHtml(t.featured||''):(t.featured||''))+'" oninput="trackItems['+idx+'].featured=this.value;syncReleaseReview()"/></div><div class="form-group2 full"><label>Contributors *</label><textarea oninput="trackItems['+idx+'].contributors=this.value;syncReleaseReview()">'+(window.escapeHtml?escapeHtml(t.contributors||''):(t.contributors||''))+'</textarea></div><div class="form-group2"><label>Audio file *</label><input type="file" accept=".wav,.flac,.aiff,.aif" onchange="uploadTrackAudio(event,'+idx+')"/></div><div class="form-group2"><label>Upload status</label><div style="padding:10px 13px;border:1px solid var(--brd);border-radius:8px;background:var(--card);font-size:12px;color:var(--txt2)">'+(t.audio&&t.audio.filename?((window.escapeHtml?escapeHtml(t.audio.filename):t.audio.filename)+' · '+(t.audio.size||'')):'No track audio uploaded yet')+'</div></div></div></div>'; }).join(''); };
 window.selectedPlatforms=function(){ return SERVICE_PLATFORM_OPTIONS.filter(function(opt){var el=document.getElementById('svc-'+opt.key); return el&&el.checked;}).map(function(opt){return opt.label;}); };
 window.renderDeliveryServices=function(){ var grid=document.getElementById('rf-service-grid'); if(!grid) return; grid.innerHTML=SERVICE_PLATFORM_OPTIONS.map(function(opt){ return '<label class="rf-check on" id="svc-wrap-'+opt.key+'"><input type="checkbox" id="svc-'+opt.key+'" checked onchange="syncServiceChecks()"/>'+opt.label+'</label>'; }).join(''); syncServiceChecks(); };
 window.toggleAllPlatforms=function(checked){ SERVICE_PLATFORM_OPTIONS.forEach(function(opt){ var el=document.getElementById('svc-'+opt.key); if(el) el.checked=checked; }); syncServiceChecks(); };

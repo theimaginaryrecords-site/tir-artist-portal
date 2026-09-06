@@ -45,8 +45,16 @@ body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;min-he
 
 /* AUTH */
 #auth{min-height:100vh;display:none;align-items:center;justify-content:center;background:var(--bg)}
-.auth-wrap{display:flex;width:880px;max-width:98vw;border:1px solid var(--brd);border-radius:16px;overflow:hidden;box-shadow:0 32px 80px rgba(0,0,0,.8)}
+.auth-wrap{display:flex;width:880px;max-width:98vw;border:1px solid var(--brd);border-radius:16px;overflow:hidden;box-shadow:0 32px 80px rgba(0,0,0,.8), 0 0 120px rgba(57,231,95,.06)}
 .auth-left{flex:1;background:linear-gradient(160deg,#0d1a0d,#0a0a0a 60%,#111 100%);padding:52px 44px;display:flex;flex-direction:column;justify-content:center;border-right:1px solid var(--brd);position:relative;overflow:hidden}
+.auth-left::before{content:'';position:absolute;inset:0;background-image:radial-gradient(rgba(57,231,95,.14) 1px,transparent 1px);background-size:26px 26px;-webkit-mask-image:radial-gradient(ellipse 70% 60% at 30% 20%,#000 0%,transparent 75%);mask-image:radial-gradient(ellipse 70% 60% at 30% 20%,#000 0%,transparent 75%);pointer-events:none}
+.auth-left::after{content:'';position:absolute;width:420px;height:420px;border-radius:50%;background:radial-gradient(circle,rgba(57,231,95,.16),transparent 70%);top:-160px;right:-160px;filter:blur(10px);animation:pulse 6s ease-in-out infinite;pointer-events:none}
+.auth-logo-wave span{animation:waveAnim 1.1s ease-in-out infinite}
+.auth-logo-wave span:nth-child(1){animation-delay:0s}
+.auth-logo-wave span:nth-child(2){animation-delay:.12s}
+.auth-logo-wave span:nth-child(3){animation-delay:.24s}
+.auth-logo-wave span:nth-child(4){animation-delay:.18s}
+.auth-left>*{position:relative;z-index:1}
 .auth-left::before{content:'';position:absolute;top:-80px;right:-80px;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(57,231,95,.06),transparent 70%)}
 .auth-logo{display:flex;align-items:center;gap:10px;margin-bottom:40px}
 .auth-logo-wave{width:28px;height:18px;display:flex;align-items:flex-end;gap:2px}
@@ -72,11 +80,12 @@ body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;min-he
 .form-group input{width:100%;background:var(--card);border:1px solid var(--brd2);border-radius:var(--r);color:var(--txt);padding:11px 14px;font-family:'Inter',sans-serif;font-size:14px;outline:none;transition:border-color .2s}
 .form-group input:focus{border-color:var(--green)}
 .btn-green{width:100%;padding:12px;background:var(--green);border:none;border-radius:var(--r);color:#000;font-size:14px;font-weight:800;cursor:pointer;transition:all .2s;margin-top:6px}
-.btn-green:hover{background:#4df070;transform:translateY(-1px)}
+.btn-green:hover{background:#4df070;transform:translateY(-1px);box-shadow:0 8px 24px rgba(57,231,95,.35)}
 .btn-green:disabled{background:#1d3d25;color:#555;cursor:not-allowed;transform:none}
 .err-box{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:var(--r);color:#fca5a5;font-size:12px;padding:10px 12px;margin-bottom:12px;display:none}
 .err-box.on{display:block}
 .auth-note{font-size:11px;color:var(--txt3);text-align:center;margin-top:18px;line-height:1.7}
+.auth-tab-btn.on{background:var(--green)!important;color:#000!important;border-color:var(--green)!important}
 
 /* LAYOUT */
 #dash{display:none}
@@ -558,13 +567,30 @@ input[type=file]{display:none}
       </div>
     </div>
     <div class="auth-right">
-      <h2>Welcome back</h2>
-      <p>Sign in to your artist account</p>
-      <div class="err-box" id="aerr"></div>
-      <div class="form-group"><label>Email Address</label><input type="email" id="lem" placeholder="your@email.com" onkeydown="if(event.key==='Enter')doLogin()"/></div>
-      <div class="form-group"><label>Password</label><input type="password" id="lpw" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"/></div>
-      <button class="btn-green" id="blg" onclick="doLogin()">Sign In to Portal</button>
-      <div class="auth-note">Don't have an account?<br>Contact TIR at <strong style="color:var(--txt2)">support@theimaginaryrecords.in</strong></div>
+      <div class="auth-tabs" style="display:flex;gap:8px;margin-bottom:18px">
+        <button type="button" id="auth-tab-login" class="auth-tab-btn on" onclick="showAuthMode('login')" style="flex:1;padding:10px;border-radius:8px;border:1px solid var(--brd,#333);background:transparent;color:inherit;font-weight:700;cursor:pointer">Log In</button>
+        <button type="button" id="auth-tab-signup" class="auth-tab-btn" onclick="showAuthMode('signup')" style="flex:1;padding:10px;border-radius:8px;border:1px solid var(--brd,#333);background:transparent;color:inherit;font-weight:700;cursor:pointer">Sign Up</button>
+      </div>
+      <div id="auth-view-login">
+        <h2>Welcome back</h2>
+        <p>Sign in to your artist account</p>
+        <div class="err-box" id="aerr"></div>
+        <div class="form-group"><label>Email Address</label><input type="email" id="lem" placeholder="your@email.com" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+        <div class="form-group"><label>Password</label><input type="password" id="lpw" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+        <button class="btn-green" id="blg" onclick="doLogin()">Sign In to Portal</button>
+        <div class="auth-note">Don't have an account?<br><a href="#" onclick="showAuthMode('signup');return false;" style="color:var(--green,#39e75f);font-weight:700">Sign up for free</a></div>
+      </div>
+      <div id="auth-view-signup" style="display:none">
+        <h2>Create your account</h2>
+        <p>Start distributing your music in minutes</p>
+        <div class="err-box" id="serr"></div>
+        <div class="form-group"><label>Artist / Stage Name</label><input type="text" id="sname" placeholder="Your name" onkeydown="if(event.key==='Enter')doSignup()"/></div>
+        <div class="form-group"><label>Email Address</label><input type="email" id="sem" placeholder="your@email.com" onkeydown="if(event.key==='Enter')doSignup()"/></div>
+        <div class="form-group"><label>Password</label><input type="password" id="spw" placeholder="At least 6 characters" onkeydown="if(event.key==='Enter')doSignup()"/></div>
+        <div class="form-group"><label>Confirm Password</label><input type="password" id="spw2" placeholder="••••••••" onkeydown="if(event.key==='Enter')doSignup()"/></div>
+        <button class="btn-green" id="bsg" onclick="doSignup()">Create Account</button>
+        <div class="auth-note">Already have an account?<br><a href="#" onclick="showAuthMode('login');return false;" style="color:var(--green,#39e75f);font-weight:700">Log in instead</a></div>
+      </div>
     </div>
   </div>
 </div>
@@ -1246,6 +1272,10 @@ function initFirebase() {
       CU = null;
       document.getElementById('auth').style.display = 'flex';
       document.getElementById('dash').style.display  = 'none';
+      try {
+        var params = new URLSearchParams(window.location.search);
+        if (params.get('signup') === '1') showAuthMode('signup');
+      } catch(e) {}
     }
   });
 }
@@ -1342,6 +1372,48 @@ async function doLogin() {
   }
 }
 function doSignOut() { _auth.signOut(); }
+function showAuthMode(mode) {
+  var isSignup = mode === 'signup';
+  document.getElementById('auth-view-login').style.display = isSignup ? 'none' : 'block';
+  document.getElementById('auth-view-signup').style.display = isSignup ? 'block' : 'none';
+  document.getElementById('auth-tab-login').classList.toggle('on', !isSignup);
+  document.getElementById('auth-tab-signup').classList.toggle('on', isSignup);
+  var aerr = document.getElementById('aerr'); if (aerr) aerr.classList.remove('on');
+  var serr = document.getElementById('serr'); if (serr) serr.classList.remove('on');
+}
+async function doSignup() {
+  var name = document.getElementById('sname').value.trim();
+  var em = document.getElementById('sem').value.trim();
+  var pw = document.getElementById('spw').value;
+  var pw2 = document.getElementById('spw2').value;
+  var btn = document.getElementById('bsg');
+  var err = document.getElementById('serr');
+  err.classList.remove('on');
+  if (!name) { err.textContent = 'Please enter your artist or stage name.'; err.classList.add('on'); return; }
+  if (!em) { err.textContent = 'Please enter your email address.'; err.classList.add('on'); return; }
+  if (pw.length < 6) { err.textContent = 'Password must be at least 6 characters.'; err.classList.add('on'); return; }
+  if (pw !== pw2) { err.textContent = 'Passwords do not match.'; err.classList.add('on'); return; }
+  btn.disabled = true; btn.textContent = 'Creating account...';
+  try {
+    var cred = await _auth.createUserWithEmailAndPassword(em, pw);
+    await cred.user.updateProfile({ displayName: name });
+    await _db.collection('users').doc(cred.user.uid).set({
+      name: name, email: em,
+      releaseServices: { audio: true, video: false },
+      createdAt: new Date().toISOString(),
+      createdBy: 'self-signup'
+    }, { merge: true });
+    // onAuthStateChanged will now fire and show the dashboard automatically
+  } catch(e) {
+    var m = 'Could not create account. ';
+    if (e.code === 'auth/email-already-in-use') m = 'An account with this email already exists. Try logging in instead.';
+    else if (e.code === 'auth/invalid-email') m = 'Please enter a valid email address.';
+    else if (e.code === 'auth/weak-password') m = 'Please choose a stronger password.';
+    else m += e.message;
+    err.textContent = m; err.classList.add('on');
+    btn.disabled = false; btn.textContent = 'Create Account';
+  }
+}
 
 // ═══════════════════════════════════════════════════════════
 // PROFILE
@@ -2271,8 +2343,8 @@ function ensureSetup(){
   if(step1 && !document.getElementById('rf-multitrack-card')){
     var actions=step1.querySelector('.rf-actions');
     var card=document.createElement('div');
-    card.id='rf-multitrack-card'; card.className='rf-card rf-hidden'; card.style.marginTop='18px';
-    card.innerHTML='<div class="rf-mini-title">Album / multi-track manager</div><div class="rf-mini-sub">For EPs, albums, and mixtapes, add every track with title, artist line, contributors, and audio upload. Singles can continue using the single audio upload above.</div><div id="rf-track-list" style="display:flex;flex-direction:column;gap:14px"></div><div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px"><button class="rf-ghost" type="button" onclick="addTrackItem()">+ Add Track</button><button class="rf-ghost" type="button" onclick="seedTracksFromReleaseType()">Auto setup from release type</button></div>';
+    card.id='rf-multitrack-card'; card.className='rf-card rf-hidden'; card.style.marginTop='18px'; card.style.border='1px solid rgba(57,231,95,.35)'; card.style.background='rgba(57,231,95,.03)';
+    card.innerHTML='<div style="display:flex;align-items:center;gap:10px;margin-bottom:2px"><span class="ubadge ub-ok">Required for this release type</span></div><div class="rf-mini-title">Tracklist — add every song in this release</div><div class="rf-mini-sub">This release type holds more than one song. Add each track below with its own title, artist, and audio file — every track needs its own upload. Nothing is saved until each track shows "Uploaded successfully".</div><div id="rf-track-list" style="display:flex;flex-direction:column;gap:14px"></div><div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px"><button class="rf-ghost" type="button" onclick="addTrackItem()">+ Add Another Track</button><button class="rf-ghost" type="button" onclick="if(confirm(\'Reset the tracklist back to the default number of tracks for this release type?\')) seedTracksFromReleaseType()">Reset to default</button></div>';
     actions.parentNode.insertBefore(card,actions);
   }
   var deliveryHead=document.querySelector('#rf-body-2 .rf-service-group');
@@ -2301,12 +2373,12 @@ window.applyArtistServiceAccess=function(){
   if(!artistCanUse(releaseMedium())){ if(artistCanUse('audio')) setReleaseMedium('audio'); else if(artistCanUse('video')) setReleaseMedium('video'); }
 };
 window.isMultiTrackRelease=function(){ var t=(document.getElementById('s1')||{}).value||''; return ['EP','Album','Mixtape'].indexOf(t)>-1; };
-window.defaultTrackCountForType=function(){ var t=(document.getElementById('s1')||{}).value||''; return t==='EP'?4:(t==='Single'?1:8); };
+window.defaultTrackCountForType=function(){ var t=(document.getElementById('s1')||{}).value||''; return t==='EP'?3:(t==='Single'?1:2); };
 window.addTrackItem=function(seed){ trackItems.push(seed||{title:'',artist:(window.val?val('s2'):'')||'',featured:'',contributors:(window.val?val('s12'):'')||'',audio:null}); renderTrackList(); if(window.syncReleaseReview) syncReleaseReview(); };
 window.removeTrackItem=function(idx){ trackItems.splice(idx,1); renderTrackList(); if(window.syncReleaseReview) syncReleaseReview(); };
 window.seedTracksFromReleaseType=function(){ trackItems=[]; for(var i=0;i<defaultTrackCountForType();i++) addTrackItem({title:i===0&&window.val?val('s0'):'',artist:window.val?val('s2'):'',featured:'',contributors:window.val?val('s12'):'',audio:null}); };
-window.uploadTrackAudio=async function(ev,idx){ var file=ev.target.files[0]; if(!file) return; var v=validateFile(file,'audio'); if(!v.ok) return showAl('sub-e',v.msg); try{ var r=await uploadCDN(file,null); var ext=file.name.split('.').pop().toUpperCase(); trackItems[idx].audio={url:r.secure_url,pid:r.public_id,filename:file.name,size:fmtSz(file.size),format:ext}; renderTrackList(); syncReleaseReview(); toast('Track audio uploaded ✓'); }catch(err){ showAl('sub-e','Track upload failed: '+err.message); } };
-window.renderTrackList=function(){ ensureSetup(); var card=document.getElementById('rf-multitrack-card'), list=document.getElementById('rf-track-list'); if(!card||!list) return; card.classList.toggle('rf-hidden',!isMultiTrackRelease()); if(!isMultiTrackRelease()) return; if(!trackItems.length) seedTracksFromReleaseType(); list.innerHTML=trackItems.map(function(t,idx){ return '<div class="track-admin-card"><div style="display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:12px"><strong>Track '+(idx+1)+'</strong>'+(trackItems.length>1?'<button class="btn-del-demo" type="button" onclick="removeTrackItem('+idx+')">Remove</button>':'')+'</div><div class="track-admin-grid"><div class="form-group2 full"><label>Track title *</label><input value="'+(window.escapeHtml?escapeHtml(t.title||''):(t.title||''))+'" oninput="trackItems['+idx+'].title=this.value;syncReleaseReview()"/></div><div class="form-group2"><label>Track artist *</label><input value="'+(window.escapeHtml?escapeHtml(t.artist||''):(t.artist||''))+'" oninput="trackItems['+idx+'].artist=this.value;syncReleaseReview()"/></div><div class="form-group2"><label>Featuring artists</label><input value="'+(window.escapeHtml?escapeHtml(t.featured||''):(t.featured||''))+'" oninput="trackItems['+idx+'].featured=this.value;syncReleaseReview()"/></div><div class="form-group2 full"><label>Contributors *</label><textarea oninput="trackItems['+idx+'].contributors=this.value;syncReleaseReview()">'+(window.escapeHtml?escapeHtml(t.contributors||''):(t.contributors||''))+'</textarea></div><div class="form-group2"><label>Audio file *</label><input type="file" accept=".wav,.flac,.aiff,.aif" onchange="uploadTrackAudio(event,'+idx+')"/></div><div class="form-group2"><label>Upload status</label><div style="padding:10px 13px;border:1px solid var(--brd);border-radius:8px;background:var(--card);font-size:12px;color:var(--txt2)">'+(t.audio&&t.audio.filename?((window.escapeHtml?escapeHtml(t.audio.filename):t.audio.filename)+' · '+(t.audio.size||'')):'No track audio uploaded yet')+'</div></div></div></div>'; }).join(''); };
+window.uploadTrackAudio=async function(ev,idx){ var file=ev.target.files[0]; if(!file) return; var v=validateFile(file,'audio'); if(!v.ok) return showAl('sub-e',v.msg); trackItems[idx].uploading=true; renderTrackList(); try{ var r=await uploadCDN(file,'track'+idx); var ext=file.name.split('.').pop().toUpperCase(); trackItems[idx].uploading=false; trackItems[idx].audio={url:r.secure_url,pid:r.public_id,filename:file.name,size:fmtSz(file.size),format:ext}; renderTrackList(); syncReleaseReview(); toast('Track '+(idx+1)+' audio uploaded ✓'); }catch(err){ trackItems[idx].uploading=false; renderTrackList(); showAl('sub-e','Track '+(idx+1)+' upload failed: '+err.message); } };
+window.renderTrackList=function(){ ensureSetup(); var card=document.getElementById('rf-multitrack-card'), list=document.getElementById('rf-track-list'); if(!card||!list) return; var multi=isMultiTrackRelease(); card.classList.toggle('rf-hidden',!multi); var ab=document.getElementById('rf-audio-box'); if(ab && releaseMedium()!=='video') ab.classList.toggle('rf-hidden',multi); if(!multi) return; if(!trackItems.length) seedTracksFromReleaseType(); list.innerHTML=trackItems.map(function(t,idx){ return '<div class="track-admin-card"><div style="display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:12px"><strong>Track '+(idx+1)+'</strong>'+(trackItems.length>1?'<button class="btn-del-demo" type="button" onclick="removeTrackItem('+idx+')">Remove</button>':'')+'</div><div class="track-admin-grid"><div class="form-group2 full"><label>Track title *</label><input value="'+(window.escapeHtml?escapeHtml(t.title||''):(t.title||''))+'" oninput="trackItems['+idx+'].title=this.value;syncReleaseReview()"/></div><div class="form-group2"><label>Track artist *</label><input value="'+(window.escapeHtml?escapeHtml(t.artist||''):(t.artist||''))+'" oninput="trackItems['+idx+'].artist=this.value;syncReleaseReview()"/></div><div class="form-group2"><label>Featuring artists</label><input value="'+(window.escapeHtml?escapeHtml(t.featured||''):(t.featured||''))+'" oninput="trackItems['+idx+'].featured=this.value;syncReleaseReview()"/></div><div class="form-group2 full"><label>Contributors *</label><textarea oninput="trackItems['+idx+'].contributors=this.value;syncReleaseReview()">'+(window.escapeHtml?escapeHtml(t.contributors||''):(t.contributors||''))+'</textarea></div><div class="form-group2"><label>Audio file *</label><input type="file" accept=".wav,.flac,.aiff,.aif" onchange="uploadTrackAudio(event,'+idx+')"/></div><div class="form-group2"><label>Upload status</label><div style="padding:10px 13px;border:1px solid '+(t.uploading?'var(--green)':(t.audio&&t.audio.filename?'rgba(57,231,95,.35)':'var(--brd)'))+';border-radius:8px;background:var(--card);font-size:12px;color:'+(t.audio&&t.audio.filename?'var(--green)':'var(--txt2)')+';font-weight:'+(t.audio&&t.audio.filename?'700':'400')+'">'+(t.uploading?'Uploading…':(t.audio&&t.audio.filename?('✓ '+(window.escapeHtml?escapeHtml(t.audio.filename):t.audio.filename)+' · '+(t.audio.size||'')):'No track audio uploaded yet'))+'</div></div></div></div>'; }).join(''); };
 window.selectedPlatforms=function(){ return SERVICE_PLATFORM_OPTIONS.filter(function(opt){var el=document.getElementById('svc-'+opt.key); return el&&el.checked;}).map(function(opt){return opt.label;}); };
 window.renderDeliveryServices=function(){ var grid=document.getElementById('rf-service-grid'); if(!grid) return; grid.innerHTML=SERVICE_PLATFORM_OPTIONS.map(function(opt){ return '<label class="rf-check on" id="svc-wrap-'+opt.key+'"><input type="checkbox" id="svc-'+opt.key+'" checked onchange="syncServiceChecks()"/>'+opt.label+'</label>'; }).join(''); syncServiceChecks(); };
 window.toggleAllPlatforms=function(checked){ SERVICE_PLATFORM_OPTIONS.forEach(function(opt){ var el=document.getElementById('svc-'+opt.key); if(el) el.checked=checked; }); syncServiceChecks(); };

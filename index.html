@@ -535,6 +535,115 @@ input[type=file]{display:none}
   .toast{bottom:76px;right:14px;left:14px;text-align:center}
   .p2col{grid-template-columns:1fr}
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   SPATIAL UI — LIQUID GLASS THEME  (TIR Artist Portal)
+   Structure, IDs, classes, JS-facing hooks and copy are untouched —
+   only surface, color, depth and motion change.
+   ═══════════════════════════════════════════════════════════════ */
+
+:root{
+  --bg:#06070a;--sidebar:rgba(255,255,255,.045);--surface:rgba(255,255,255,.05);
+  --card:rgba(255,255,255,.055);--card2:rgba(255,255,255,.08);
+  --brd:rgba(255,255,255,.11);--brd2:rgba(255,255,255,.2);
+  --green:#39e75f;--green-dim:rgba(57,231,95,.12);
+  --txt:#f5f6f8;--txt2:#a3a8b5;--txt3:#686e7d;
+  --red:#ff5c5c;--blue:#5b9bff;--orange:#ff9d4d;--r:14px;--r2:20px;
+  --glass-blur:blur(26px) saturate(180%);
+  --glass-shadow:0 20px 50px -10px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.08);
+}
+html,body{
+  background:
+    radial-gradient(55% 45% at 10% 0%,rgba(57,231,95,.10),transparent 60%),
+    radial-gradient(50% 40% at 100% 15%,rgba(91,155,255,.10),transparent 60%),
+    radial-gradient(60% 55% at 50% 100%,rgba(124,108,255,.08),transparent 60%),
+    #06070a!important;
+  background-attachment:fixed;
+}
+::selection{background:rgba(57,231,95,.35);color:#000}
+::-webkit-scrollbar-thumb{background:var(--brd2)!important}
+::-webkit-scrollbar-thumb:hover{background:var(--green)!important}
+
+/* glass chrome: sidebar, topbars, drawers, sections, modals, cards, chips */
+.sb,.topbar,.mob-topbar,.mob-drawer,.mob-bottom-nav,.section,
+.earn-card,.feat-card,.rel-card,.blog-card,.faq-item,.modal-box,
+.rmodal-box,.rf-modal-box,.audio-file-box,.rf-summary-card,.rf-track-box,
+.rf-review-list,.rf-review-art,.rf-video-card,.rf-video-preview,
+.rf-service-group,.rf-step,.rf-medium-option,.plat-chip,.rf-review-tag,
+.toast,.roy-card,.track-admin-card,.sb-earn-box,.rmodal-audio,.rmodal-tag,
+.rmodal-art,.r-art,.photo-icon,.faq-search-input,.rf-check,.auth-right{
+  background:var(--card)!important;
+  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);
+  border:1px solid var(--brd)!important;
+  box-shadow:var(--glass-shadow);
+}
+.sb,.topbar,.mob-topbar,.mob-drawer,.mob-bottom-nav{border-radius:0!important}
+.section,.earn-card,.feat-card,.rel-card,.blog-card,.faq-item,.roy-card,
+.track-admin-card,.sb-earn-box,.rmodal-audio{border-radius:var(--r2)!important}
+.modal-box,.rmodal-box,.rf-modal-box{border-radius:24px!important}
+.feat-card,.rel-card{
+  transition:transform .4s cubic-bezier(.19,1,.22,1),border-color .3s ease,box-shadow .4s ease!important;
+  position:relative;overflow:hidden;
+}
+.feat-card:hover,.rel-card:hover{
+  transform:translateY(-5px);border-color:rgba(57,231,95,.4)!important;
+  box-shadow:0 24px 60px -10px rgba(0,0,0,.65),0 0 0 1px rgba(57,231,95,.15);
+}
+.feat-card::after,.rel-card::after{
+  content:'';position:absolute;inset:0;pointer-events:none;z-index:2;
+  background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.08) 50%,transparent 65%);
+  background-size:220% 220%;background-position:-120% -120%;
+  transition:background-position .9s cubic-bezier(.19,1,.22,1);
+}
+.feat-card:hover::after,.rel-card:hover::after{background-position:120% 120%}
+
+/* auth screen: floating glass panel over the spatial background */
+.auth-wrap{
+  border:1px solid var(--brd)!important;
+  box-shadow:0 32px 90px rgba(0,0,0,.7),0 0 140px rgba(57,231,95,.08)!important;
+}
+.auth-left{background:linear-gradient(160deg,rgba(57,231,95,.08),transparent 60%),rgba(255,255,255,.03)!important}
+.auth-right{border-radius:0!important;border-left:1px solid var(--brd)!important}
+
+/* buttons: glass pill with brand-glow */
+.btn-green,.btn-hero,.btn-new-rel,.btn-reply{
+  background:linear-gradient(135deg,var(--green),#22c95a)!important;
+  box-shadow:0 8px 26px rgba(57,231,95,.3),inset 0 1px 0 rgba(255,255,255,.35)!important;
+  transition:transform .3s cubic-bezier(.19,1,.22,1),box-shadow .3s ease!important;
+  position:relative;overflow:hidden;
+}
+.btn-green:hover,.btn-hero:hover,.btn-new-rel:hover,.btn-reply:hover{
+  transform:translateY(-2px);box-shadow:0 12px 34px rgba(57,231,95,.4),inset 0 1px 0 rgba(255,255,255,.45)!important;
+}
+.btn-hero-out,.mclose,.btn-close-t{
+  background:var(--card)!important;-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);
+  border:1px solid var(--brd2)!important;transition:all .25s ease!important;
+}
+.btn-hero-out:hover{transform:translateY(-2px)}
+
+/* inputs: recessed glass fields */
+.form-group input,.rf-track-box input,input,select,textarea{
+  background:rgba(0,0,0,.25)!important;
+  border:1px solid var(--brd)!important;
+}
+.form-group input:focus{box-shadow:0 0 0 3px rgba(57,231,95,.14)}
+
+/* progress tracker glow */
+.prog-step.done .prog-dot{box-shadow:0 0 14px rgba(57,231,95,.5)}
+
+/* nav items: soft glass highlight on active/hover, no layout change */
+.nav-item:hover{background:rgba(255,255,255,.05)!important}
+.nav-item.active{background:rgba(57,231,95,.08)!important}
+
+@media(max-width:768px){
+  .sb,.topbar,.mob-topbar,.mob-drawer,.mob-bottom-nav,.section,
+  .earn-card,.feat-card,.rel-card,.blog-card,.faq-item,.modal-box,
+  .rmodal-box,.rf-modal-box,.roy-card,.track-admin-card{
+    -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+    background:#111318!important;
+  }
+}
+
 </style>
 </head>
 <body>

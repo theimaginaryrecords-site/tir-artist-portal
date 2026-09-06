@@ -595,6 +595,58 @@ input[type=file]{display:none}
   </div>
 </div>
 
+<!-- ONBOARDING GATE: email verify -> agreement+signature -> ID verification -->
+<div id="onboard" style="display:none;min-height:100vh;align-items:center;justify-content:center;background:var(--bg);padding:24px">
+  <div style="width:720px;max-width:96vw;border:1px solid var(--brd);border-radius:16px;background:var(--sidebar);padding:40px;box-shadow:0 32px 80px rgba(0,0,0,.8)">
+    <div id="ob-verify" style="display:none;text-align:center">
+      <h2 style="margin-bottom:8px">Verify your email</h2>
+      <p style="color:var(--txt2);font-size:13px;margin-bottom:22px">We sent a verification link to <strong id="ob-verify-email" style="color:var(--txt)"></strong>. Click the link, then continue below.</p>
+      <div class="err-box" id="ob-verify-err"></div>
+      <button class="btn-green" style="width:auto;padding:12px 28px" onclick="obCheckVerified()">I've verified — Continue</button>
+      <div class="auth-note"><a href="#" onclick="obResendVerification();return false;" style="color:var(--green);font-weight:700">Resend verification email</a> &nbsp;·&nbsp; <a href="#" onclick="doSignOut();return false;" style="color:var(--txt3)">Sign out</a></div>
+    </div>
+
+    <div id="ob-agreement" style="display:none">
+      <h2 style="margin-bottom:4px">Artist Distribution Agreement</h2>
+      <p style="color:var(--txt2);font-size:13px;margin-bottom:16px">Please read the full agreement below. Scroll to the end to enable acceptance.</p>
+      <div id="ob-agreement-text" style="height:320px;overflow-y:auto;border:1px solid var(--brd);border-radius:10px;padding:18px;background:var(--card);font-size:12.5px;line-height:1.75;color:var(--txt2)"></div>
+      <label style="display:flex;align-items:flex-start;gap:10px;margin-top:16px;font-size:13px;cursor:pointer">
+        <input type="checkbox" id="ob-agree-check" disabled style="margin-top:3px"/>
+        <span>I have read and agree to the Artist Distribution Agreement (v5.0) in full, including the royalty split, lock-in period, and penalty clauses.</span>
+      </label>
+      <div id="ob-agree-hint" style="font-size:11px;color:var(--txt3);margin-top:6px">Scroll to the bottom of the agreement to enable this checkbox.</div>
+
+      <div style="margin-top:22px">
+        <label style="font-size:12px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:8px">Sign below</label>
+        <canvas id="ob-sig-canvas" width="640" height="160" style="width:100%;height:160px;border:1px solid var(--brd);border-radius:10px;background:#fff;touch-action:none;cursor:crosshair"></canvas>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
+          <span style="font-size:11px;color:var(--txt3)">Draw your signature with your mouse or finger</span>
+          <button type="button" class="rf-ghost" onclick="obClearSignature()">Clear</button>
+        </div>
+      </div>
+      <div class="err-box" id="ob-agree-err"></div>
+      <button class="btn-green" id="ob-agree-btn" style="margin-top:18px" onclick="obSubmitAgreement()">Agree &amp; Sign</button>
+    </div>
+
+    <div id="ob-id" style="display:none">
+      <h2 style="margin-bottom:4px">Identity Verification</h2>
+      <p style="color:var(--txt2);font-size:13px;margin-bottom:20px">For royalty payout compliance, please upload a valid government-issued ID. This is reviewed by TIR and kept confidential.</p>
+      <div class="form-group"><label>ID Type</label>
+        <select id="ob-id-type" class="ss" style="width:100%;padding:10px">
+          <option value="National ID Card">National Identity Card (Aadhaar)</option>
+          <option value="Driving License">Driving License</option>
+          <option value="Voter ID">Voter ID Card</option>
+          <option value="Passport">Passport</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Upload ID (image or PDF, max 10MB)</label><input type="file" id="ob-id-file" accept="image/*,application/pdf"/></div>
+      <div id="ob-id-status" style="font-size:12px;color:var(--txt3);margin-bottom:10px"></div>
+      <div class="err-box" id="ob-id-err"></div>
+      <button class="btn-green" id="ob-id-btn" onclick="obSubmitId()">Submit &amp; Continue to Dashboard</button>
+    </div>
+  </div>
+</div>
+
 <!-- DASHBOARD -->
 <div id="dash">
 <div class="layout">
@@ -1267,7 +1319,7 @@ function initFirebase() {
     hideLd();
     if (user) {
       CU = user;
-      showDash(user);
+      checkOnboardingGate(user);
     } else {
       CU = null;
       document.getElementById('auth').style.display = 'flex';
@@ -1397,6 +1449,7 @@ async function doSignup() {
   try {
     var cred = await _auth.createUserWithEmailAndPassword(em, pw);
     await cred.user.updateProfile({ displayName: name });
+    try { await cred.user.sendEmailVerification(); } catch(e) {}
     await _db.collection('users').doc(cred.user.uid).set({
       name: name, email: em,
       releaseServices: { audio: true, video: false },
@@ -1412,6 +1465,152 @@ async function doSignup() {
     else m += e.message;
     err.textContent = m; err.classList.add('on');
     btn.disabled = false; btn.textContent = 'Create Account';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// ONBOARDING GATE: email verify -> agreement+signature -> ID upload
+// ═══════════════════════════════════════════════════════════
+var AGREEMENT_VERSION = '5.0';
+var AGREEMENT_TEXT_HTML = '<h3 style="color:var(--txt);margin-bottom:6px">Artist Distribution Agreement — Version 5.0</h3>'
+  + '<p style="margin-bottom:10px"><strong>This is a legally binding agreement between The Imaginary Records ("Label") and the Artist ("You"). By signing below, you agree to all terms contained herein.</strong></p>'
+  + '<p style="margin-bottom:10px"><strong>Section 1 — Parties.</strong> Label: The Imaginary Records, a sole proprietorship owned and operated by Aabyd Khan, Village Gund Saderkote Bala, Block Hajin, District Bandipora, J&amp;K, 193504, India. Artist: the individual, group, or entity registering through this portal.</p>'
+  + '<p style="margin-bottom:10px"><strong>Section 2 — Grant of Rights.</strong> The Artist grants The Imaginary Records a non-exclusive, worldwide license to distribute, stream, download, and monetize the Artist\'s music through TIR\'s distribution partners and their downstream platforms. The Artist retains 100% ownership of their master recordings and publishing rights at all times.</p>'
+  + '<p style="margin-bottom:10px"><strong>Section 3 — Royalty Split.</strong> Artist receives 85% of net royalties; Label retains 15% as a distribution and services fee.</p>'
+  + '<p style="margin-bottom:10px"><strong>Section 4 — Distribution Timeline.</strong> TIR commits to submitting approved releases to distribution platforms within 24 to 48 hours of receiving complete, compliant release materials.</p>'
+  + '<p style="margin-bottom:10px"><strong>Section 5 — Lock-In Period.</strong> Artists agree to a 6-month minimum commitment from the date of first release under TIR.</p>'
+  + '<p style="margin-bottom:10px"><strong>Section 6 — Royalty Payments.</strong> Royalties are processed and paid monthly, typically within 45–60 days of the close of each reporting period.</p>'
+  + '<p style="margin-bottom:10px"><strong>Section 7 — Royalty Disputes.</strong> The Artist has a 30-day window from the date of each royalty statement to raise disputes in writing to support@theimaginaryrecords.in.</p>'
+  + '<p style="margin-bottom:10px"><strong>Section 8 — Copyright Claims.</strong> If a copyright claim is received, TIR will notify the Artist within 48 hours; the Artist must respond within 7 business days.</p>'
+  + '<p style="margin-bottom:10px"><strong>Section 9 — Artist Warranties.</strong> The Artist warrants they own or control all rights to submitted music, that it infringes no third-party rights, that all contributors have consented, and that all metadata provided is accurate.</p>'
+  + '<p style="margin-bottom:10px"><strong>Section 10 — Prohibited Activities.</strong> Stream fraud, copyright infringement, identity fraud, undisclosed AI-generated content where prohibited, metadata fraud, platform manipulation, label impersonation, and duplicate releases without written consent are strictly prohibited.</p>'
+  + '<p style="margin-bottom:10px"><strong>Section 11 — Penalties.</strong> Violations may result in immediate account termination, content takedown, forfeiture of outstanding royalties, financial penalties of ₹50,000–₹1,00,000, full indemnification of TIR\'s costs, reporting to authorities, and blacklisting.</p>'
+  + '<p style="margin-bottom:10px"><strong>Section 12 — Label-Level Consequences.</strong> The Artist bears sole responsibility for any label-level harm caused by their violations, including platform bans affecting TIR\'s entire catalog.</p>'
+  + '<p style="margin-bottom:10px"><strong>Section 13 — Takedowns &amp; DMCA.</strong> TIR will process valid DMCA takedowns as required by law and is not liable for losses from legitimate takedowns of infringing content.</p>'
+  + '<p style="margin-bottom:10px"><strong>Section 14 — Termination.</strong> Either party may terminate with 30 days\' written notice after the 6-month lock-in. TIR may terminate immediately for material breach.</p>'
+  + '<p style="margin-bottom:10px"><strong>Section 15 — ISRC &amp; Metadata.</strong> TIR may register ISRC codes on the Artist\'s behalf; the Artist is responsible for accurate metadata.</p>'
+  + '<p style="margin-bottom:10px"><strong>Section 16 — Confidentiality.</strong> Both parties agree to keep financial terms of this Agreement confidential.</p>'
+  + '<p style="margin-bottom:10px"><strong>Section 17 — Dispute Resolution.</strong> Disputes are resolved first by negotiation, then mediation in Jammu &amp; Kashmir, then binding arbitration under Indian law.</p>'
+  + '<p style="margin-bottom:10px"><strong>Section 18 — Artist Liability.</strong> The Artist is solely liable for consequences suffered by TIR as a result of the Artist\'s actions and agrees to fully indemnify TIR.</p>'
+  + '<p style="margin-bottom:10px"><strong>Section 19 — Governing Law.</strong> This Agreement is governed by the laws of India, applicable in Jammu &amp; Kashmir, and constitutes the entire understanding between the parties.</p>'
+  + '<p style="margin-top:14px"><strong>By checking the box and signing below, you acknowledge that you have read, understood, and agreed to all terms above. This is a legally binding agreement under Indian law. The full text is also available at theimaginaryrecords.in/agreement.</strong></p>';
+
+function checkOnboardingGate(user) {
+  document.getElementById('auth').style.display = 'none';
+  document.getElementById('dash').style.display = 'none';
+  document.getElementById('onboard').style.display = 'none';
+  ['ob-verify','ob-agreement','ob-id'].forEach(function(id){ document.getElementById(id).style.display = 'none'; });
+
+  if (!user.emailVerified) {
+    document.getElementById('onboard').style.display = 'flex';
+    document.getElementById('ob-verify').style.display = 'block';
+    document.getElementById('ob-verify-email').textContent = user.email || '';
+    return;
+  }
+  _db.collection('users').doc(user.uid).get().then(function(doc) {
+    var d = doc.exists ? doc.data() : {};
+    if (!d.agreement || !d.agreement.signed) {
+      document.getElementById('onboard').style.display = 'flex';
+      document.getElementById('ob-agreement').style.display = 'block';
+      document.getElementById('ob-agreement-text').innerHTML = AGREEMENT_TEXT_HTML;
+      obSetupSignaturePad();
+      return;
+    }
+    if (!d.idVerification || !d.idVerification.url) {
+      document.getElementById('onboard').style.display = 'flex';
+      document.getElementById('ob-id').style.display = 'block';
+      return;
+    }
+    showDash(user);
+  }).catch(function() { showDash(user); });
+}
+
+async function obCheckVerified() {
+  var err = document.getElementById('ob-verify-err'); err.classList.remove('on');
+  try {
+    await _auth.currentUser.reload();
+    if (_auth.currentUser.emailVerified) { checkOnboardingGate(_auth.currentUser); }
+    else { err.textContent = 'Still not verified. Please click the link in the email first.'; err.classList.add('on'); }
+  } catch(e) { err.textContent = e.message; err.classList.add('on'); }
+}
+async function obResendVerification() {
+  var err = document.getElementById('ob-verify-err'); err.classList.remove('on');
+  try { await _auth.currentUser.sendEmailVerification(); toast('Verification email sent ✓'); }
+  catch(e) { err.textContent = e.message; err.classList.add('on'); }
+}
+
+var obSigCtx = null, obSigDrawing = false, obSigHasContent = false;
+function obSetupSignaturePad() {
+  var canvas = document.getElementById('ob-sig-canvas');
+  var textBox = document.getElementById('ob-agreement-text');
+  var checkbox = document.getElementById('ob-agree-check');
+  checkbox.checked = false; checkbox.disabled = true;
+  document.getElementById('ob-agree-hint').style.display = 'block';
+  textBox.onscroll = function() {
+    if (textBox.scrollTop + textBox.clientHeight >= textBox.scrollHeight - 10) {
+      checkbox.disabled = false;
+      document.getElementById('ob-agree-hint').style.display = 'none';
+    }
+  };
+  obSigCtx = canvas.getContext('2d');
+  obSigCtx.clearRect(0,0,canvas.width,canvas.height);
+  obSigCtx.strokeStyle = '#111'; obSigCtx.lineWidth = 2; obSigCtx.lineCap = 'round';
+  obSigHasContent = false;
+  function pos(e) {
+    var r = canvas.getBoundingClientRect();
+    var cx = (e.touches ? e.touches[0].clientX : e.clientX) - r.left;
+    var cy = (e.touches ? e.touches[0].clientY : e.clientY) - r.top;
+    return { x: cx * (canvas.width / r.width), y: cy * (canvas.height / r.height) };
+  }
+  function start(e) { obSigDrawing = true; var p = pos(e); obSigCtx.beginPath(); obSigCtx.moveTo(p.x, p.y); e.preventDefault(); }
+  function move(e) { if (!obSigDrawing) return; var p = pos(e); obSigCtx.lineTo(p.x, p.y); obSigCtx.stroke(); obSigHasContent = true; e.preventDefault(); }
+  function end() { obSigDrawing = false; }
+  canvas.onmousedown = start; canvas.onmousemove = move; canvas.onmouseup = end; canvas.onmouseleave = end;
+  canvas.ontouchstart = start; canvas.ontouchmove = move; canvas.ontouchend = end;
+}
+function obClearSignature() {
+  var canvas = document.getElementById('ob-sig-canvas');
+  obSigCtx.clearRect(0,0,canvas.width,canvas.height);
+  obSigHasContent = false;
+}
+async function obSubmitAgreement() {
+  var err = document.getElementById('ob-agree-err'); err.classList.remove('on');
+  if (!document.getElementById('ob-agree-check').checked) { err.textContent = 'Please scroll through and check the agreement box.'; err.classList.add('on'); return; }
+  if (!obSigHasContent) { err.textContent = 'Please draw your signature before continuing.'; err.classList.add('on'); return; }
+  var btn = document.getElementById('ob-agree-btn'); btn.disabled = true; btn.textContent = 'Saving...';
+  try {
+    var canvas = document.getElementById('ob-sig-canvas');
+    var blob = await new Promise(function(resolve) { canvas.toBlob(resolve, 'image/png'); });
+    var file = new File([blob], 'signature-' + CU.uid + '.png', { type: 'image/png' });
+    var r = await uploadCDN(file, null);
+    await _db.collection('users').doc(CU.uid).set({
+      agreement: { signed: true, signedAt: new Date().toISOString(), signatureUrl: r.secure_url, version: AGREEMENT_VERSION }
+    }, { merge: true });
+    checkOnboardingGate(CU);
+  } catch(e) {
+    err.textContent = 'Could not save signature: ' + e.message; err.classList.add('on');
+    btn.disabled = false; btn.textContent = 'Agree & Sign';
+  }
+}
+async function obSubmitId() {
+  var err = document.getElementById('ob-id-err'); err.classList.remove('on');
+  var fileInput = document.getElementById('ob-id-file');
+  var file = fileInput.files[0];
+  if (!file) { err.textContent = 'Please choose a file to upload.'; err.classList.add('on'); return; }
+  if (file.size > 10 * 1024 * 1024) { err.textContent = 'File must be under 10MB.'; err.classList.add('on'); return; }
+  var idType = document.getElementById('ob-id-type').value;
+  var btn = document.getElementById('ob-id-btn'); btn.disabled = true; btn.textContent = 'Uploading...';
+  document.getElementById('ob-id-status').textContent = 'Uploading your ID document...';
+  try {
+    var r = await uploadCDN(file, null);
+    await _db.collection('users').doc(CU.uid).set({
+      idVerification: { type: idType, url: r.secure_url, filename: file.name, status: 'pending', uploadedAt: new Date().toISOString() }
+    }, { merge: true });
+    checkOnboardingGate(CU);
+  } catch(e) {
+    err.textContent = 'Upload failed: ' + e.message; err.classList.add('on');
+    btn.disabled = false; btn.textContent = 'Submit & Continue to Dashboard';
+    document.getElementById('ob-id-status').textContent = '';
   }
 }
 

@@ -319,7 +319,9 @@ input[type=file]{display:none}
 .form-sec:first-child{margin-top:0}
 .form-group2{display:flex;flex-direction:column;gap:7px}
 .form-group2 label{font-size:11px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.8px}
-.form-group2 input,.form-group2 select,.form-group2 textarea{background:var(--card);border:1px solid var(--brd2);border-radius:var(--r);color:var(--txt);padding:10px 13px;font-family:'Inter',sans-serif;font-size:14px;outline:none;transition:border-color .2s;width:100%}
+.form-group2 input,.form-group2 select,.form-group2 textarea{background:var(--card);border:1px solid var(--brd2);border-radius:var(--r);color:var(--txt);padding:10px 13px;font-family:'Inter',sans-serif;font-size:14px;outline:none;transition:border-color .2s;width:100%;color-scheme:dark}
+input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(1);cursor:pointer;opacity:.85}
+input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
 .form-group2 input:focus,.form-group2 select:focus,.form-group2 textarea:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(57,231,95,.06)}
 .form-group2 select option{background:#1c1c1c}
 .form-group2 textarea{resize:vertical;min-height:80px}
@@ -981,7 +983,7 @@ html,body{
                   <div class="form-group2"><label>Primary Artist — Spotify Artist URL</label><input type="url" id="s-spotify-url" placeholder="Select or add an artist above" readonly oninput="syncReleaseReview()"/></div>
                   <div class="form-group2"><label>Primary Artist — Apple Music Artist URL</label><input type="url" id="s-applemusic-url" placeholder="Select or add an artist above" readonly oninput="syncReleaseReview()"/></div>
                   <div class="form-group2"><label>Label *</label><input type="text" id="s10" value="The Imaginary Records" oninput="syncReleaseReview()"/></div>
-                  <div class="form-group2"><label>Album Format *</label><select id="s1" onchange="syncReleaseReview()"><option value="">Please select album format</option><option>Single</option><option>EP</option><option>Album</option><option>Mixtape</option></select></div>
+                  <div class="form-group2"><label>Album Format *</label><select id="s1" onchange="syncReleaseReview();if(window.renderTrackList)renderTrackList();"><option value="">Please select album format</option><option>Single</option><option>EP</option><option>Album</option><option>Mixtape</option></select></div>
                   <div class="form-group2"><label>Primary Genre *</label><select id="s4" onchange="syncReleaseReview()"><option value="">Please select primary genre</option><option>Hip Hop / Trap</option><option>UK Drill</option><option>R&amp;B / Soul</option><option>Pop</option><option>Electronic / EDM</option><option>Lofi / Chillhop</option><option>Nasheed / Islamic</option><option>Devotional</option><option>Instrumental</option><option>Folk / Acoustic</option><option>Other</option></select></div>
                   <div class="form-group2"><label>Secondary Genre</label><input type="text" id="s5" placeholder="Please select genre" oninput="syncReleaseReview()"/></div>
                   <div class="form-group2"><label>Language *</label><select id="s6" onchange="syncReleaseReview()"><option value="">— Select —</option><option>English</option><option>Hindi / Urdu</option><option>Kashmiri</option><option>Arabic</option><option>Punjabi</option><option>Instrumental (No Lyrics)</option><option>Other</option></select></div>
@@ -1324,7 +1326,7 @@ html,body{
                 <div style="background:var(--card);border:1px solid var(--brd);border-radius:10px;padding:16px">
                   <div style="font-size:13px;font-weight:800;margin-bottom:12px">Distribution Info</div>
                   <div style="display:flex;flex-direction:column;gap:8px">
-                    <div style="display:flex;gap:8px;align-items:center"><span style="font-size:12px;color:var(--txt3)">Royalty Rate:</span><span style="font-size:13px;font-weight:700;color:var(--green)">85%</span></div>
+                    <div style="display:flex;gap:8px;align-items:center"><span style="font-size:12px;color:var(--txt3)">Royalty Rate:</span><span id="dist-royalty-rate" style="font-size:13px;font-weight:700;color:var(--green)">85%</span></div>
                     <div style="display:flex;gap:8px;align-items:center"><span style="font-size:12px;color:var(--txt3)">Platforms:</span><span style="font-size:13px;font-weight:700">200+</span></div>
                     <div style="display:flex;gap:8px;align-items:center"><span style="font-size:12px;color:var(--txt3)">Payout:</span><span style="font-size:13px;font-weight:700">Quarterly (PayPal)</span></div>
                   </div>
@@ -2750,7 +2752,7 @@ window.renderDeliveryServices=function(){ var grid=document.getElementById('rf-s
 window.toggleAllPlatforms=function(checked){ SERVICE_PLATFORM_OPTIONS.forEach(function(opt){ var el=document.getElementById('svc-'+opt.key); if(el) el.checked=checked; }); syncServiceChecks(); };
 window.syncServiceChecks=function(){ var all=true; SERVICE_PLATFORM_OPTIONS.forEach(function(opt){ var el=document.getElementById('svc-'+opt.key), wrap=document.getElementById('svc-wrap-'+opt.key); if(wrap&&el) wrap.classList.toggle('on',!!el.checked); if(!el||!el.checked) all=false; }); var ae=document.getElementById('rf-all-platforms'); if(ae) ae.checked=all; var aw=document.getElementById('rf-all-platforms-toggle'); if(aw) aw.classList.toggle('on',all); var s14=document.getElementById('s14'); if(s14) s14.value=all?'all':'custom'; if(window.syncReleaseReview) syncReleaseReview(); };
 var _origLoadProfile=window.loadProfile;
-window.loadProfile=async function(){ await _origLoadProfile(); applyArtistServiceAccess(); ensureSetup(); renderTrackList(); renderDeliveryServices(); };
+window.loadProfile=async function(){ await _origLoadProfile(); applyArtistServiceAccess(); ensureSetup(); renderTrackList(); renderDeliveryServices(); var rrEl=document.getElementById('dist-royalty-rate'); if(rrEl) rrEl.textContent=(AD.royaltySplit!=null?AD.royaltySplit:85)+'%'; };
 var _origShowDash=window.showDash;
 window.showDash=async function(user){ await _origShowDash(user); applyArtistServiceAccess(); ensureSetup(); renderTrackList(); renderDeliveryServices(); };
 var _origSetReleaseMedium=window.setReleaseMedium;
@@ -2787,7 +2789,7 @@ window.submitRelease=async function(){
 };
 window.resetThumbnailZone=function(){ var z=document.getElementById('thumbnail-zone'); if(!z) return; z.classList.remove('has-file','uploading','error'); var c=z.querySelector('.uz-c'); if(c) c.style.display='flex'; var u=document.getElementById('thumbnail-uploading'); if(u) u.style.display='none'; var p=document.getElementById('thumbnail-preview'); if(p){ p.style.display='none'; p.src=''; } var ov=document.getElementById('thumbnail-overlay'); if(ov) ov.style.display='none'; var sr=document.getElementById('thumbnail-status-row'); if(sr) sr.style.display='none'; var inp=document.getElementById('thumbnail-input'); if(inp) inp.value=''; z.onclick=function(){ document.getElementById('thumbnail-input').click(); }; };
 var origSyncReleaseReview=window.syncReleaseReview;
-window.syncReleaseReview=function(){ ensureSetup(); renderTrackList(); if(origSyncReleaseReview) origSyncReleaseReview(); };
+window.syncReleaseReview=function(){ ensureSetup(); if(origSyncReleaseReview) origSyncReleaseReview(); };
 document.addEventListener('DOMContentLoaded', function(){ setTimeout(function(){ ensureSetup(); renderDeliveryServices(); renderTrackList(); }, 100); });
 })();
 </script>

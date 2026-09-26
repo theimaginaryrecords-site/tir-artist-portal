@@ -792,6 +792,10 @@ html,body{
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>My Tickets
         <span class="nav-badge" id="tkt-cnt" style="display:none">!</span>
       </div>
+      <div class="nav-item" id="nav-all-artists" style="display:none" onclick="goPage('all-artists','nav-all-artists')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>All Artists</div>
+      <div class="nav-item" id="ni-analytics" style="display:none" onclick="goPage('analytics','ni-analytics')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Analytics</div>
       <div class="nav-item" id="ni-profile" onclick="goPage('profile','ni-profile')">
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>My Profile
       </div>
@@ -1301,6 +1305,35 @@ html,body{
         <div class="section"><div class="section-head"><h3>My Tickets</h3><span id="tkt-count">0 tickets</span></div><div id="tkt-list"><div class="empty" style="padding:36px"><div class="empty-icon">💬</div><div class="empty-title">No tickets yet</div></div></div></div>
       </div>
 
+      <!-- ALL ARTISTS (label accounts only) -->
+      <div class="pg" id="page-all-artists">
+        <div class="section">
+          <div class="section-head"><h3>All Artists</h3><span id="la-count">0 artists</span></div>
+          <div style="padding:20px">
+            <div style="border:1px solid var(--brd);border-radius:10px;padding:16px;margin-bottom:20px;background:var(--card)">
+              <div style="font-size:13px;font-weight:800;margin-bottom:12px">+ Add Artist to Your Roster</div>
+              <div class="p2col">
+                <div class="pfield"><label>Artist Name *</label><input type="text" id="la-name" placeholder="Artist name"/></div>
+                <div class="pfield"><label>Genre</label><input type="text" id="la-genre" placeholder="Genre"/></div>
+                <div class="pfield"><label>Spotify Artist URL</label><input type="text" id="la-spotify" placeholder="https://open.spotify.com/artist/..."/></div>
+                <div class="pfield"><label>Apple Music Artist URL</label><input type="text" id="la-apple" placeholder="https://music.apple.com/artist/..."/></div>
+                <div class="pfield" style="grid-column:1/-1"><label>Bio</label><textarea id="la-bio" placeholder="Short artist bio" style="background:transparent;border:none;border-bottom:1px solid var(--brd2);padding:8px 0;resize:none;min-height:50px;width:100%;color:var(--txt);font-family:'Inter',sans-serif;font-size:14px;outline:none"></textarea></div>
+              </div>
+              <div style="margin-top:14px"><button class="btn-submit" id="la-add-btn" onclick="portalAddLabelArtist()">Add Artist</button></div>
+            </div>
+            <div id="la-roster-list"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ANALYTICS -->
+      <div class="pg" id="page-analytics">
+        <div class="section">
+          <div class="section-head"><h3>Analytics</h3></div>
+          <div id="analytics-content" style="padding:20px"></div>
+        </div>
+      </div>
+
       <!-- PROFILE -->
       <div class="pg" id="page-profile">
         <div class="al al-s" id="p-ok"></div>
@@ -1335,17 +1368,32 @@ html,body{
               <div>
                 <div class="profile-right-title">Your Details</div>
                 <div class="p2col">
-                  <div class="pfield"><label>Artist / Stage Name</label><input type="text" id="p0" placeholder="Your artist name"/></div>
+                  <div class="pfield" id="pfield-artist-name"><label>Artist / Stage Name</label><input type="text" id="p0" placeholder="Your artist name"/></div>
+                  <div class="pfield" id="pfield-legal-name" style="display:none"><label>Legal / Company Name</label><input type="text" id="p10" placeholder="Registered legal or company name"/></div>
                   <div class="pfield"><label>Email (cannot change)</label><input type="email" id="p1" disabled/></div>
-                  <div class="pfield"><label>Genre</label><select id="p2" style="background:transparent;border:none;border-bottom:1px solid var(--brd2);padding:8px 0;width:100%;color:var(--txt);font-family:'Inter',sans-serif;font-size:14px;outline:none"><option>Hip Hop / Trap</option><option>UK Drill</option><option>R&amp;B / Soul</option><option>Nasheed / Islamic</option><option>Lofi / Chillhop</option><option>Instrumental</option><option>Other</option></select></div>
+                  <div class="pfield" id="pfield-genre"><label>Genre</label><select id="p2" style="background:transparent;border:none;border-bottom:1px solid var(--brd2);padding:8px 0;width:100%;color:var(--txt);font-family:'Inter',sans-serif;font-size:14px;outline:none"><option>Hip Hop / Trap</option><option>UK Drill</option><option>R&amp;B / Soul</option><option>Nasheed / Islamic</option><option>Lofi / Chillhop</option><option>Instrumental</option><option>Other</option></select></div>
                   <div class="pfield"><label>Country</label><input type="text" id="p3" placeholder="India"/></div>
                   <div class="pfield" style="grid-column:1/-1"><label>Bio</label><textarea id="p4" placeholder="Tell the world about yourself..." style="background:transparent;border:none;border-bottom:1px solid var(--brd2);border-radius:0;padding:8px 0;resize:none;min-height:70px;width:100%;color:var(--txt);font-family:'Inter',sans-serif;font-size:14px;outline:none"></textarea></div>
-                  <div class="pfield"><label>PayPal Email (for royalties)</label><input type="email" id="p5" placeholder="paypal@email.com"/></div>
-                  <div class="pfield"><label>Spotify Artist ID</label><input type="text" id="p6" placeholder="spotify:artist:..."/></div>
+                  <div class="pfield" id="pfield-spotify"><label>Spotify Artist ID</label><input type="text" id="p6" placeholder="spotify:artist:..."/></div>
+                  <div class="pfield" id="pfield-apple"><label>Apple Music Artist ID</label><input type="text" id="p9" placeholder="https://music.apple.com/artist/..."/></div>
+                  <div class="pfield" id="pfield-label-reg" style="display:none"><label>Label Registration / Business Number</label><input type="text" id="p11" placeholder="Company or MSME registration number"/></div>
                   <div class="pfield"><label>Instagram</label><input type="text" id="p7" placeholder="@handle"/></div>
                   <div class="pfield"><label>YouTube</label><input type="text" id="p8" placeholder="Channel URL"/></div>
                 </div>
                 <div style="margin-top:20px;display:flex;justify-content:flex-end"><button class="btn-submit" onclick="saveProfile()">Save Changes</button></div>
+                <div style="margin-top:28px;padding-top:24px;border-top:1px solid var(--brd)">
+                  <div class="profile-right-title">Bank &amp; Payout Details</div>
+                  <div style="font-size:11px;color:var(--txt3);margin-bottom:14px">Used for royalty payouts. Kept confidential and only visible to TIR admin.</div>
+                  <div class="p2col">
+                    <div class="pfield"><label>Account Holder Name</label><input type="text" id="pb0" placeholder="Full name on bank account"/></div>
+                    <div class="pfield"><label>Bank Name</label><input type="text" id="pb1" placeholder="Bank name"/></div>
+                    <div class="pfield"><label>Account Number</label><input type="text" id="pb2" placeholder="Bank account number"/></div>
+                    <div class="pfield"><label>IFSC / SWIFT Code</label><input type="text" id="pb3" placeholder="IFSC or SWIFT code"/></div>
+                    <div class="pfield"><label>Bank Country</label><input type="text" id="pb4" placeholder="India"/></div>
+                    <div class="pfield"><label>UPI ID (optional)</label><input type="text" id="pb5" placeholder="yourname@upi"/></div>
+                  </div>
+                  <div style="margin-top:20px;display:flex;justify-content:flex-end"><button class="btn-submit" onclick="saveBankDetails()">Save Bank Details</button></div>
+                </div>
               </div>
             </div>
           </div>
@@ -1372,6 +1420,8 @@ html,body{
     <div class="nav-item" onclick="goPage('blog','ni-blog');closeDrawer()"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Music Blog</div>
     <div class="nav-item" onclick="goPage('support','ni-support');closeDrawer()"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/></svg>Support Center</div>
     <div class="nav-item" onclick="goPage('tickets','ni-tickets');closeDrawer()"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>My Tickets</div>
+    <div class="nav-item" id="mob-nav-all-artists" style="display:none" onclick="goPage('all-artists','nav-all-artists');closeDrawer()"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>All Artists</div>
+    <div class="nav-item" id="mob-ni-analytics" style="display:none" onclick="goPage('analytics','ni-analytics');closeDrawer()"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Analytics</div>
     <div class="nav-item" onclick="goPage('profile','ni-profile');closeDrawer()"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>My Profile</div>
   </nav>
   <div class="sb-bottom"><div class="sb-sign-out" onclick="doSignOut()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16,17 21,12 16,7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign Out</div></div>
@@ -1507,22 +1557,16 @@ function renderArtistSelect() {
 }
 function fillEmptyTrackArtists(name) {
   if (!name) return;
-  (trackItems || []).forEach(function(t, idx) {
-    if (!t.artist || !t.artist.trim()) {
-      t.artist = name;
-      var input = document.querySelector('[data-tf="' + idx + '-artist"]');
-      if (input) input.value = name;
-    }
+  document.querySelectorAll('#rf-track-list .track-admin-card').forEach(function(card) {
+    var input = card.querySelector('[data-field="artist"]');
+    if (input && !input.value.trim()) input.value = name;
   });
 }
 function propagateToBlankTrackFields(field, value) {
   if (!value) return;
-  (trackItems || []).forEach(function(t, idx) {
-    if (!t[field] || !String(t[field]).trim()) {
-      t[field] = value;
-      var input = document.querySelector('[data-tf="' + idx + '-' + field + '"]');
-      if (input && document.activeElement !== input) input.value = value;
-    }
+  document.querySelectorAll('#rf-track-list .track-admin-card').forEach(function(card) {
+    var input = card.querySelector('[data-field="' + field + '"]');
+    if (input && !input.value.trim() && document.activeElement !== input) input.value = value;
   });
 }
 function onPrimaryArtistSelect(val) {
@@ -1817,21 +1861,117 @@ async function loadProfile() {
   document.getElementById('p6').value = AD.spotify || '';
   document.getElementById('p7').value = AD.instagram || '';
   document.getElementById('p8').value = AD.youtube || '';
+  if (document.getElementById('p9')) document.getElementById('p9').value = AD.appleMusicUrl || '';
+  if (document.getElementById('p10')) document.getElementById('p10').value = AD.legalName || (AD.accountType==='label' ? (AD.name||'') : '');
+  if (document.getElementById('p11')) document.getElementById('p11').value = AD.labelRegistrationNumber || '';
   if (AD.genre) document.getElementById('p2').value = AD.genre;
   document.getElementById('s2').value = AD.name || CU.displayName || '';
   if (AD.photoUrl) setPhoto(AD.photoUrl);
   if (AD.name) setAvatars((AD.name||'A')[0].toUpperCase(), AD.name);
+  applyAccountTypeProfileFields();
+  loadBankDetailsIntoForm();
+}
+async function saveBankDetails() {
+  var data = {
+    bankDetails: {
+      accountHolder: document.getElementById('pb0').value.trim(),
+      bankName: document.getElementById('pb1').value.trim(),
+      accountNumber: document.getElementById('pb2').value.trim(),
+      ifscSwift: document.getElementById('pb3').value.trim(),
+      bankCountry: document.getElementById('pb4').value.trim(),
+      upiId: document.getElementById('pb5').value.trim(),
+      updatedAt: new Date().toISOString()
+    }
+  };
+  try {
+    await _db.collection('users').doc(CU.uid).set(data, { merge: true });
+    AD.bankDetails = data.bankDetails;
+    toast('Bank details saved ✓');
+  } catch(e) { toast('Error: ' + e.message); }
+}
+function loadBankDetailsIntoForm() {
+  var b = AD.bankDetails || {};
+  var map = { pb0:'accountHolder', pb1:'bankName', pb2:'accountNumber', pb3:'ifscSwift', pb4:'bankCountry', pb5:'upiId' };
+  Object.keys(map).forEach(function(id) { var el = document.getElementById(id); if (el) el.value = b[map[id]] || ''; });
+}
+async function portalAddLabelArtist() {
+  var name = document.getElementById('la-name').value.trim();
+  if (!name) { toast('Please enter an artist name.'); return; }
+  var entry = {
+    name: name,
+    genre: document.getElementById('la-genre').value.trim(),
+    spotifyUrl: document.getElementById('la-spotify').value.trim(),
+    appleMusicUrl: document.getElementById('la-apple').value.trim(),
+    bio: document.getElementById('la-bio').value.trim(),
+    addedAt: new Date().toISOString()
+  };
+  var btn = document.getElementById('la-add-btn'); btn.disabled = true; btn.textContent = 'Adding...';
+  try {
+    AD.labelArtists = (AD.labelArtists || []).concat([entry]);
+    await _db.collection('users').doc(CU.uid).update({ labelArtists: AD.labelArtists });
+    renderLaRoster();
+    ['la-name','la-genre','la-spotify','la-apple','la-bio'].forEach(function(id){ document.getElementById(id).value = ''; });
+    toast('Artist added to your roster ✓');
+  } catch(e) { toast('Error: ' + e.message); }
+  btn.disabled = false; btn.textContent = 'Add Artist';
+}
+function renderLaRoster() {
+  var list = document.getElementById('la-roster-list'); if (!list) return;
+  var roster = AD.labelArtists || [];
+  var countEl = document.getElementById('la-count'); if (countEl) countEl.textContent = roster.length + ' artist' + (roster.length!==1?'s':'');
+  if (!roster.length) { list.innerHTML = '<div class="empty" style="padding:36px"><div class="empty-icon">🎤</div><div class="empty-title">No artists added yet</div></div>'; return; }
+  list.innerHTML = '<table style="width:100%;border-collapse:collapse"><thead><tr style="text-align:left;font-size:11px;color:var(--txt3);text-transform:uppercase"><th style="padding:10px 8px">Name</th><th style="padding:10px 8px">Genre</th><th style="padding:10px 8px">Spotify</th><th style="padding:10px 8px">Apple Music</th><th style="padding:10px 8px">Added</th></tr></thead><tbody>' +
+    roster.map(function(a, idx) {
+      return '<tr style="border-top:1px solid var(--brd)"><td style="padding:10px 8px;font-weight:700">' + escA2(a.name||'') + '</td><td style="padding:10px 8px;color:var(--txt3)">' + escA2(a.genre||'—') + '</td><td style="padding:10px 8px">' + (a.spotifyUrl ? '<a href="'+a.spotifyUrl+'" target="_blank" style="color:#1db954">Link</a>' : '—') + '</td><td style="padding:10px 8px">' + (a.appleMusicUrl ? '<a href="'+a.appleMusicUrl+'" target="_blank" style="color:#fa9e9b">Link</a>' : '—') + '</td><td style="padding:10px 8px;color:var(--txt3);font-size:12px">' + (a.addedAt ? a.addedAt.substring(0,10) : '—') + '</td></tr>';
+    }).join('') + '</tbody></table>';
+}
+function renderAnalytics() {
+  var box = document.getElementById('analytics-content'); if (!box) return;
+  var an = AD.analytics;
+  if (!an || !an.enabled) {
+    box.innerHTML = '<div class="empty" style="padding:36px"><div class="empty-icon">📊</div><div class="empty-title">Analytics is not enabled for your account yet</div><div style="font-size:12px;color:var(--txt3);margin-top:8px">Contact TIR to have analytics turned on for your dashboard.</div></div>';
+    return;
+  }
+  var streams = an.streams || {}; var revenue = an.revenue || {}; var topTracks = an.topTracks || []; var platforms = an.platforms || {};
+  box.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:24px">'
+    + '<div style="background:var(--card);border:1px solid var(--brd);border-radius:10px;padding:16px"><div style="font-size:11px;color:var(--txt3);text-transform:uppercase;margin-bottom:6px">Total Streams</div><div style="font-size:22px;font-weight:800">' + (streams.total!=null?Number(streams.total).toLocaleString():'—') + '</div></div>'
+    + '<div style="background:var(--card);border:1px solid var(--brd);border-radius:10px;padding:16px"><div style="font-size:11px;color:var(--txt3);text-transform:uppercase;margin-bottom:6px">This Month</div><div style="font-size:22px;font-weight:800;color:var(--green)">' + (streams.thisMonth!=null?Number(streams.thisMonth).toLocaleString():'—') + '</div></div>'
+    + '<div style="background:var(--card);border:1px solid var(--brd);border-radius:10px;padding:16px"><div style="font-size:11px;color:var(--txt3);text-transform:uppercase;margin-bottom:6px">Total Revenue</div><div style="font-size:22px;font-weight:800">' + (revenue.total!=null?'₹'+Number(revenue.total).toLocaleString():'—') + '</div></div>'
+    + '<div style="background:var(--card);border:1px solid var(--brd);border-radius:10px;padding:16px"><div style="font-size:11px;color:var(--txt3);text-transform:uppercase;margin-bottom:6px">This Month Revenue</div><div style="font-size:22px;font-weight:800;color:var(--green)">' + (revenue.thisMonth!=null?'₹'+Number(revenue.thisMonth).toLocaleString():'—') + '</div></div>'
+    + '</div>'
+    + (topTracks.length ? ('<div style="margin-bottom:24px"><div style="font-size:13px;font-weight:800;margin-bottom:10px">Top Tracks</div>' + topTracks.map(function(t){ return '<div style="display:flex;justify-content:space-between;padding:10px 0;border-top:1px solid rgba(255,255,255,.05)"><span>' + escA2(t.title||'') + '</span><span style="color:var(--txt3)">' + (t.streams!=null?Number(t.streams).toLocaleString()+' streams':'') + '</span></div>'; }).join('') + '</div>') : '')
+    + (Object.keys(platforms).length ? ('<div><div style="font-size:13px;font-weight:800;margin-bottom:10px">By Platform</div>' + Object.keys(platforms).map(function(k){ return '<div style="display:flex;justify-content:space-between;padding:10px 0;border-top:1px solid rgba(255,255,255,.05)"><span style="text-transform:capitalize">' + escA2(k) + '</span><span style="color:var(--txt3)">' + (platforms[k]!=null?Number(platforms[k]).toLocaleString():'') + '</span></div>'; }).join('') + '</div>') : '')
+    + '<div style="margin-top:20px;font-size:11px;color:var(--txt3)">Last updated: ' + (an.lastUpdated ? an.lastUpdated.substring(0,10) : 'Not set') + '</div>';
+}
+function applyAccountTypeProfileFields() {
+  var isLabelAcct = AD.accountType === 'label';
+  var showFor = function(id, show) { var el = document.getElementById(id); if (el) el.style.display = show ? '' : 'none'; };
+  showFor('pfield-artist-name', !isLabelAcct);
+  showFor('pfield-spotify', !isLabelAcct);
+  showFor('pfield-apple', !isLabelAcct);
+  showFor('pfield-genre', !isLabelAcct);
+  showFor('pfield-legal-name', isLabelAcct);
+  showFor('pfield-label-reg', isLabelAcct);
+  showFor('nav-all-artists', isLabelAcct);
+  showFor('mob-nav-all-artists', isLabelAcct);
+  var analyticsOn = !!(AD.analytics && AD.analytics.enabled);
+  showFor('ni-analytics', analyticsOn);
+  showFor('mob-ni-analytics', analyticsOn);
 }
 
 async function saveProfile() {
+  var isLabelAcct = AD.accountType === 'label';
   var data = {
-    name: document.getElementById('p0').value.trim(),
+    name: isLabelAcct ? (document.getElementById('p10').value.trim() || AD.name || '') : document.getElementById('p0').value.trim(),
     email: CU.email,
     genre: document.getElementById('p2').value,
     country: document.getElementById('p3').value.trim(),
     bio: document.getElementById('p4').value.trim(),
     paypal: document.getElementById('p5').value.trim(),
     spotify: document.getElementById('p6').value.trim(),
+    appleMusicUrl: document.getElementById('p9') ? document.getElementById('p9').value.trim() : '',
+    legalName: document.getElementById('p10') ? document.getElementById('p10').value.trim() : '',
+    labelRegistrationNumber: document.getElementById('p11') ? document.getElementById('p11').value.trim() : '',
     instagram: document.getElementById('p7').value.trim(),
     youtube: document.getElementById('p8').value.trim()
   };
@@ -2677,7 +2817,7 @@ async function submitTicket() {
 // ═══════════════════════════════════════════════════════════
 // PAGE NAV
 // ═══════════════════════════════════════════════════════════
-var pageNames = {home:'Dashboard',releases:'My Releases',submit:'Submit Release',royalties:'Royalties',blog:'Music Blog',support:'Support Center',tickets:'My Tickets',profile:'My Profile'};
+var pageNames = {home:'Dashboard',releases:'My Releases',submit:'Submit Release',royalties:'Royalties',blog:'Music Blog',support:'Support Center',tickets:'My Tickets',profile:'My Profile','all-artists':'All Artists',analytics:'Analytics'};
 function goPage(name, niId) {
   document.querySelectorAll('.pg').forEach(function(p){ p.classList.remove('on'); });
   document.querySelectorAll('.nav-item').forEach(function(n){ n.classList.remove('active'); });
@@ -2687,6 +2827,8 @@ function goPage(name, niId) {
   document.getElementById('page-title').textContent = pageNames[name]||'Dashboard';
   if (name==='royalties') loadRoyalties();
   if (name==='blog') loadBlog();
+  if (name==='all-artists') renderLaRoster();
+  if (name==='analytics') renderAnalytics();
   if (name==='submit') {
     syncReleaseReview();
     setTimeout(function(){
@@ -2719,7 +2861,6 @@ function toast(m) { var t=document.getElementById('toast'); document.getElementB
 var SERVICE_PLATFORM_OPTIONS=[
   {key:'spotify',label:'Spotify'},{key:'appleMusic',label:'Apple Music'},{key:'youtubeMusic',label:'YouTube Music'},{key:'amazonMusic',label:'Amazon Music'},{key:'jioSaavn',label:'JioSaavn'},{key:'gaana',label:'Gaana'},{key:'tidal',label:'Tidal'},{key:'deezer',label:'Deezer'},{key:'anghami',label:'Anghami'},{key:'youtubeContentId',label:'YouTube Content ID'},{key:'facebookInstagramAudio',label:'Facebook / Instagram Audio'}
 ];
-var trackItems=[];
 function ensureSetup(){
   if(document.getElementById('rf-service-access-note')) return;
   var sideCard=document.querySelector('#rf-body-0 .rf-side-card');
@@ -2762,17 +2903,82 @@ window.applyArtistServiceAccess=function(){
 };
 window.isMultiTrackRelease=function(){ var t=(document.getElementById('s1')||{}).value||''; return ['EP','Album','Mixtape'].indexOf(t)>-1; };
 window.defaultTrackCountForType=function(){ var t=(document.getElementById('s1')||{}).value||''; return t==='EP'?3:(t==='Single'?1:2); };
-window.addTrackItem=function(seed){ trackItems.push(seed||{title:'',artist:(window.val?val('s2'):'')||'',featured:'',composer:(window.val?val('s12'):'')||'',lyricist:(window.val?val('s12'):'')||'',producer:(window.val?val('s13'):'')||'',otherContributors:'',audio:null}); renderTrackList(); if(window.syncReleaseReview) syncReleaseReview(); };
-window.removeTrackItem=function(idx){ trackItems.splice(idx,1); renderTrackList(); if(window.syncReleaseReview) syncReleaseReview(); };
-window.seedTracksFromReleaseType=function(){ trackItems=[]; for(var i=0;i<defaultTrackCountForType();i++) addTrackItem({title:i===0&&window.val?val('s0'):'',artist:window.val?val('s2'):'',featured:'',composer:window.val?val('s12'):'',lyricist:window.val?val('s12'):'',producer:window.val?val('s13'):'',otherContributors:'',audio:null}); };
-window.uploadTrackAudio=async function(ev,idx){ var file=ev.target.files[0]; if(!file) return; var v=validateFile(file,'audio'); if(!v.ok) return showAl('sub-e',v.msg); trackItems[idx].uploading=true; updateTrackAudioStatusUI(idx); try{ var r=await uploadCDN(file,'track'+idx); var ext=file.name.split('.').pop().toUpperCase(); trackItems[idx].uploading=false; trackItems[idx].audio={url:r.secure_url,pid:r.public_id,filename:file.name,size:fmtSz(file.size),format:ext}; updateTrackAudioStatusUI(idx); if(window.syncTrackSummary) syncTrackSummary(); toast('Track '+(idx+1)+' audio uploaded ✓'); }catch(err){ trackItems[idx].uploading=false; updateTrackAudioStatusUI(idx); showAl('sub-e','Track '+(idx+1)+' upload failed: '+err.message); } };
-function trackAudioStatusHTML(idx){ var t=trackItems[idx]; if(!t) return ''; return '<div id="track-audio-status-'+idx+'" onclick="document.getElementById(\'track-audio-input-'+idx+'\').click()" style="cursor:pointer;padding:12px 13px;border:1.5px dashed '+(t.uploading?'var(--green)':(t.audio&&t.audio.filename?'rgba(57,231,95,.5)':'var(--brd2)'))+';border-radius:8px;background:var(--card);font-size:12px;color:'+(t.audio&&t.audio.filename?'var(--green)':'var(--txt2)')+';font-weight:'+(t.audio&&t.audio.filename?'700':'400')+';text-align:center">'+(t.uploading?'Uploading…':(t.audio&&t.audio.filename?('✓ '+(window.escapeHtml?escapeHtml(t.audio.filename):t.audio.filename)+' · '+(t.audio.size||'')+' — click to replace'):'📁 Click to upload WAV or FLAC for this track'))+'</div>'; }
+var trackAudioData={};
+function trackCardCount(){ return document.querySelectorAll('#rf-track-list .track-admin-card').length; }
+function trackCardHTML(idx, seed){
+  seed = seed || {};
+  var a = trackAudioData[idx];
+  return '<div class="track-admin-card" data-track-card="'+idx+'"><div style="display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:12px"><strong>Track '+(idx+1)+'</strong><button class="btn-del-demo" type="button" onclick="removeTrackItem('+idx+')" data-track-remove-btn>Remove</button></div><div class="track-admin-grid">'
+    +'<div class="form-group2 full"><label>Track title *</label><input data-field="title" value="'+escA2(seed.title||'')+'"/></div>'
+    +'<div class="form-group2"><label>Track Artist * <span style="color:var(--txt3);font-weight:400">(auto-fills from Primary Artist)</span></label><input data-field="artist" value="'+escA2(seed.artist||'')+'"/></div>'
+    +'<div class="form-group2"><label>Featuring artists</label><input data-field="featured" value="'+escA2(seed.featured||'')+'"/></div>'
+    +'<div class="form-group2"><label>Composer *</label><input data-field="composer" value="'+escA2(seed.composer||'')+'"/></div>'
+    +'<div class="form-group2"><label>Lyricist *</label><input data-field="lyricist" value="'+escA2(seed.lyricist||'')+'"/></div>'
+    +'<div class="form-group2"><label>Producer *</label><input data-field="producer" value="'+escA2(seed.producer||'')+'"/></div>'
+    +'<div class="form-group2 full"><label>Other Contributors <span style="color:var(--txt3);font-weight:400">(mixing, mastering, session musicians — optional)</span></label><input data-field="other" value="'+escA2(seed.otherContributors||'')+'"/></div>'
+    +'<div class="form-group2 full" id="track-audio-wrap-'+idx+'"><label>Audio file *</label><input type="file" id="track-audio-input-'+idx+'" accept=".wav,.flac,.aiff,.aif" style="display:none" onchange="uploadTrackAudio(event,'+idx+')"/>'+trackAudioStatusHTML(idx)+'</div>'
+    +'</div></div>';
+}
+function escA2(s){ return window.escapeHtml ? escapeHtml(String(s||'')) : String(s||''); }
+function readTracksFromDOM(){
+  var cards = document.querySelectorAll('#rf-track-list .track-admin-card');
+  var out = [];
+  cards.forEach(function(card, idx){
+    var get = function(field){ var el = card.querySelector('[data-field="'+field+'"]'); return el ? el.value : ''; };
+    out.push({
+      title: get('title'), artist: get('artist'), featured: get('featured'),
+      composer: get('composer'), lyricist: get('lyricist'), producer: get('producer'),
+      otherContributors: get('other'), audio: trackAudioData[idx] || null
+    });
+  });
+  return out;
+}
+window.addTrackItem=function(seed){
+  var list = document.getElementById('rf-track-list'); if(!list) return;
+  var idx = trackCardCount();
+  list.insertAdjacentHTML('beforeend', trackCardHTML(idx, seed||{title:'',artist:(window.val?val('s2'):'')||'',featured:'',composer:(window.val?val('s12'):'')||'',lyricist:(window.val?val('s12'):'')||'',producer:(window.val?val('s13'):'')||'',otherContributors:''}));
+  if(window.syncReleaseReview) syncReleaseReview();
+};
+window.removeTrackItem=function(idx){
+  var current = readTracksFromDOM();
+  current.splice(idx,1);
+  var newAudioData = {};
+  current.forEach(function(t,i){ if(t.audio) newAudioData[i]=t.audio; });
+  trackAudioData = newAudioData;
+  var list = document.getElementById('rf-track-list'); if(!list) return;
+  list.innerHTML = current.map(function(t,i){ return trackCardHTML(i, t); }).join('');
+  if(window.syncReleaseReview) syncReleaseReview();
+};
+window.seedTracksFromReleaseType=function(){
+  trackAudioData = {};
+  var list = document.getElementById('rf-track-list'); if(!list) return;
+  var n = defaultTrackCountForType();
+  var html = '';
+  for(var i=0;i<n;i++){ html += trackCardHTML(i, {title:(i===0&&window.val?val('s0'):''), artist:window.val?val('s2'):'', featured:'', composer:window.val?val('s12'):'', lyricist:window.val?val('s12'):'', producer:window.val?val('s13'):'', otherContributors:''}); }
+  list.innerHTML = html;
+};
+window.uploadTrackAudio=async function(ev,idx){
+  var file=ev.target.files[0]; if(!file) return; var v=validateFile(file,'audio'); if(!v.ok) return showAl('sub-e',v.msg);
+  trackAudioData[idx]={uploading:true}; updateTrackAudioStatusUI(idx);
+  try{
+    var r=await uploadCDN(file,'track'+idx); var ext=file.name.split('.').pop().toUpperCase();
+    trackAudioData[idx]={url:r.secure_url,pid:r.public_id,filename:file.name,size:fmtSz(file.size),format:ext};
+    updateTrackAudioStatusUI(idx); if(window.syncTrackSummary) syncTrackSummary();
+    toast('Track '+(idx+1)+' audio uploaded ✓');
+  }catch(err){
+    trackAudioData[idx]=null; updateTrackAudioStatusUI(idx);
+    showAl('sub-e','Track '+(idx+1)+' upload failed: '+err.message);
+  }
+};
+function trackAudioStatusHTML(idx){ var t=trackAudioData[idx]; return '<div id="track-audio-status-'+idx+'" onclick="document.getElementById(\'track-audio-input-'+idx+'\').click()" style="cursor:pointer;padding:12px 13px;border:1.5px dashed '+(t&&t.uploading?'var(--green)':(t&&t.filename?'rgba(57,231,95,.5)':'var(--brd2)'))+';border-radius:8px;background:var(--card);font-size:12px;color:'+(t&&t.filename?'var(--green)':'var(--txt2)')+';font-weight:'+(t&&t.filename?'700':'400')+';text-align:center">'+(t&&t.uploading?'Uploading…':(t&&t.filename?('✓ '+(window.escapeHtml?escapeHtml(t.filename):t.filename)+' · '+(t.size||'')+' — click to replace'):'📁 Click to upload WAV or FLAC for this track'))+'</div>'; }
 function updateTrackAudioStatusUI(idx){ var wrap=document.getElementById('track-audio-wrap-'+idx); if(!wrap) return; var existing=document.getElementById('track-audio-status-'+idx); var html=trackAudioStatusHTML(idx); if(existing) existing.outerHTML=html; else wrap.insertAdjacentHTML('beforeend',html); }
-window.renderTrackList=function(){ ensureSetup(); var card=document.getElementById('rf-multitrack-card'), list=document.getElementById('rf-track-list'); if(!card||!list) return; var multi=isMultiTrackRelease(); card.classList.toggle('rf-hidden',!multi); var ab=document.getElementById('rf-audio-box'); if(ab && releaseMedium()!=='video') ab.classList.toggle('rf-hidden',multi); if(!multi) return; if(!trackItems.length) seedTracksFromReleaseType();
-  var _fi=document.activeElement, _focusKey=null, _selStart=null, _selEnd=null;
-  if(_fi && list.contains(_fi) && _fi.hasAttribute && _fi.hasAttribute('data-tf')){ _focusKey=_fi.getAttribute('data-tf'); try{ _selStart=_fi.selectionStart; _selEnd=_fi.selectionEnd; }catch(e){} }
-  list.innerHTML=trackItems.map(function(t,idx){ return '<div class="track-admin-card"><div style="display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:12px"><strong>Track '+(idx+1)+'</strong>'+(trackItems.length>1?'<button class="btn-del-demo" type="button" onclick="removeTrackItem('+idx+')">Remove</button>':'')+'</div><div class="track-admin-grid"><div class="form-group2 full"><label>Track title *</label><input data-tf="'+idx+'-title" value="'+(window.escapeHtml?escapeHtml(t.title||''):(t.title||''))+'" oninput="trackItems['+idx+'].title=this.value" onblur="syncReleaseReview()"/></div><div class="form-group2"><label>Track Artist * <span style="color:var(--txt3);font-weight:400">(auto-fills from Primary Artist)</span></label><input data-tf="'+idx+'-artist" value="'+(window.escapeHtml?escapeHtml(t.artist||''):(t.artist||''))+'" oninput="trackItems['+idx+'].artist=this.value" onblur="syncReleaseReview()"/></div><div class="form-group2"><label>Featuring artists</label><input data-tf="'+idx+'-featured" value="'+(window.escapeHtml?escapeHtml(t.featured||''):(t.featured||''))+'" oninput="trackItems['+idx+'].featured=this.value" onblur="syncReleaseReview()"/></div><div class="form-group2"><label>Composer *</label><input data-tf="'+idx+'-composer" value="'+(window.escapeHtml?escapeHtml(t.composer||''):(t.composer||''))+'" oninput="trackItems['+idx+'].composer=this.value" onblur="syncReleaseReview()"/></div><div class="form-group2"><label>Lyricist *</label><input data-tf="'+idx+'-lyricist" value="'+(window.escapeHtml?escapeHtml(t.lyricist||''):(t.lyricist||''))+'" oninput="trackItems['+idx+'].lyricist=this.value" onblur="syncReleaseReview()"/></div><div class="form-group2"><label>Producer *</label><input data-tf="'+idx+'-producer" value="'+(window.escapeHtml?escapeHtml(t.producer||''):(t.producer||''))+'" oninput="trackItems['+idx+'].producer=this.value" onblur="syncReleaseReview()"/></div><div class="form-group2 full"><label>Other Contributors <span style="color:var(--txt3);font-weight:400">(mixing, mastering, session musicians — optional)</span></label><input data-tf="'+idx+'-other" value="'+(window.escapeHtml?escapeHtml(t.otherContributors||''):(t.otherContributors||''))+'" oninput="trackItems['+idx+'].otherContributors=this.value" onblur="syncReleaseReview()"/></div><div class="form-group2 full" id="track-audio-wrap-'+idx+'"><label>Audio file *</label><input type="file" id="track-audio-input-'+idx+'" accept=".wav,.flac,.aiff,.aif" style="display:none" onchange="uploadTrackAudio(event,'+idx+')"/>'+trackAudioStatusHTML(idx)+'</div></div></div>'; }).join('');
-  if(_focusKey){ var _re=list.querySelector('[data-tf="'+_focusKey+'"]'); if(_re){ _re.focus(); try{ if(_selStart!=null) _re.setSelectionRange(_selStart,_selEnd); }catch(e){} } }
+window.renderTrackList=function(){
+  ensureSetup();
+  var card=document.getElementById('rf-multitrack-card'), list=document.getElementById('rf-track-list'); if(!card||!list) return;
+  var multi=isMultiTrackRelease(); card.classList.toggle('rf-hidden',!multi);
+  var ab=document.getElementById('rf-audio-box'); if(ab && releaseMedium()!=='video') ab.classList.toggle('rf-hidden',multi);
+  if(!multi) return;
+  if(trackCardCount()===0) seedTracksFromReleaseType();
 };
 window.selectedPlatforms=function(){ return SERVICE_PLATFORM_OPTIONS.filter(function(opt){var el=document.getElementById('svc-'+opt.key); return el&&el.checked;}).map(function(opt){return opt.label;}); };
 window.renderDeliveryServices=function(){ var grid=document.getElementById('rf-service-grid'); if(!grid) return; grid.innerHTML=SERVICE_PLATFORM_OPTIONS.map(function(opt){ return '<label class="rf-check on" id="svc-wrap-'+opt.key+'"><input type="checkbox" id="svc-'+opt.key+'" checked onchange="syncServiceChecks()"/>'+opt.label+'</label>'; }).join(''); syncServiceChecks(); };
@@ -2789,17 +2995,35 @@ window.syncTrackSummary=function(){
   if(isMultiTrackRelease()){
     var box=document.getElementById('rf-track-summary'); if(!box) return;
     box.classList.add('has-track');
-    var done=trackItems.filter(function(t){return t.audio&&t.audio.filename;}).length;
-    box.innerHTML='<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px"><div><div style="font-size:15px;font-weight:800;color:var(--txt);margin-bottom:3px">'+((document.getElementById('s1').value)||'Release')+' configured</div><div style="font-size:12px;color:var(--txt3)">'+trackItems.length+' track(s) added · '+done+' audio upload(s) complete</div></div><span class="ubadge ub-ok">Multi-track</span></div>'+trackItems.map(function(t,idx){ return '<div style="padding:10px 0;border-top:1px solid rgba(255,255,255,.05)"><div style="font-size:13px;font-weight:700;color:var(--txt)">'+(idx+1)+'. '+(window.escapeHtml?escapeHtml(t.title||'Untitled track'):(t.title||'Untitled track'))+'</div><div style="font-size:11px;color:var(--txt3)">'+(window.escapeHtml?escapeHtml(t.artist||'No artist set'):(t.artist||'No artist set'))+' · '+(t.audio&&t.audio.filename?(window.escapeHtml?escapeHtml(t.audio.filename):t.audio.filename):'No audio uploaded')+'</div></div>'; }).join('');
+    var tracks=readTracksFromDOM();
+    var done=tracks.filter(function(t){return t.audio&&t.audio.filename;}).length;
+    box.innerHTML='<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px"><div><div style="font-size:15px;font-weight:800;color:var(--txt);margin-bottom:3px">'+((document.getElementById('s1').value)||'Release')+' configured</div><div style="font-size:12px;color:var(--txt3)">'+tracks.length+' track(s) added · '+done+' audio upload(s) complete</div></div><span class="ubadge ub-ok">Multi-track</span></div>'+tracks.map(function(t,idx){ return '<div style="padding:10px 0;border-top:1px solid rgba(255,255,255,.05)"><div style="font-size:13px;font-weight:700;color:var(--txt)">'+(idx+1)+'. '+escA2(t.title||'Untitled track')+'</div><div style="font-size:11px;color:var(--txt3)">'+escA2(t.artist||'No artist set')+' · '+(t.audio&&t.audio.filename?escA2(t.audio.filename):'No audio uploaded')+'</div></div>'; }).join('');
     return;
   }
   _origSyncTrackSummary();
 };
 window.platformLabel=function(){ var s=selectedPlatforms(); return s.length?s.join(', '):'No platforms selected'; };
-window.trackValidationMessage=function(){ if(!isMultiTrackRelease()) return ''; if(!trackItems.length) return 'Please add track details for this multi-track release.'; var topArtist=(window.val?val('s2'):(document.getElementById('s2')?document.getElementById('s2').value:''))||''; var topWriters=(window.val?val('s12'):(document.getElementById('s12')?document.getElementById('s12').value:''))||''; var topProducers=(window.val?val('s13'):(document.getElementById('s13')?document.getElementById('s13').value:''))||''; for(var i=0;i<trackItems.length;i++){ var t=trackItems[i]||{}; if(!String(t.title||'').trim()) return 'Please enter the title for track '+(i+1)+'.'; if(!String(t.artist||'').trim() && !topArtist.trim()) return 'Please enter the artist for track '+(i+1)+'.'; if(!String(t.composer||'').trim() && !topWriters.trim()) return 'Please enter the composer for track '+(i+1)+'.'; if(!String(t.lyricist||'').trim() && !topWriters.trim()) return 'Please enter the lyricist for track '+(i+1)+'.'; if(!String(t.producer||'').trim() && !topProducers.trim()) return 'Please enter the producer for track '+(i+1)+'.'; if(!t.audio||!t.audio.url) return 'Please upload the audio for track '+(i+1)+'.'; } return ''; };
+window.trackValidationMessage=function(){
+  if(!isMultiTrackRelease()) return '';
+  var tracks = readTracksFromDOM();
+  if(!tracks.length) return 'Please add track details for this multi-track release.';
+  var topArtist=(document.getElementById('s2')?document.getElementById('s2').value:'')||'';
+  var topWriters=(document.getElementById('s12')?document.getElementById('s12').value:'')||'';
+  var topProducers=(document.getElementById('s13')?document.getElementById('s13').value:'')||'';
+  for(var i=0;i<tracks.length;i++){
+    var t=tracks[i];
+    if(!String(t.title||'').trim()) return 'Please enter the title for track '+(i+1)+'.';
+    if(!String(t.artist||'').trim() && !topArtist.trim()) return 'Please enter the artist for track '+(i+1)+'.';
+    if(!String(t.composer||'').trim() && !topWriters.trim()) return 'Please enter the composer for track '+(i+1)+'.';
+    if(!String(t.lyricist||'').trim() && !topWriters.trim()) return 'Please enter the lyricist for track '+(i+1)+'.';
+    if(!String(t.producer||'').trim() && !topProducers.trim()) return 'Please enter the producer for track '+(i+1)+'.';
+    if(!t.audio||!t.audio.url) return 'Please upload the audio for track '+(i+1)+'.';
+  }
+  return '';
+};
 window.validateAndGoReleaseStep=function(step){
   if(step===1){ if(!document.getElementById('s0').value.trim()) return showAl('sub-e','Please enter a release title.'); if(!document.getElementById('s2').value.trim()) return showAl('sub-e','Please enter the primary artist name.'); if(!document.getElementById('s1').value.trim()) return showAl('sub-e','Please select a release type.'); if(!document.getElementById('s4').value.trim()) return showAl('sub-e','Please select a genre.'); if(!document.getElementById('s6').value.trim()) return showAl('sub-e','Please select a language.'); if(!document.getElementById('s8').value.trim()) return showAl('sub-e','Please select a content rating.'); if(!document.getElementById('s12').value.trim()) return showAl('sub-e','Please enter songwriter name(s).'); }
-  if(step===2){ if(isMultiTrackRelease()){ console.log('[TIR-DEBUG] trackItems at Next click:', JSON.parse(JSON.stringify(trackItems))); var msg=trackValidationMessage(); if(msg){ console.log('[TIR-DEBUG] validation failed with:', msg); return showAl('sub-e',msg); } } else if(!uploadState.audio.url) return showAl('sub-e','Please upload your audio file (WAV or FLAC).'); if(releaseMedium()==='video'){ if(!document.getElementById('rf-video-url').value.trim()) return showAl('sub-e','Please enter the hosted video URL.'); if(!uploadState.thumbnail.url) return showAl('sub-e','Please upload the video thumbnail.'); if(!uploadState.artwork.url) return showAl('sub-e','Please upload the artwork / poster.'); if(!(window.val?val('rf-video-director'):document.getElementById('rf-video-director').value.trim())) return showAl('sub-e','Please enter the video director.'); } }
+  if(step===2){ if(isMultiTrackRelease()){ console.log('[TIR-DEBUG] tracks read from DOM at Next click:', JSON.parse(JSON.stringify(readTracksFromDOM()))); var msg=trackValidationMessage(); if(msg){ console.log('[TIR-DEBUG] validation failed with:', msg); return showAl('sub-e',msg); } } else if(!uploadState.audio.url) return showAl('sub-e','Please upload your audio file (WAV or FLAC).'); if(releaseMedium()==='video'){ if(!document.getElementById('rf-video-url').value.trim()) return showAl('sub-e','Please enter the hosted video URL.'); if(!uploadState.thumbnail.url) return showAl('sub-e','Please upload the video thumbnail.'); if(!uploadState.artwork.url) return showAl('sub-e','Please upload the artwork / poster.'); if(!(window.val?val('rf-video-director'):document.getElementById('rf-video-director').value.trim())) return showAl('sub-e','Please enter the video director.'); } }
   if(step===3){ if(!document.getElementById('s7').value.trim()) return showAl('sub-e','Please select a release date.'); if(!selectedPlatforms().length) return showAl('sub-e','Please choose at least one delivery platform.'); var pst=document.getElementById('rf-preview-start'); if(pst&&pst.value.trim()&&Number(pst.value)<0) return showAl('sub-e','Preview start time cannot be negative.'); }
   document.getElementById('sub-e').classList.remove('on'); setReleaseStep(step);
 };
@@ -2810,8 +3034,8 @@ window.submitRelease=async function(){
   if(!title) return showAl('sub-e','Please enter a release title.'); if(!type) return showAl('sub-e','Please select a release type.'); if(!artist) return showAl('sub-e','Please enter the primary artist name.'); if(!genre) return showAl('sub-e','Please select a genre.'); if(!lang) return showAl('sub-e','Please select a language.'); if(!date) return showAl('sub-e','Please select a release date.'); if(!writers) return showAl('sub-e','Please enter songwriter name(s).'); if(!selectedPlatforms().length) return showAl('sub-e','Please choose at least one delivery platform.');
   var tmsg=trackValidationMessage(); if(tmsg) return showAl('sub-e',tmsg); if(!isMultiTrackRelease() && !uploadState.audio.url) return showAl('sub-e','Please upload your audio file (WAV or FLAC).');
   var btn=document.getElementById('bsub'); btn.disabled=true; btn.textContent='Submitting...'; var medium=releaseMedium();
-  var data={ userId:CU.uid, artistName:AD.name||CU.displayName||artist, title:title, type:type, primaryArtist:artist, featuredArtists:gv('s3'), spotifyArtistUrl:spotifyUrl, appleMusicArtistUrl:appleMusicUrl, genre:genre, subGenre:gv('s5'), language:lang, releaseDate:date, contentRating:document.getElementById('s8').value, recordedYear:gv('s-rec-year'), originalReleaseDate:gv('s-orig-date'), copyrightYear:gv('s-c-year'), copyrightText:gv('s-c-text'), phonogramYear:gv('s-p-year'), phonogramText:gv('s-p-text'), label:gv('s10'), upc:gv('s11'), writers:writers, producers:gv('s13'), platforms:document.getElementById('s14').value, selectedPlatforms:selectedPlatforms(), territories:document.getElementById('s15').value, previewStartTime:gv('rf-preview-start')?Number(gv('rf-preview-start')):null, lyrics:gv('s16'), notes:gv('s17'), version:gv('rf-version'), releaseMedium:medium, releaseCategory:medium==='video'?'music-video':'audio', audioUrl:!isMultiTrackRelease()?(uploadState.audio.url||null):null, audioPublicId:!isMultiTrackRelease()?(uploadState.audio.pid||null):null, audioFilename:!isMultiTrackRelease()?(uploadState.audio.filename||null):null, audioFormat:!isMultiTrackRelease()?(uploadState.audio.format||null):null, audioSize:!isMultiTrackRelease()?(uploadState.audio.size||null):null, trackItems:isMultiTrackRelease()?trackItems.map(function(t,idx){ return {trackNumber:idx+1,title:t.title||'',artist:t.artist||artist||'',featured:t.featured||'',composer:t.composer||writers||'',lyricist:t.lyricist||writers||'',producer:t.producer||gv('s13')||'',otherContributors:t.otherContributors||'',audioUrl:t.audio?t.audio.url:null,audioFilename:t.audio?t.audio.filename:null,audioFormat:t.audio?t.audio.format:null,audioSize:t.audio?t.audio.size:null}; }):[], videoUrl:medium==='video'?gv('rf-video-url'):null, videoDirector:medium==='video'?gv('rf-video-director'):null, videoChannel:medium==='video'?gv('rf-video-channel'):null, videoCredits:medium==='video'?gv('rf-video-credits'):null, videoNotes:medium==='video'?gv('rf-video-notes'):null, thumbnailUrl:medium==='video'?(uploadState.thumbnail.url||null):null, thumbnailPublicId:medium==='video'?(uploadState.thumbnail.pid||null):null, thumbnailFilename:medium==='video'?(uploadState.thumbnail.filename||null):null, thumbnailDimensions:medium==='video'?(uploadState.thumbnail.dims||null):null, artworkUrl:uploadState.artwork.url||null, artworkPublicId:uploadState.artwork.pid||null, artworkFilename:uploadState.artwork.filename||null, artworkDimensions:uploadState.artwork.dims||null, status:'pending', submittedAt:new Date().toISOString() };
-  try{ await _db.collection('releases').add(data); try{ if(typeof emailjs!=='undefined'){ await emailjs.send('service_3bit5yi','eg3omh9',{ artist_name:data.artistName, release_title:title, release_type:type, genre:genre, release_date:date, audio_link: medium==='video'?(gv('rf-video-url')||'Video URL not provided'):(isMultiTrackRelease()?'Multi-track release':uploadState.audio.url), artwork_link:uploadState.artwork.url||'Not provided' }); } }catch(e){ console.log('Email:',e);} ['s0','s2','s3','s5','s11','s12','s13','s16','s17','rf-version','rf-video-url','rf-video-director','rf-video-channel','rf-video-credits','rf-video-notes','rf-preview-start','s-spotify-url','s-applemusic-url'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; }); var s2sel=document.getElementById('s2-artist-select'); if(s2sel) s2sel.value=''; var nab=document.getElementById('new-artist-box'); if(nab) nab.classList.add('rf-hidden'); ['s1','s4','s6'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; }); document.getElementById('s7').value=''; document.getElementById('s8').value='no'; document.getElementById('s9').value='2025'; document.getElementById('s10').value='The Imaginary Records'; if(window.resetAudioZone) resetAudioZone(); if(window.resetArtworkZone) resetArtworkZone(); if(window.resetThumbnailZone) resetThumbnailZone(); uploadState.audio={url:null,pid:null,filename:null,size:null,format:null}; uploadState.artwork={url:null,pid:null,filename:null,dims:null}; uploadState.thumbnail={url:null,pid:null,filename:null,dims:null}; trackItems=[]; renderTrackList(); toggleAllPlatforms(true); showAl('sub-s','✓ Release submitted! We will review within 3–5 business days.'); if(window.loadReleases) await loadReleases(); toast('🎵 Release submitted successfully!'); }catch(e){ showAl('sub-e','Submission failed: '+e.message); }
+  var data={ userId:CU.uid, artistName:AD.name||CU.displayName||artist, title:title, type:type, primaryArtist:artist, featuredArtists:gv('s3'), spotifyArtistUrl:spotifyUrl, appleMusicArtistUrl:appleMusicUrl, genre:genre, subGenre:gv('s5'), language:lang, releaseDate:date, contentRating:document.getElementById('s8').value, recordedYear:gv('s-rec-year'), originalReleaseDate:gv('s-orig-date'), copyrightYear:gv('s-c-year'), copyrightText:gv('s-c-text'), phonogramYear:gv('s-p-year'), phonogramText:gv('s-p-text'), label:gv('s10'), upc:gv('s11'), writers:writers, producers:gv('s13'), platforms:document.getElementById('s14').value, selectedPlatforms:selectedPlatforms(), territories:document.getElementById('s15').value, previewStartTime:gv('rf-preview-start')?Number(gv('rf-preview-start')):null, lyrics:gv('s16'), notes:gv('s17'), version:gv('rf-version'), releaseMedium:medium, releaseCategory:medium==='video'?'music-video':'audio', audioUrl:!isMultiTrackRelease()?(uploadState.audio.url||null):null, audioPublicId:!isMultiTrackRelease()?(uploadState.audio.pid||null):null, audioFilename:!isMultiTrackRelease()?(uploadState.audio.filename||null):null, audioFormat:!isMultiTrackRelease()?(uploadState.audio.format||null):null, audioSize:!isMultiTrackRelease()?(uploadState.audio.size||null):null, trackItems:isMultiTrackRelease()?readTracksFromDOM().map(function(t,idx){ return {trackNumber:idx+1,title:t.title||'',artist:t.artist||artist||'',featured:t.featured||'',composer:t.composer||writers||'',lyricist:t.lyricist||writers||'',producer:t.producer||gv('s13')||'',otherContributors:t.otherContributors||'',audioUrl:t.audio?t.audio.url:null,audioFilename:t.audio?t.audio.filename:null,audioFormat:t.audio?t.audio.format:null,audioSize:t.audio?t.audio.size:null}; }):[], videoUrl:medium==='video'?gv('rf-video-url'):null, videoDirector:medium==='video'?gv('rf-video-director'):null, videoChannel:medium==='video'?gv('rf-video-channel'):null, videoCredits:medium==='video'?gv('rf-video-credits'):null, videoNotes:medium==='video'?gv('rf-video-notes'):null, thumbnailUrl:medium==='video'?(uploadState.thumbnail.url||null):null, thumbnailPublicId:medium==='video'?(uploadState.thumbnail.pid||null):null, thumbnailFilename:medium==='video'?(uploadState.thumbnail.filename||null):null, thumbnailDimensions:medium==='video'?(uploadState.thumbnail.dims||null):null, artworkUrl:uploadState.artwork.url||null, artworkPublicId:uploadState.artwork.pid||null, artworkFilename:uploadState.artwork.filename||null, artworkDimensions:uploadState.artwork.dims||null, status:'pending', submittedAt:new Date().toISOString() };
+  try{ await _db.collection('releases').add(data); try{ if(typeof emailjs!=='undefined'){ await emailjs.send('service_3bit5yi','eg3omh9',{ artist_name:data.artistName, release_title:title, release_type:type, genre:genre, release_date:date, audio_link: medium==='video'?(gv('rf-video-url')||'Video URL not provided'):(isMultiTrackRelease()?'Multi-track release':uploadState.audio.url), artwork_link:uploadState.artwork.url||'Not provided' }); } }catch(e){ console.log('Email:',e);} ['s0','s2','s3','s5','s11','s12','s13','s16','s17','rf-version','rf-video-url','rf-video-director','rf-video-channel','rf-video-credits','rf-video-notes','rf-preview-start','s-spotify-url','s-applemusic-url'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; }); var s2sel=document.getElementById('s2-artist-select'); if(s2sel) s2sel.value=''; var nab=document.getElementById('new-artist-box'); if(nab) nab.classList.add('rf-hidden'); ['s1','s4','s6'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; }); document.getElementById('s7').value=''; document.getElementById('s8').value='no'; document.getElementById('s9').value='2025'; document.getElementById('s10').value='The Imaginary Records'; if(window.resetAudioZone) resetAudioZone(); if(window.resetArtworkZone) resetArtworkZone(); if(window.resetThumbnailZone) resetThumbnailZone(); uploadState.audio={url:null,pid:null,filename:null,size:null,format:null}; uploadState.artwork={url:null,pid:null,filename:null,dims:null}; uploadState.thumbnail={url:null,pid:null,filename:null,dims:null}; trackAudioData={}; var _tl=document.getElementById('rf-track-list'); if(_tl) _tl.innerHTML=''; renderTrackList(); toggleAllPlatforms(true); showAl('sub-s','✓ Release submitted! We will review within 3–5 business days.'); if(window.loadReleases) await loadReleases(); toast('🎵 Release submitted successfully!'); }catch(e){ showAl('sub-e','Submission failed: '+e.message); }
   btn.disabled=false; btn.textContent='Submit for distribution';
 };
 window.resetThumbnailZone=function(){ var z=document.getElementById('thumbnail-zone'); if(!z) return; z.classList.remove('has-file','uploading','error'); var c=z.querySelector('.uz-c'); if(c) c.style.display='flex'; var u=document.getElementById('thumbnail-uploading'); if(u) u.style.display='none'; var p=document.getElementById('thumbnail-preview'); if(p){ p.style.display='none'; p.src=''; } var ov=document.getElementById('thumbnail-overlay'); if(ov) ov.style.display='none'; var sr=document.getElementById('thumbnail-status-row'); if(sr) sr.style.display='none'; var inp=document.getElementById('thumbnail-input'); if(inp) inp.value=''; z.onclick=function(){ document.getElementById('thumbnail-input').click(); }; };

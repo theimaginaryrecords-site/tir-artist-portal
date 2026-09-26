@@ -685,6 +685,7 @@ html,body{
         <div class="form-group"><label>Email Address</label><input type="email" id="lem" placeholder="your@email.com" onkeydown="if(event.key==='Enter')doLogin()"/></div>
         <div class="form-group"><label>Password</label><input type="password" id="lpw" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"/></div>
         <button class="btn-green" id="blg" onclick="doLogin()">Sign In to Portal</button>
+        <div class="auth-note"><a href="#" onclick="doForgotPassword();return false;" style="color:var(--green);font-weight:700">Forgot password?</a></div>
         <div class="auth-note">Don't have an account?<br>Contact TIR at <strong style="color:var(--txt2)">support@theimaginaryrecords.in</strong></div>
       </div>
     </div>
@@ -747,6 +748,13 @@ html,body{
       <div id="ob-id-status" style="font-size:12px;color:var(--txt3);margin-bottom:10px"></div>
       <div class="err-box" id="ob-id-err"></div>
       <button class="btn-green" id="ob-id-btn" onclick="obSubmitId()">Submit &amp; Continue to Dashboard</button>
+    </div>
+
+    <div id="ob-error" style="display:none;text-align:center">
+      <h2 style="margin-bottom:8px">Something went wrong</h2>
+      <p style="color:var(--txt2);font-size:13px;margin-bottom:22px">We couldn't load your profile. Check your connection and try again.</p>
+      <button class="btn-green" style="width:auto;padding:12px 28px" onclick="obRetryGate()">Retry</button>
+      <div class="auth-note"><a href="#" onclick="doSignOut();return false;" style="color:var(--txt3)">Sign out</a></div>
     </div>
   </div>
 </div>
@@ -1415,6 +1423,16 @@ html,body{
             </div>
           </div>
         </div>
+        <div class="section">
+          <div class="section-head"><h3>Change Password</h3></div>
+          <div class="section-body">
+            <div class="p2col">
+              <div class="pfield"><label>Current password</label><input type="password" id="pw-cur" placeholder="••••••••"/></div>
+              <div class="pfield"><label>New password (min 6 characters)</label><input type="password" id="pw-new" placeholder="••••••••"/></div>
+            </div>
+            <div style="margin-top:16px;display:flex;justify-content:flex-end"><button class="btn-submit" onclick="doChangePassword()">Update Password</button></div>
+          </div>
+        </div>
       </div>
 
     </div><!-- /content -->
@@ -1657,10 +1675,10 @@ function setAvatars(init, name) {
 function setPhoto(url) {
   ['sb-av','mob-av','mob-av2'].forEach(function(id) {
     var el = document.getElementById(id);
-    if (el) el.innerHTML = '<img src="'+url+'" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>';
+    if (el) el.innerHTML = '<img src="'+safeUrl(url)+'" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>';
   });
   var ta = document.getElementById('top-av');
-  if (ta) ta.innerHTML = '<img src="'+url+'" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>';
+  if (ta) ta.innerHTML = '<img src="'+safeUrl(url)+'" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>';
   var pp = document.getElementById('photo-prev-img');
   if (pp) { pp.src = url; pp.style.display = 'block'; }
   var pov = document.getElementById('photo-ov');
@@ -1689,12 +1707,28 @@ async function doLogin() {
   }
 }
 function doSignOut() { _auth.signOut(); }
+async function doForgotPassword() {
+  var em = document.getElementById('lem').value.trim();
+  var err = document.getElementById('aerr');
+  err.classList.remove('on');
+  if (!em) { err.textContent = 'Please enter your email address first, then click Forgot password.'; err.classList.add('on'); return; }
+  try {
+    await _auth.sendPasswordResetEmail(em);
+    toast('Password reset email sent ✓ Check your inbox.');
+  } catch(e) {
+    var m = 'Could not send reset email. ';
+    m += (e.code === 'auth/user-not-found') ? 'No account found with that email.' : e.message;
+    err.textContent = m; err.classList.add('on');
+  }
+}
 
 // ═══════════════════════════════════════════════════════════
 // ONBOARDING GATE: email verify -> agreement+signature -> ID upload
 // ═══════════════════════════════════════════════════════════
 var AGREEMENT_VERSION = '5.0';
 var obVerifyPollTimer = null;
+var _gateUser = null;
+function obRetryGate() { checkOnboardingGate(_gateUser || _auth.currentUser); }
 var AGREEMENT_TEXT_HTML = '<h3 style="color:var(--txt);margin-bottom:6px">Artist Distribution Agreement — Version 5.0</h3>'
   + '<p style="margin-bottom:10px"><strong>This is a legally binding agreement between The Imaginary Records ("Label") and the Artist ("You"). By signing below, you agree to all terms contained herein.</strong></p>'
   + '<p style="margin-bottom:10px"><strong>Section 1 — Parties.</strong> Label: The Imaginary Records, a sole proprietorship owned and operated by Aabyd Khan, Village Gund Saderkote Bala, Block Hajin, District Bandipora, J&amp;K, 193504, India. Artist: the individual, group, or entity registering through this portal.</p>'
@@ -1719,10 +1753,11 @@ var AGREEMENT_TEXT_HTML = '<h3 style="color:var(--txt);margin-bottom:6px">Artist
   + '<p style="margin-top:14px"><strong>By checking the box and signing below, you acknowledge that you have read, understood, and agreed to all terms above. This is a legally binding agreement under Indian law. The full text is also available at theimaginaryrecords.in/agreement.</strong></p>';
 
 function checkOnboardingGate(user) {
+  _gateUser = user;
   document.getElementById('auth').style.display = 'none';
   document.getElementById('dash').style.display = 'none';
   document.getElementById('onboard').style.display = 'none';
-  ['ob-verify','ob-agreement','ob-id'].forEach(function(id){ document.getElementById(id).style.display = 'none'; });
+  ['ob-verify','ob-agreement','ob-id','ob-error'].forEach(function(id){ document.getElementById(id).style.display = 'none'; });
   if (obVerifyPollTimer) { clearInterval(obVerifyPollTimer); obVerifyPollTimer = null; }
 
   if (!user.emailVerified) {
@@ -1751,7 +1786,10 @@ function checkOnboardingGate(user) {
       return;
     }
     showDash(user);
-  }).catch(function() { showDash(user); });
+  }).catch(function() {
+    document.getElementById('onboard').style.display = 'flex';
+    document.getElementById('ob-error').style.display = 'block';
+  });
 }
 
 async function obCheckVerified() {
@@ -1901,6 +1939,18 @@ async function saveBankDetails() {
       updatedAt: new Date().toISOString()
     }
   };
+  var bd = data.bankDetails;
+  var newBlank = !(bd.accountHolder || bd.bankName || bd.accountNumber || bd.ifscSwift || bd.bankCountry || bd.upiId);
+  if (newBlank) {
+    var prev = (typeof AD !== 'undefined' && AD) ? AD.bankDetails : null;
+    var hadSaved = !!(prev && (prev.accountHolder || prev.bankName || prev.accountNumber || prev.ifscSwift || prev.bankCountry || prev.upiId));
+    if (hadSaved) {
+      if (!confirm('This will erase your saved bank details. Continue?')) return;
+    } else {
+      toast('Please fill in at least your account holder name, bank name and account number, or a UPI ID.');
+      return;
+    }
+  }
   try {
     await _db.collection('users').doc(CU.uid).set(data, { merge: true });
     AD.bankDetails = data.bankDetails;
@@ -1942,7 +1992,7 @@ function renderLaRoster() {
   if (!roster.length) { list.innerHTML = '<div class="empty" style="padding:36px"><div class="empty-icon">🎤</div><div class="empty-title">No artists added yet</div></div>'; return; }
   list.innerHTML = '<table style="width:100%;border-collapse:collapse"><thead><tr style="text-align:left;font-size:11px;color:var(--txt3);text-transform:uppercase"><th style="padding:10px 8px">Name</th><th style="padding:10px 8px">Genre</th><th style="padding:10px 8px">Spotify</th><th style="padding:10px 8px">Apple Music</th><th style="padding:10px 8px">Added</th></tr></thead><tbody>' +
     roster.map(function(a, idx) {
-      return '<tr style="border-top:1px solid var(--brd)"><td style="padding:10px 8px;font-weight:700">' + escA2(a.name||'') + '</td><td style="padding:10px 8px;color:var(--txt3)">' + escA2(a.genre||'—') + '</td><td style="padding:10px 8px">' + (a.spotifyUrl ? '<a href="'+a.spotifyUrl+'" target="_blank" style="color:#1db954">Link</a>' : '—') + '</td><td style="padding:10px 8px">' + (a.appleMusicUrl ? '<a href="'+a.appleMusicUrl+'" target="_blank" style="color:#fa9e9b">Link</a>' : '—') + '</td><td style="padding:10px 8px;color:var(--txt3);font-size:12px">' + (a.addedAt ? a.addedAt.substring(0,10) : '—') + '</td></tr>';
+      return '<tr style="border-top:1px solid var(--brd)"><td style="padding:10px 8px;font-weight:700">' + escA2(a.name||'') + '</td><td style="padding:10px 8px;color:var(--txt3)">' + escA2(a.genre||'—') + '</td><td style="padding:10px 8px">' + (a.spotifyUrl ? '<a href="'+safeUrl(a.spotifyUrl)+'" target="_blank" style="color:#1db954">Link</a>' : '—') + '</td><td style="padding:10px 8px">' + (a.appleMusicUrl ? '<a href="'+safeUrl(a.appleMusicUrl)+'" target="_blank" style="color:#fa9e9b">Link</a>' : '—') + '</td><td style="padding:10px 8px;color:var(--txt3);font-size:12px">' + (a.addedAt ? a.addedAt.substring(0,10) : '—') + '</td></tr>';
     }).join('') + '</tbody></table>';
 }
 function renderAnalytics() {
@@ -2004,6 +2054,26 @@ async function saveProfile() {
     setTimeout(function(){ ok.classList.remove('on'); }, 3000);
     toast('Profile saved ✓');
   } catch(e) { toast('Error: ' + e.message); }
+}
+
+async function doChangePassword() {
+  var cur = document.getElementById('pw-cur').value;
+  var nw = document.getElementById('pw-new').value;
+  if (!cur || !nw) { toast('Please enter your current and new password.'); return; }
+  if (nw.length < 6) { toast('New password must be at least 6 characters.'); return; }
+  try {
+    var cred = firebase.auth.EmailAuthProvider.credential(CU.email, cur);
+    await CU.reauthenticateWithCredential(cred);
+    await CU.updatePassword(nw);
+    document.getElementById('pw-cur').value = '';
+    document.getElementById('pw-new').value = '';
+    toast('Password updated ✓');
+  } catch(e) {
+    var m = 'Could not update password. ';
+    if (e.code === 'auth/wrong-password' || e.code === 'auth/invalid-credential') m += 'Current password is incorrect.';
+    else m += e.message;
+    toast(m);
+  }
 }
 
 async function handlePhotoUpload(event) {
@@ -2291,10 +2361,10 @@ function renderHomeRels(list) {
   var bc = {pending:'rb-pending',review:'rb-review',approved:'rb-approved',live:'rb-live',rejected:'rb-rejected'};
   el.innerHTML = list.map(function(r) {
     return '<div class="ri" onclick="openRelDetail(\''+r.id+'\')">' +
-      '<div class="r-art">'+(r.artworkUrl?'<img src="'+r.artworkUrl+'" alt=""/>':'🎵')+'</div>' +
-      '<div class="r-info"><div class="r-title">'+(r.title||'—')+'</div>' +
-      '<div class="r-meta"><span>'+((r.releaseMedium==='video'?'Music Video':'Audio')+' · '+(r.type||'Single'))+'</span><span class="r-dot"></span><span>'+(r.genre||'—')+'</span><span class="r-dot"></span><span>'+(r.releaseDate||'—')+'</span></div></div>' +
-      '<span class="rbadge '+(bc[r.status]||'rb-pending')+'">'+(r.status||'pending')+'</span></div>';
+      '<div class="r-art">'+(r.artworkUrl?'<img src="'+safeUrl(r.artworkUrl)+'" alt=""/>':'🎵')+'</div>' +
+      '<div class="r-info"><div class="r-title">'+escA2(r.title||'—')+'</div>' +
+      '<div class="r-meta"><span>'+((r.releaseMedium==='video'?'Music Video':'Audio')+' · '+escA2(r.type||'Single'))+'</span><span class="r-dot"></span><span>'+escA2(r.genre||'—')+'</span><span class="r-dot"></span><span>'+escA2(r.releaseDate||'—')+'</span></div></div>' +
+      '<span class="rbadge '+(bc[r.status]||'rb-pending')+'">'+escA2(r.status||'pending')+'</span></div>';
   }).join('');
 }
 
@@ -2304,9 +2374,9 @@ function renderRelGrid(cid, list) {
   var bc = {pending:'rb-pending',review:'rb-review',approved:'rb-approved',live:'rb-live',rejected:'rb-rejected'};
   el.innerHTML = list.map(function(r, i) {
     return '<div class="rel-card" style="animation:fadeUp .4s '+( i*.05)+'s ease both" onclick="openRelDetail(\''+r.id+'\')">'+
-      '<div class="rel-card-art">'+(r.artworkUrl?'<img src="'+r.artworkUrl+'" alt=""/>':'<div class="art-ph">🎵</div>')+
-      '<div class="rel-card-status"><span class="rbadge '+(bc[r.status]||'rb-pending')+'" style="font-size:10px;padding:2px 8px">'+(r.status||'pending')+'</span></div></div>'+
-      '<div class="rel-card-body"><div class="rel-card-title">'+(r.title||'—')+'</div><div class="rel-card-sub">'+(r.releaseMedium==='video'?'Music Video':'Audio')+' · '+(r.type||'Single')+' · '+(r.genre||'—')+'</div><div class="rel-card-sub" style="margin-top:2px;color:var(--txt3)">'+(r.releaseDate||'—')+'</div></div></div>';
+      '<div class="rel-card-art">'+(r.artworkUrl?'<img src="'+safeUrl(r.artworkUrl)+'" alt=""/>':'<div class="art-ph">🎵</div>')+
+      '<div class="rel-card-status"><span class="rbadge '+(bc[r.status]||'rb-pending')+'" style="font-size:10px;padding:2px 8px">'+escA2(r.status||'pending')+'</span></div></div>'+
+      '<div class="rel-card-body"><div class="rel-card-title">'+escA2(r.title||'—')+'</div><div class="rel-card-sub">'+(r.releaseMedium==='video'?'Music Video':'Audio')+' · '+escA2(r.type||'Single')+' · '+escA2(r.genre||'—')+'</div><div class="rel-card-sub" style="margin-top:2px;color:var(--txt3)">'+escA2(r.releaseDate||'—')+'</div></div></div>';
   }).join('');
 }
 
@@ -2325,28 +2395,28 @@ function openRelDetail(id) {
   var pi = {Spotify:'🎧','Apple Music':'🍎','Amazon Music':'📦','YouTube Music':'▶️',JioSaavn:'🎵',Gaana:'🎶',Tidal:'🌊',Deezer:'🎸',Anghami:'🎼'};
   var mediaBlock = '';
   if (r.releaseMedium==='video' && r.videoUrl) {
-    mediaBlock = '<div class="rmodal-audio"><div class="rmodal-audio-name">Hosted Video URL</div><div class="rmodal-audio-meta"><span class="fmt-pill">VIDEO</span>'+(r.videoDirector?'<span style="color:var(--txt3)">Director: '+escapeHtml(r.videoDirector)+'</span>':'')+'</div><div style="font-size:12px;line-height:1.7;color:var(--txt2);word-break:break-all">'+escapeHtml(r.videoUrl)+'</div><div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap"><a href="'+r.videoUrl+'" target="_blank" style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;background:var(--green-dim);border:1px solid rgba(57,231,95,.2);border-radius:6px;color:var(--green);font-size:12px;font-weight:600;text-decoration:none">↗ Open Video URL</a>'+(r.thumbnailUrl?'<a href="'+r.thumbnailUrl+'" target="_blank" download style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;background:var(--card);border:1px solid var(--brd);border-radius:6px;color:var(--txt2);font-size:12px;text-decoration:none">↓ Thumbnail</a>':'')+(r.artworkUrl?'<a href="'+r.artworkUrl+'" target="_blank" download style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;background:var(--card);border:1px solid var(--brd);border-radius:6px;color:var(--txt2);font-size:12px;text-decoration:none">↓ Artwork</a>':'')+'</div></div>';
+    mediaBlock = '<div class="rmodal-audio"><div class="rmodal-audio-name">Hosted Video URL</div><div class="rmodal-audio-meta"><span class="fmt-pill">VIDEO</span>'+(r.videoDirector?'<span style="color:var(--txt3)">Director: '+escapeHtml(r.videoDirector)+'</span>':'')+'</div><div style="font-size:12px;line-height:1.7;color:var(--txt2);word-break:break-all">'+escapeHtml(r.videoUrl)+'</div><div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap"><a href="'+safeUrl(r.videoUrl)+'" target="_blank" style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;background:var(--green-dim);border:1px solid rgba(57,231,95,.2);border-radius:6px;color:var(--green);font-size:12px;font-weight:600;text-decoration:none">↗ Open Video URL</a>'+(r.thumbnailUrl?'<a href="'+safeUrl(r.thumbnailUrl)+'" target="_blank" download style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;background:var(--card);border:1px solid var(--brd);border-radius:6px;color:var(--txt2);font-size:12px;text-decoration:none">↓ Thumbnail</a>':'')+(r.artworkUrl?'<a href="'+safeUrl(r.artworkUrl)+'" target="_blank" download style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;background:var(--card);border:1px solid var(--brd);border-radius:6px;color:var(--txt2);font-size:12px;text-decoration:none">↓ Artwork</a>':'')+'</div></div>';
   } else if (r.audioUrl) {
-    mediaBlock = '<div class="rmodal-audio"><div class="rmodal-audio-name">'+(r.audioFilename||'Audio File')+'</div><div class="rmodal-audio-meta"><span class="fmt-pill">'+(r.audioFormat||'AUDIO')+'</span>'+(r.audioSize?'<span style="color:var(--txt3)">'+r.audioSize+'</span>':'')+'</div><audio controls src="'+r.audioUrl+'" style="width:100%;accent-color:var(--green)"></audio><div style="margin-top:10px;display:flex;gap:8px"><a href="'+r.audioUrl+'" target="_blank" download style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;background:var(--green-dim);border:1px solid rgba(57,231,95,.2);border-radius:6px;color:var(--green);font-size:12px;font-weight:600;text-decoration:none">↓ Download Audio</a>'+(r.artworkUrl?'<a href="'+r.artworkUrl+'" target="_blank" download style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;background:var(--card);border:1px solid var(--brd);border-radius:6px;color:var(--txt2);font-size:12px;text-decoration:none">↓ Artwork</a>':'')+'</div></div>';
+    mediaBlock = '<div class="rmodal-audio"><div class="rmodal-audio-name">'+escapeHtml(r.audioFilename||'Audio File')+'</div><div class="rmodal-audio-meta"><span class="fmt-pill">'+escapeHtml(r.audioFormat||'AUDIO')+'</span>'+(r.audioSize?'<span style="color:var(--txt3)">'+escapeHtml(r.audioSize)+'</span>':'')+'</div><audio controls src="'+safeUrl(r.audioUrl)+'" style="width:100%;accent-color:var(--green)"></audio><div style="margin-top:10px;display:flex;gap:8px"><a href="'+safeUrl(r.audioUrl)+'" target="_blank" download style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;background:var(--green-dim);border:1px solid rgba(57,231,95,.2);border-radius:6px;color:var(--green);font-size:12px;font-weight:600;text-decoration:none">↓ Download Audio</a>'+(r.artworkUrl?'<a href="'+safeUrl(r.artworkUrl)+'" target="_blank" download style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;background:var(--card);border:1px solid var(--brd);border-radius:6px;color:var(--txt2);font-size:12px;text-decoration:none">↓ Artwork</a>':'')+'</div></div>';
   }
   var rows = [['Format',r.releaseMedium==='video'?'Music Video':'Audio Release'],['Label',r.label||'—'],['Release Date',r.releaseDate||'—'],['Original Release Date',r.originalReleaseDate||'New release'],['Year Recorded',r.recordedYear||'—'],['Content Rating',r.contentRating||r.explicit||'—'],['© Copyright',r.copyrightText||(r.copyrightYear?'© '+r.copyrightYear:'—')],['℗ Phonogram',r.phonogramText||(r.phonogramYear?'℗ '+r.phonogramYear:'—')],['Songwriters',r.writers||'—'],['Producers',r.producers||'—'],['Director',r.videoDirector||'—'],['Channel',r.videoChannel||'—'],['UPC/ISRC',r.upc||'To be assigned by TIR'],['Platforms',r.platforms==='all'?'All Platforms':r.platforms],['Territories',r.territories==='worldwide'?'Worldwide':r.territories],['Submitted',r.submittedAt?r.submittedAt.substring(0,10):'—']];
   document.getElementById('rel-modal-box').innerHTML =
     '<div class="rmodal-head"><div class="rmodal-title">Release Details</div><button class="mclose" onclick="closeRelModal()">✕</button></div>'+
     '<div class="rmodal-body">'+
     '<div class="rmodal-hero">'+
-    '<div class="rmodal-art">'+(r.artworkUrl?'<img src="'+r.artworkUrl+'" alt=""/>':(r.releaseMedium==='video'?'▣':'🎵'))+'</div>'+
+    '<div class="rmodal-art">'+(r.artworkUrl?'<img src="'+safeUrl(r.artworkUrl)+'" alt=""/>':(r.releaseMedium==='video'?'▣':'🎵'))+'</div>'+
     '<div class="rmodal-info">'+
-    '<div class="rmodal-name">'+(r.title||'—')+'</div>'+
-    '<div class="rmodal-artist">'+(r.primaryArtist||r.artistName||'—')+(r.featuredArtists?' ft. '+r.featuredArtists:'')+'</div>'+
-    '<div class="rmodal-tags"><span class="rmodal-tag">'+(r.releaseMedium==='video'?'Music Video':'Audio Release')+'</span><span class="rmodal-tag">'+(r.type||'Single')+'</span><span class="rmodal-tag">'+(r.genre||'—')+'</span><span class="rmodal-tag">'+(r.language||'—')+'</span>'+(r.contentRating==='explicit'||r.explicit==='yes'?'<span class="rmodal-tag" style="color:#fb923c">🔞 Explicit</span>':r.contentRating==='non-explicit'?'<span class="rmodal-tag" style="color:#94a3b8">Non-Explicit</span>':'')+'</div>'+
-    '<span class="rbadge '+(bc[r.status]||'rb-pending')+'">'+(sl[r.status]||'Pending')+'</span>'+
+    '<div class="rmodal-name">'+escapeHtml(r.title||'—')+'</div>'+
+    '<div class="rmodal-artist">'+escapeHtml(r.primaryArtist||r.artistName||'—')+(r.featuredArtists?' ft. '+escapeHtml(r.featuredArtists):'')+'</div>'+
+    '<div class="rmodal-tags"><span class="rmodal-tag">'+(r.releaseMedium==='video'?'Music Video':'Audio Release')+'</span><span class="rmodal-tag">'+escapeHtml(r.type||'Single')+'</span><span class="rmodal-tag">'+escapeHtml(r.genre||'—')+'</span><span class="rmodal-tag">'+escapeHtml(r.language||'—')+'</span>'+(r.contentRating==='explicit'||r.explicit==='yes'?'<span class="rmodal-tag" style="color:#fb923c">🔞 Explicit</span>':r.contentRating==='non-explicit'?'<span class="rmodal-tag" style="color:#94a3b8">Non-Explicit</span>':'')+'</div>'+
+    '<span class="rbadge '+(bc[r.status]||'rb-pending')+'">'+escapeHtml(sl[r.status]||'Pending')+'</span>'+
     (r.status==='live'?'<div class="plats-wrap">'+plats.map(function(p){ return '<div class="plat-chip">'+(pi[p]||'🎵')+' '+p+'</div>'; }).join('')+'</div>':'')+
     '</div></div>'+
     mediaBlock+
     '<div class="rmodal-section"><div class="rmodal-sec-title">Release Info</div>'+
-    rows.map(function(kv){ return '<div class="rmod-row"><div class="rmod-key">'+kv[0]+'</div><div class="rmod-val">'+(kv[1]||'—')+'</div></div>'; }).join('')+
+    rows.map(function(kv){ return '<div class="rmod-row"><div class="rmod-key">'+kv[0]+'</div><div class="rmod-val">'+(escapeHtml(kv[1]||'—'))+'</div></div>'; }).join('')+
     '</div>'+
-    (r.notes?'<div class="rmodal-section"><div class="rmodal-sec-title">Notes to TIR</div><div style="font-size:13px;color:var(--txt2);line-height:1.7;background:var(--card);border:1px solid var(--brd);border-radius:8px;padding:12px 14px">'+r.notes+'</div></div>':'')+
+    (r.notes?'<div class="rmodal-section"><div class="rmodal-sec-title">Notes to TIR</div><div style="font-size:13px;color:var(--txt2);line-height:1.7;background:var(--card);border:1px solid var(--brd);border-radius:8px;padding:12px 14px">'+escapeHtml(r.notes)+'</div></div>':'')+
     '</div>'+
     '<div class="prog-wrap"><div class="prog-label">Release Progress</div><div class="prog-steps">'+stepsHTML+'</div></div>';
   document.getElementById('rel-modal').classList.add('on');
@@ -2809,7 +2879,7 @@ async function loadTickets() {
         '<div style="font-size:11px;color:var(--txt3);margin-top:6px">'+(t.category||'—')+' · '+(t.priority||'Normal')+' · '+(t.createdAt?t.createdAt.substring(0,10):'—')+'</div>' +
         '<div class="ticket-reply '+(t.reply?'on':'')+'">' +
         '<div class="tr-label">TIR Response</div>' +
-        '<div class="tr-text">'+(t.reply||'Your ticket has been received. We will respond within 24–48 hours.')+'</div></div></div>';
+        '<div class="tr-text">'+escA2(t.reply||'Your ticket has been received. We will respond within 24–48 hours.')+'</div></div></div>';
     }).join('');
   } catch(e) { console.log('Tickets:', e); }
 }
@@ -2840,6 +2910,7 @@ async function submitTicket() {
 // ═══════════════════════════════════════════════════════════
 var pageNames = {home:'Dashboard',releases:'My Releases',submit:'Submit Release',royalties:'Royalties',blog:'Music Blog',support:'Support Center',tickets:'My Tickets',profile:'My Profile','all-artists':'All Artists',analytics:'Analytics',bank:'Bank & Payout'};
 function goPage(name, niId) {
+  var _t=document.getElementById('toast'); if(_t) _t.classList.remove('on');
   document.querySelectorAll('.pg').forEach(function(p){ p.classList.remove('on'); });
   document.querySelectorAll('.nav-item').forEach(function(n){ n.classList.remove('active'); });
   var pg = document.getElementById('page-'+name);
@@ -2871,6 +2942,8 @@ function setMob(name) { document.querySelectorAll('.mob-ni').forEach(function(n)
 // ═══════════════════════════════════════════════════════════
 function showAl(id, m) { var e=document.getElementById(id); if(e){ e.textContent=m; e.classList.add('on'); } }
 function toast(m) { var t=document.getElementById('toast'); document.getElementById('toast-msg').textContent=m; t.classList.add('on'); setTimeout(function(){ t.classList.remove('on'); },3500); }
+function escA2(s){ return escapeHtml(s==null?'':s); }
+function safeUrl(u){ try{ var x=String(u||'').trim(); if(/^https?:\/\//i.test(x)) return x; }catch(e){} return '#'; }
 </script>
 
 <style>
@@ -2970,12 +3043,15 @@ function checkForReleaseDraft() {
     var data = JSON.parse(raw);
     var banner = document.getElementById('draft-banner');
     var timeEl = document.getElementById('draft-banner-time');
-    if (banner && timeEl && data.savedAt) {
-      timeEl.textContent = new Date(data.savedAt).toLocaleString();
+    if (banner && timeEl) {
+      timeEl.textContent = data.savedAt ? new Date(data.savedAt).toLocaleString() : 'an unknown time';
       banner.style.display = 'flex';
     }
   } catch(e) {}
 }
+window.checkForReleaseDraft = checkForReleaseDraft;
+window.startAutosaveTimer = startAutosaveTimer;
+window.stopAutosaveTimer = stopAutosaveTimer;
 window.restoreReleaseDraft = function() {
   var raw;
   try { raw = localStorage.getItem(DRAFT_KEY); } catch(e) { return; }
@@ -3020,7 +3096,7 @@ function trackCardHTML(idx, seed){
     +'<div class="form-group2 full" id="track-audio-wrap-'+idx+'"><label>Audio file *</label><input type="file" id="track-audio-input-'+idx+'" accept=".wav,.flac,.aiff,.aif" style="display:none" onchange="uploadTrackAudio(event,'+idx+')"/>'+trackAudioStatusHTML(idx)+'</div>'
     +'</div></div>';
 }
-function escA2(s){ return window.escapeHtml ? escapeHtml(String(s||'')) : String(s||''); }
+/* escA2 is defined globally near the HELPERS section; this duplicate was removed so all callers share one copy */
 function readTracksFromDOM(){
   var cards = document.querySelectorAll('#rf-track-list .track-admin-card');
   var out = [];
@@ -3136,7 +3212,10 @@ window.submitRelease=async function(){
   var tmsg=trackValidationMessage(); if(tmsg) return showAl('sub-e',tmsg); if(!isMultiTrackRelease() && !uploadState.audio.url) return showAl('sub-e','Please upload your audio file (WAV or FLAC).');
   var btn=document.getElementById('bsub'); btn.disabled=true; btn.textContent='Submitting...'; var medium=releaseMedium();
   var data={ userId:CU.uid, artistName:AD.name||CU.displayName||artist, title:title, type:type, primaryArtist:artist, featuredArtists:gv('s3'), spotifyArtistUrl:spotifyUrl, appleMusicArtistUrl:appleMusicUrl, genre:genre, subGenre:gv('s5'), language:lang, releaseDate:date, contentRating:document.getElementById('s8').value, recordedYear:gv('s-rec-year'), originalReleaseDate:gv('s-orig-date'), copyrightYear:gv('s-c-year'), copyrightText:gv('s-c-text'), phonogramYear:gv('s-p-year'), phonogramText:gv('s-p-text'), label:gv('s10'), upc:gv('s11'), writers:writers, producers:gv('s13'), platforms:document.getElementById('s14').value, selectedPlatforms:selectedPlatforms(), territories:document.getElementById('s15').value, previewStartTime:gv('rf-preview-start')?Number(gv('rf-preview-start')):null, lyrics:gv('s16'), notes:gv('s17'), version:gv('rf-version'), releaseMedium:medium, releaseCategory:medium==='video'?'music-video':'audio', audioUrl:!isMultiTrackRelease()?(uploadState.audio.url||null):null, audioPublicId:!isMultiTrackRelease()?(uploadState.audio.pid||null):null, audioFilename:!isMultiTrackRelease()?(uploadState.audio.filename||null):null, audioFormat:!isMultiTrackRelease()?(uploadState.audio.format||null):null, audioSize:!isMultiTrackRelease()?(uploadState.audio.size||null):null, trackItems:isMultiTrackRelease()?readTracksFromDOM().map(function(t,idx){ return {trackNumber:idx+1,title:t.title||'',artist:t.artist||artist||'',featured:t.featured||'',composer:t.composer||writers||'',lyricist:t.lyricist||writers||'',producer:t.producer||gv('s13')||'',otherContributors:t.otherContributors||'',audioUrl:t.audio?t.audio.url:null,audioFilename:t.audio?t.audio.filename:null,audioFormat:t.audio?t.audio.format:null,audioSize:t.audio?t.audio.size:null}; }):[], videoUrl:medium==='video'?gv('rf-video-url'):null, videoDirector:medium==='video'?gv('rf-video-director'):null, videoChannel:medium==='video'?gv('rf-video-channel'):null, videoCredits:medium==='video'?gv('rf-video-credits'):null, videoNotes:medium==='video'?gv('rf-video-notes'):null, thumbnailUrl:medium==='video'?(uploadState.thumbnail.url||null):null, thumbnailPublicId:medium==='video'?(uploadState.thumbnail.pid||null):null, thumbnailFilename:medium==='video'?(uploadState.thumbnail.filename||null):null, thumbnailDimensions:medium==='video'?(uploadState.thumbnail.dims||null):null, artworkUrl:uploadState.artwork.url||null, artworkPublicId:uploadState.artwork.pid||null, artworkFilename:uploadState.artwork.filename||null, artworkDimensions:uploadState.artwork.dims||null, status:'pending', submittedAt:new Date().toISOString() };
-  try{ await _db.collection('releases').add(data); try{ if(typeof emailjs!=='undefined'){ await emailjs.send('service_3bit5yi','eg3omh9',{ artist_name:data.artistName, release_title:title, release_type:type, genre:genre, release_date:date, audio_link: medium==='video'?(gv('rf-video-url')||'Video URL not provided'):(isMultiTrackRelease()?'Multi-track release':uploadState.audio.url), artwork_link:uploadState.artwork.url||'Not provided' }); } }catch(e){ console.log('Email:',e);} ['s0','s2','s3','s5','s11','s12','s13','s16','s17','rf-version','rf-video-url','rf-video-director','rf-video-channel','rf-video-credits','rf-video-notes','rf-preview-start','s-spotify-url','s-applemusic-url'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; }); var s2sel=document.getElementById('s2-artist-select'); if(s2sel) s2sel.value=''; var nab=document.getElementById('new-artist-box'); if(nab) nab.classList.add('rf-hidden'); ['s1','s4','s6'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; }); document.getElementById('s7').value=''; document.getElementById('s8').value='no'; document.getElementById('s9').value='2025'; document.getElementById('s10').value='The Imaginary Records'; if(window.resetAudioZone) resetAudioZone(); if(window.resetArtworkZone) resetArtworkZone(); if(window.resetThumbnailZone) resetThumbnailZone(); uploadState.audio={url:null,pid:null,filename:null,size:null,format:null}; uploadState.artwork={url:null,pid:null,filename:null,dims:null}; uploadState.thumbnail={url:null,pid:null,filename:null,dims:null}; trackAudioData={}; var _tl=document.getElementById('rf-track-list'); if(_tl) _tl.innerHTML=''; renderTrackList(); toggleAllPlatforms(true); try{ localStorage.removeItem(DRAFT_KEY); }catch(e){} var _db2=document.getElementById('draft-banner'); if(_db2) _db2.style.display='none'; showAl('sub-s','✓ Release submitted! We will review within 3–5 business days.'); if(window.loadReleases) await loadReleases(); toast('🎵 Release submitted successfully!'); }catch(e){ showAl('sub-e','Submission failed: '+e.message); }
+  try{ await _db.collection('releases').add(data); try{ if(typeof emailjs!=='undefined'){ await emailjs.send('service_3bit5yi','eg3omh9',{ artist_name:data.artistName, release_title:title, release_type:type, genre:genre, release_date:date, audio_link: medium==='video'?(gv('rf-video-url')||'Video URL not provided'):(isMultiTrackRelease()?'Multi-track release':uploadState.audio.url), artwork_link:uploadState.artwork.url||'Not provided' }); } }catch(e){ console.log('Email:',e);} }
+  catch(e){ btn.disabled=false; btn.textContent='Submit for distribution'; return showAl('sub-e','Submission failed: '+e.message); }
+  try{
+    var _clr=function(id,v){ var _e=document.getElementById(id); if(_e) _e.value=v; };     ['s0','s2','s3','s5','s11','s12','s13','s16','s17','rf-version','rf-video-url','rf-video-director','rf-video-channel','rf-video-credits','rf-video-notes','rf-preview-start','s-spotify-url','s-applemusic-url'].forEach(function(id){ _clr(id,''); }); _clr('s2-artist-select',''); var nab=document.getElementById('new-artist-box'); if(nab) nab.classList.add('rf-hidden'); ['s1','s4','s6'].forEach(function(id){ _clr(id,''); }); _clr('s7',''); _clr('s8','no'); _clr('s9','2025'); _clr('s10','The Imaginary Records'); if(window.resetAudioZone) resetAudioZone(); if(window.resetArtworkZone) resetArtworkZone(); if(window.resetThumbnailZone) resetThumbnailZone(); uploadState.audio={url:null,pid:null,filename:null,size:null,format:null}; uploadState.artwork={url:null,pid:null,filename:null,dims:null}; uploadState.thumbnail={url:null,pid:null,filename:null,dims:null}; trackAudioData={}; var _tl=document.getElementById('rf-track-list'); if(_tl) _tl.innerHTML=''; renderTrackList(); toggleAllPlatforms(true); try{ localStorage.removeItem(DRAFT_KEY); }catch(e){} var _db2=document.getElementById('draft-banner'); if(_db2) _db2.style.display='none'; showAl('sub-s','✓ Release submitted! We will review within 3–5 business days.'); if(window.loadReleases) await loadReleases(); toast('🎵 Release submitted successfully!'); }catch(e){ console.warn('[TIR] post-submit cleanup failed:',e); }
   btn.disabled=false; btn.textContent='Submit for distribution';
 };
 window.resetThumbnailZone=function(){ var z=document.getElementById('thumbnail-zone'); if(!z) return; z.classList.remove('has-file','uploading','error'); var c=z.querySelector('.uz-c'); if(c) c.style.display='flex'; var u=document.getElementById('thumbnail-uploading'); if(u) u.style.display='none'; var p=document.getElementById('thumbnail-preview'); if(p){ p.style.display='none'; p.src=''; } var ov=document.getElementById('thumbnail-overlay'); if(ov) ov.style.display='none'; var sr=document.getElementById('thumbnail-status-row'); if(sr) sr.style.display='none'; var inp=document.getElementById('thumbnail-input'); if(inp) inp.value=''; z.onclick=function(){ document.getElementById('thumbnail-input').click(); }; };

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script>try{if(localStorage.getItem('tir-theme')==='light'){document.documentElement.setAttribute('data-theme','light');}}catch(e){}</script>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>TIR Artist Portal</title>
@@ -10,14 +11,238 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
+<style>/* ═══════════════════════════════════════════════════════════
+   TIR DESIGN SYSTEM — dark default, light via [data-theme="light"]
+   ═══════════════════════════════════════════════════════════ */
 :root{
   --bg:#0c0c0c;--sidebar:#111;--surface:#161616;--card:#1c1c1c;--card2:#222;
   --brd:#2a2a2a;--brd2:#333;--green:#39e75f;--green-dim:rgba(57,231,95,.1);
   --txt:#fff;--txt2:#9a9a9a;--txt3:#555;
   --red:#ef4444;--blue:#3b82f6;--orange:#f97316;--r:8px;--r2:12px;
+  --green-hi:#4df070;--purple:#a855f7;--cyan:#22d3ee;
+  --grad:linear-gradient(135deg,#39e75f 0%,#22d3ee 100%);
+  --shadow:0 10px 32px rgba(0,0,0,.45);
+  --input:#141414;
 }
+[data-theme="light"]{
+  --bg:#f3f5f7;--sidebar:#ffffff;--surface:#ffffff;--card:#ffffff;--card2:#edf0f4;
+  --brd:#e2e8f0;--brd2:#cbd5e1;--green:#16a34a;--green-dim:rgba(22,163,74,.12);
+  --txt:#0f172a;--txt2:#475569;--txt3:#94a3b8;
+  --red:#dc2626;--blue:#2563eb;--orange:#ea580c;
+  --green-hi:#16a34a;
+  --grad:linear-gradient(135deg,#16a34a 0%,#0ea5e9 100%);
+  --shadow:0 10px 28px rgba(15,23,42,.10);
+  --input:#ffffff;
+}
+
+/* ── AUTH (login) ── */
+#auth{min-height:100vh;display:none;align-items:center;justify-content:center;padding:24px;
+  background:radial-gradient(ellipse 60% 50% at 20% 10%,rgba(57,231,95,.07),transparent 70%),var(--bg)}
+[data-theme="light"] #auth{background:radial-gradient(ellipse 60% 50% at 20% 10%,rgba(22,163,74,.08),transparent 70%),var(--bg)}
+.tir-auth-wrap{display:flex;width:920px;max-width:98vw;border:1px solid var(--brd);border-radius:18px;overflow:hidden;background:var(--sidebar);box-shadow:var(--shadow)}
+.tir-auth-left{flex:1;padding:52px 46px;display:flex;flex-direction:column;justify-content:center;border-right:1px solid var(--brd);position:relative;overflow:hidden;
+  background:linear-gradient(160deg,rgba(57,231,95,.10),transparent 55%),var(--sidebar)}
+.tir-auth-logo{display:flex;align-items:center;gap:10px;margin-bottom:38px}
+.tir-auth-logo-text{font-size:15px;font-weight:800;letter-spacing:1px}
+.tir-auth-logo-text em{font-style:normal;color:var(--green)}
+.tir-auth-h{font-size:32px;font-weight:900;line-height:1.2;margin-bottom:12px}
+.tir-auth-h em{font-style:normal;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.tir-auth-sub{font-size:13px;color:var(--txt2);line-height:1.7;margin-bottom:30px;max-width:380px}
+.tir-auth-feats{display:flex;flex-direction:column;gap:11px}
+.tir-auth-feat{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--txt2)}
+.tir-check{width:20px;height:20px;border-radius:50%;background:var(--green-dim);border:1px solid var(--green);color:var(--green);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0}
+.tir-auth-right{width:380px;padding:52px 40px;display:flex;flex-direction:column;justify-content:center}
+.tir-auth-right h2{font-size:26px;font-weight:900;margin-bottom:4px}
+.tir-auth-right-sub{font-size:13px;color:var(--txt2);margin-bottom:26px}
+.tir-auth-row{display:flex;align-items:center;justify-content:space-between;margin:4px 0 8px}
+.tir-remember{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--txt2);cursor:pointer}
+.tir-remember input{accent-color:var(--green);width:14px;height:14px;cursor:pointer}
+.tir-forgot{font-size:12px;color:var(--green);font-weight:700;text-decoration:none}
+.tir-forgot:hover{text-decoration:underline}
+
+/* ── TOPBAR additions ── */
+.tir-icon-btn{position:relative;width:38px;height:38px;border-radius:50%;background:var(--card);border:1px solid var(--brd2);color:var(--txt2);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s}
+.tir-icon-btn:hover{color:var(--green);border-color:var(--green)}
+.tir-badge{position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;border-radius:10px;background:var(--red);color:#fff;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0 5px}
+.tir-chip{position:relative}
+.tir-chip-main{display:flex;align-items:center;gap:8px;cursor:pointer;padding:4px 6px;border-radius:24px;transition:background .15s}
+.tir-chip-main:hover{background:var(--card)}
+.tir-chip-name{font-size:13px;font-weight:700;max-width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tir-menu{position:absolute;right:0;top:calc(100% + 8px);width:210px;background:var(--sidebar);border:1px solid var(--brd);border-radius:12px;box-shadow:var(--shadow);padding:6px;display:none;z-index:500}
+.tir-menu.on{display:block;animation:fadeUp .18s ease}
+.tir-menu-item{padding:10px 14px;font-size:13px;font-weight:500;color:var(--txt2);border-radius:8px;cursor:pointer;transition:all .12s}
+.tir-menu-item:hover{background:var(--card);color:var(--txt)}
+.tir-menu-item.tir-danger{color:var(--red)}
+.tir-menu-item.tir-danger:hover{background:rgba(239,68,68,.08);color:var(--red)}
+.tir-menu-sep{height:1px;background:var(--brd);margin:6px 4px}
+
+/* ── DASHBOARD ── */
+.tir-welcome{margin-bottom:22px}
+.tir-welcome h1{font-size:30px;font-weight:900;letter-spacing:-.5px;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;display:inline-block}
+.tir-welcome p{font-size:13px;color:var(--txt2);margin-top:6px}
+.tir-stats{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:18px}
+.tir-stat{background:var(--sidebar);border:1px solid var(--brd);border-radius:14px;padding:16px 18px;transition:transform .15s,border-color .15s}
+.tir-stat:hover{transform:translateY(-2px);border-color:var(--brd2)}
+.tir-stat-label{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--txt3);margin-bottom:8px}
+.tir-stat-val{font-size:24px;font-weight:900;font-family:'DM Mono',monospace}
+.tir-stat-sub{font-size:11px;color:var(--txt3);margin-top:4px}
+.tir-green{color:var(--green)}.tir-orange{color:var(--orange)}.tir-blue{color:var(--blue)}.tir-red{color:var(--red)}
+.tir-panel{background:var(--sidebar);border:1px solid var(--brd);border-radius:14px;margin-bottom:18px;overflow:hidden}
+.tir-panel-head{padding:16px 22px;border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.tir-panel-head h3{font-size:15px;font-weight:800}
+.tir-link{font-size:12px;color:var(--green);font-weight:700;cursor:pointer}
+.tir-link:hover{text-decoration:underline}
+.tir-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.tir-grid-2>.tir-panel{margin-bottom:18px}
+.tir-payout{padding:22px;display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}
+.tir-payout-label{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--txt3);margin-bottom:6px}
+.tir-payout-amt{font-size:34px;font-weight:900;font-family:'DM Mono',monospace;color:var(--green)}
+.tir-hint{font-size:12px;color:var(--txt3);line-height:1.7;margin-top:8px}
+.tir-dist-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:18px 22px}
+.tir-dist-card{background:var(--card);border:1px solid var(--brd);border-radius:10px;padding:12px;display:flex;flex-direction:column;align-items:center;gap:4px}
+.tir-dist-n{font-size:22px;font-weight:900;font-family:'DM Mono',monospace}
+.tir-dist-l{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--txt3)}
+.tir-month-cards{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;padding:18px 22px 6px}
+.tir-month-card{background:var(--card);border:1px solid var(--brd);border-radius:10px;padding:10px;text-align:center}
+.tir-month-card .m{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--txt3)}
+.tir-month-card .n{font-size:18px;font-weight:900;margin-top:4px}
+.tir-barchart{display:flex;align-items:flex-end;gap:10px;height:150px;padding:14px 22px 20px}
+.tir-bar{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:6px;min-width:0;height:100%}
+.tir-bar-fill{width:100%;max-width:44px;border-radius:6px 6px 3px 3px;background:var(--grad);min-height:4px;transition:height .4s ease}
+.tir-bar-lbl{font-size:10px;color:var(--txt3);font-weight:700;white-space:nowrap}
+.tir-bar-val{font-size:10px;color:var(--txt2);font-weight:700}
+.tir-activity-item{display:flex;gap:12px;padding:11px 22px;border-top:1px solid var(--brd);font-size:13px;align-items:flex-start}
+.tir-activity-item:first-child{border-top:none}
+.tir-activity-dot{width:8px;height:8px;border-radius:50%;background:var(--green);margin-top:5px;flex-shrink:0}
+.tir-activity-time{margin-left:auto;font-size:11px;color:var(--txt3);white-space:nowrap;flex-shrink:0}
+
+/* ── BUTTONS ── */
+.tir-btn-primary{padding:11px 22px;background:var(--green);border:none;border-radius:var(--r);color:#000;font-size:13px;font-weight:800;cursor:pointer;transition:all .15s;white-space:nowrap}
+.tir-btn-primary:hover{background:var(--green-hi);transform:translateY(-1px)}
+.tir-btn-primary:disabled{background:var(--card2);color:var(--txt3);cursor:not-allowed;transform:none}
+.tir-btn-ghost{padding:11px 22px;background:transparent;border:1px solid var(--brd2);border-radius:var(--r);color:var(--txt2);font-size:13px;font-weight:700;cursor:pointer;transition:all .15s;white-space:nowrap}
+.tir-btn-ghost:hover{border-color:var(--green);color:var(--green)}
+.tir-btn-sm{padding:8px 16px;font-size:12px}
+
+/* ── TABLES / TOOLBAR / PILLS / PAGINATION ── */
+.tir-toolbar{padding:16px 22px 0}
+.tir-toolbar2{padding:12px 22px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.tir-pills{display:flex;gap:8px;flex-wrap:wrap}
+.tir-pill{padding:8px 14px;border-radius:20px;background:var(--card);border:1px solid var(--brd2);color:var(--txt2);font-size:12px;font-weight:700;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:6px}
+.tir-pill:hover{border-color:var(--green);color:var(--txt)}
+.tir-pill.on{background:var(--green);border-color:var(--green);color:#000}
+.tir-pill-n{font-size:10px;background:rgba(0,0,0,.18);border-radius:10px;padding:1px 7px;font-weight:800}
+.tir-pill.on .tir-pill-n{background:rgba(0,0,0,.18)}
+.tir-show{font-size:12px;color:var(--txt2);display:flex;align-items:center;gap:8px}
+.tir-show select,.tir-date{background:var(--input);border:1px solid var(--brd2);border-radius:var(--r);color:var(--txt);padding:8px 10px;font-size:12px;font-family:'Inter',sans-serif;outline:none}
+.tir-search{background:var(--input);border:1px solid var(--brd2);border-radius:var(--r);color:var(--txt);padding:9px 14px;font-size:13px;font-family:'Inter',sans-serif;outline:none;width:260px;max-width:60vw}
+.tir-search:focus{border-color:var(--green)}
+.tir-table-wrap{overflow-x:auto;padding:6px 22px 10px}
+.tir-table{width:100%;border-collapse:collapse;font-size:13px;min-width:760px}
+.tir-table th{text-align:left;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--txt3);padding:10px 10px;border-bottom:1px solid var(--brd);white-space:nowrap}
+.tir-table td{padding:11px 10px;border-bottom:1px solid var(--brd);vertical-align:middle}
+.tir-table tbody tr{transition:background .12s}
+.tir-table tbody tr:hover{background:rgba(255,255,255,.02)}
+[data-theme="light"] .tir-table tbody tr:hover{background:rgba(0,0,0,.02)}
+.tir-cover{width:40px;height:40px;border-radius:8px;object-fit:cover;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:18px;overflow:hidden;flex-shrink:0}
+.tir-cover img{width:100%;height:100%;object-fit:cover}
+.tir-row-title{font-weight:700}
+.tir-row-sub{font-size:11px;color:var(--txt3);margin-top:2px}
+.tir-pagination{display:flex;align-items:center;justify-content:flex-end;gap:6px;padding:12px 22px 18px;flex-wrap:wrap}
+.tir-page-btn{min-width:32px;height:32px;border-radius:8px;background:var(--card);border:1px solid var(--brd2);color:var(--txt2);font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0 10px}
+.tir-page-btn:hover{border-color:var(--green);color:var(--txt)}
+.tir-page-btn.on{background:var(--green);border-color:var(--green);color:#000}
+.tir-page-btn:disabled{opacity:.35;cursor:not-allowed}
+.tir-page-info{font-size:12px;color:var(--txt3);margin-right:auto}
+.tir-bulk{display:flex;align-items:center;gap:12px;padding:10px 22px;background:var(--green-dim);border-top:1px solid rgba(57,231,95,.2);font-size:12px;font-weight:700;color:var(--txt)}
+.rb-draft{background:rgba(148,163,184,.12);color:#94a3b8}
+.rb-takedown{background:rgba(239,68,68,.12);color:#f87171}
+
+/* ── TABS ── */
+.tir-tabs{display:flex;gap:6px;border-bottom:1px solid var(--brd);padding:0 22px;flex-wrap:wrap}
+.tir-tab{background:none;border:none;color:var(--txt3);font-size:13px;font-weight:700;padding:12px 16px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;font-family:'Inter',sans-serif}
+.tir-tab:hover{color:var(--txt)}
+.tir-tab.on{color:var(--green);border-bottom-color:var(--green)}
+.tir-tabpage{display:none}
+.tir-tabpage.on{display:block;animation:fadeIn .2s ease}
+.tir-sec-title{font-size:13px;font-weight:800;margin:4px 0 10px}
+
+/* ── KYC ── */
+.tir-kyc-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:8px}
+.tir-kyc-sec{background:var(--card);border:1px solid var(--brd);border-radius:12px;padding:18px}
+.tir-kyc-sec h4{font-size:13px;font-weight:800;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--brd)}
+.tir-kyc-sec .form-group2{margin-bottom:12px}
+.tir-note{background:rgba(57,231,95,.06);border:1px solid rgba(57,231,95,.2);border-radius:10px;padding:12px 16px;font-size:12.5px;color:var(--txt2);line-height:1.7;margin-bottom:16px}
+.tir-status-badge{font-size:11px;font-weight:800;padding:5px 14px;border-radius:20px;text-transform:uppercase;letter-spacing:1px}
+.st-none{background:rgba(148,163,184,.12);color:#94a3b8;border:1px solid rgba(148,163,184,.3)}
+.st-pending{background:rgba(249,115,22,.12);color:#fb923c;border:1px solid rgba(249,115,22,.3)}
+.st-approved{background:rgba(57,231,95,.12);color:var(--green);border:1px solid rgba(57,231,95,.3)}
+.st-rejected{background:rgba(239,68,68,.12);color:#f87171;border:1px solid rgba(239,68,68,.3)}
+.tir-docs{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tir-doc-box{position:relative;border:1.5px dashed var(--brd2);border-radius:10px;min-height:110px;display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;background:var(--input);transition:border-color .15s;text-align:center;padding:10px}
+.tir-doc-box:hover{border-color:var(--green)}
+.tir-doc-box img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.tir-doc-box.has-file{border-style:solid;border-color:var(--green)}
+.tir-doc-ph{font-size:11px;color:var(--txt2);font-weight:600;line-height:1.6}
+.tir-doc-ok{position:absolute;bottom:6px;left:6px;right:6px;font-size:10px;font-weight:800;color:var(--green);background:rgba(0,0,0,.65);border-radius:6px;padding:3px}
+
+/* ── NOTIFICATIONS ── */
+.tir-notif-item{border:1px solid var(--brd);border-radius:10px;padding:14px 16px;margin-bottom:10px;background:var(--card);cursor:pointer;transition:border-color .15s}
+.tir-notif-item:hover{border-color:var(--brd2)}
+.tir-notif-item.unread{border-color:rgba(57,231,95,.4);background:rgba(57,231,95,.03)}
+.tir-notif-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.tir-notif-sub{font-size:13px;font-weight:800}
+.tir-notif-meta{font-size:11px;color:var(--txt3);margin-top:4px}
+.tir-notif-body{font-size:13px;color:var(--txt2);line-height:1.7;margin-top:10px;display:none;white-space:pre-wrap}
+.tir-notif-item.open .tir-notif-body{display:block}
+.tir-unread-dot{width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0}
+
+/* ── WALLET ── */
+.tir-wallet-hero{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;background:linear-gradient(135deg,rgba(57,231,95,.10),transparent 60%),var(--card);border:1px solid var(--brd);border-radius:12px;padding:22px}
+.tir-wallet-amt{font-size:38px;font-weight:900;font-family:'DM Mono',monospace;color:var(--green)}
+.tir-tx-credit{color:var(--green);font-weight:800;font-family:'DM Mono',monospace;text-align:right;white-space:nowrap}
+.tir-tx-debit{color:var(--red);font-weight:800;font-family:'DM Mono',monospace;text-align:right;white-space:nowrap}
+.tir-type-pill{font-size:10px;font-weight:800;padding:3px 10px;border-radius:12px;text-transform:uppercase;letter-spacing:.5px}
+.tp-credit{background:rgba(57,231,95,.12);color:var(--green)}
+.tp-debit{background:rgba(239,68,68,.12);color:#f87171}
+
+/* ── MISC ── */
+.tir-dates{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.tir-empty-row td{padding:34px 10px !important;text-align:center;color:var(--txt3);font-size:13px}
+.tir-gate-icon{font-size:44px;margin-bottom:14px}
+
+/* ── RESPONSIVE ── */
+@media(max-width:1100px){
+  .tir-stats{grid-template-columns:repeat(3,1fr)}
+  .tir-grid-2{grid-template-columns:1fr}
+  .tir-kyc-grid{grid-template-columns:1fr}
+  .tir-month-cards{grid-template-columns:repeat(3,1fr)}
+}
+@media(max-width:760px){
+  .tir-auth-wrap{flex-direction:column}
+  .tir-auth-left{display:none}
+  .tir-auth-right{width:100%;padding:36px 26px}
+  .tir-stats{grid-template-columns:repeat(2,1fr)}
+  .tir-month-cards{grid-template-columns:repeat(2,1fr)}
+  .content{padding:18px 14px}
+  .topbar{padding:12px 14px}
+  .tir-chip-name{display:none}
+  .tir-search{width:100%;max-width:none}
+}
+
+/* ── PAGE SWITCHING (replaces legacy .pg) ── */
+.page{display:none;animation:fadeUp .3s ease}
+.page.on{display:block}
+
+/* ── AVATARS ── */
+.user-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#1a3a1a,#0d1a0d);border:2px solid var(--brd2);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:var(--green);overflow:hidden;flex-shrink:0}
+.user-avatar img{width:100%;height:100%;object-fit:cover}
+[data-theme="light"] .user-avatar{background:linear-gradient(135deg,#dcfce7,#f0fdf4)}
+
+/* ── LEGACY PORTAL/WIZARD STYLES (kept for wizard, modals, mobile) ── */
+
+*{box-sizing:border-box;margin:0;padding:0}
+
 body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;min-height:100vh;font-size:14px;overflow-x:hidden;-webkit-font-smoothing:antialiased}
 
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
@@ -647,10 +872,6 @@ html,body{
 }
 
 </style>
-</head>
-<body>
-
-<!-- LOADING -->
 <div id="ld">
   <div class="ld-brand">
     <div class="ld-wave"><span></span><span></span><span></span><span></span></div>
@@ -660,38 +881,6 @@ html,body{
 </div>
 
 <!-- AUTH -->
-<div id="auth">
-  <div class="auth-wrap">
-    <div class="auth-left">
-      <div class="auth-logo">
-        <div class="auth-logo-wave"><span></span><span></span><span></span><span></span></div>
-        <div class="auth-logo-text">T·I·R <em>MUSIC</em></div>
-      </div>
-      <div class="auth-h">Release your music.<br><em>Get paid. Stay free.</em></div>
-      <div class="auth-sub">Submit your tracks to 200+ platforms worldwide and keep 85% of all royalties earned.</div>
-      <div class="auth-feats">
-        <div class="auth-feat"><div class="af-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20,6 9,17 4,12"/></svg></div>Spotify, Apple Music, JioSaavn & 200+ more</div>
-        <div class="auth-feat"><div class="af-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20,6 9,17 4,12"/></svg></div>Direct file upload — drag & drop audio & artwork</div>
-        <div class="auth-feat"><div class="af-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20,6 9,17 4,12"/></svg></div>Real-time release status tracking</div>
-        <div class="auth-feat"><div class="af-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20,6 9,17 4,12"/></svg></div>85% royalty rate — paid quarterly via PayPal</div>
-        <div class="auth-feat"><div class="af-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20,6 9,17 4,12"/></svg></div>Keep 100% of your rights</div>
-      </div>
-    </div>
-    <div class="auth-right">
-      <div id="auth-view-login">
-        <h2>Welcome back</h2>
-        <p>Sign in to your artist account</p>
-        <div class="err-box" id="aerr"></div>
-        <div class="form-group"><label>Email Address</label><input type="email" id="lem" placeholder="your@email.com" onkeydown="if(event.key==='Enter')doLogin()"/></div>
-        <div class="form-group"><label>Password</label><input type="password" id="lpw" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"/></div>
-        <button class="btn-green" id="blg" onclick="doLogin()">Sign In to Portal</button>
-        <div class="auth-note"><a href="#" onclick="doForgotPassword();return false;" style="color:var(--green);font-weight:700">Forgot password?</a></div>
-        <div class="auth-note">Don't have an account?<br>Contact TIR at <strong style="color:var(--txt2)">support@theimaginaryrecords.in</strong></div>
-      </div>
-    </div>
-  </div>
-</div>
-
 <!-- ONBOARDING GATE: email verify -> agreement+signature -> ID verification -->
 <div id="onboard" style="display:none;min-height:100vh;align-items:center;justify-content:center;background:var(--bg);padding:24px">
   <div style="width:720px;max-width:96vw;border:1px solid var(--brd);border-radius:16px;background:var(--sidebar);padding:40px;box-shadow:0 32px 80px rgba(0,0,0,.8)">
@@ -759,6 +948,39 @@ html,body{
   </div>
 </div>
 
+<!-- AUTH -->
+<div id="auth">
+  <div class="tir-auth-wrap">
+    <div class="tir-auth-left">
+      <div class="tir-auth-logo">
+        <div class="ld-wave"><span></span><span></span><span></span><span></span></div>
+        <div class="tir-auth-logo-text">THE IMAGINARY <em>RECORDS</em></div>
+      </div>
+      <h1 class="tir-auth-h">Release your music.<br><em>Keep your rights.</em></h1>
+      <p class="tir-auth-sub">The official artist portal of The Imaginary Records — distribute to 200+ platforms, track every release, and watch your royalties grow.</p>
+      <div class="tir-auth-feats">
+        <div class="tir-auth-feat"><span class="tir-check">✓</span>Spotify, Apple Music, JioSaavn &amp; 200+ more</div>
+        <div class="tir-auth-feat"><span class="tir-check">✓</span>Direct upload — drag &amp; drop audio &amp; artwork</div>
+        <div class="tir-auth-feat"><span class="tir-check">✓</span>Real-time release status tracking</div>
+        <div class="tir-auth-feat"><span class="tir-check">✓</span>85% royalty rate — paid quarterly via PayPal</div>
+        <div class="tir-auth-feat"><span class="tir-check">✓</span>Keep 100% of your rights</div>
+      </div>
+    </div>
+    <div class="tir-auth-right">
+      <h2>Welcome back</h2>
+      <p class="tir-auth-right-sub">Sign in to your TIR artist account</p>
+      <div class="err-box" id="aerr"></div>
+      <div class="form-group"><label>Email Address</label><input type="email" id="lem" placeholder="your@email.com" onkeydown="if(event.key==='Enter')doLogin()" autocomplete="email"/></div>
+      <div class="form-group"><label>Password</label><input type="password" id="lpw" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()" autocomplete="current-password"/></div>
+      <div class="tir-auth-row">
+        <label class="tir-remember"><input type="checkbox" id="lrm" checked/> Remember me</label>
+        <a href="#" class="tir-forgot" onclick="doForgotPassword();return false;">Forgot password?</a>
+      </div>
+      <button class="btn-green" id="blg" onclick="doLogin()">Sign In</button>
+      <div class="auth-note">Not registered yet? Contact administrator to create your account.</div>
+    </div>
+  </div>
+</div>
 <!-- DASHBOARD -->
 <div id="dash">
 <div class="layout">
@@ -774,40 +996,35 @@ html,body{
       <div><div class="sb-artist-name" id="sb-name">Artist</div><div class="sb-artist-plan">TIR Artist</div></div>
     </div>
     <div class="sb-earn-box">
-      <span class="sb-earn-label">Earnings</span>
+      <span class="sb-earn-label">Total Earnings</span>
       <div class="sb-earn-amount" id="sb-earn">₹0.00</div>
     </div>
     <nav>
-      <div class="nav-item active" id="ni-home" onclick="goPage('home','ni-home')">
+      <div class="nav-item active" id="nav-dashboard" onclick="goPage('dashboard')">
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Dashboard
       </div>
-      <div class="nav-item" id="ni-releases" onclick="goPage('releases','ni-releases')">
+      <div class="nav-item" id="nav-releases" onclick="goPage('releases')">
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>My Releases
       </div>
-      <div class="nav-item" id="ni-submit" onclick="goPage('submit','ni-submit')">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7-7 7 7"/></svg>Submit Release
+      <div class="nav-item" id="nav-artists" onclick="goPage('artists')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>My Artists
       </div>
-      <div class="nav-item" id="ni-royalties" onclick="goPage('royalties','ni-royalties')">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Royalties
+      <div class="nav-item" id="nav-reports" onclick="goPage('reports')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Reports
       </div>
-      <div class="nav-item" id="ni-blog" onclick="goPage('blog','ni-blog')">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Music Blog
-      </div>
-      <div class="nav-item" id="ni-support" onclick="goPage('support','ni-support')">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Support Center
-      </div>
-      <div class="nav-item" id="ni-tickets" onclick="goPage('tickets','ni-tickets')">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>My Tickets
+      <div class="nav-item" id="nav-service" onclick="goPage('service')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Service Request
         <span class="nav-badge" id="tkt-cnt" style="display:none">!</span>
       </div>
-      <div class="nav-item" id="ni-bank" onclick="goPage('bank','ni-bank')">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Bank &amp; Payout</div>
-      <div class="nav-item" id="nav-all-artists" style="display:none" onclick="goPage('all-artists','nav-all-artists')">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>All Artists</div>
-      <div class="nav-item" id="ni-analytics" style="display:none" onclick="goPage('analytics','ni-analytics')">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Analytics</div>
-      <div class="nav-item" id="ni-profile" onclick="goPage('profile','ni-profile')">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>My Profile
+      <div class="nav-item" id="nav-kyc" onclick="goPage('kyc')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>KYC Verification
+      </div>
+      <div class="nav-item" id="nav-notifs" onclick="goPage('notifs')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>Notifications
+        <span class="nav-badge" id="notif-nav-count" style="display:none">0</span>
+      </div>
+      <div class="nav-item" id="nav-blog" onclick="goPage('blog')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Music Blog
       </div>
     </nav>
     <div class="sb-bottom">
@@ -820,12 +1037,32 @@ html,body{
   <!-- MAIN -->
   <div class="main">
     <div class="topbar">
-      <div class="topbar-title" id="page-title">Dashboard</div>
+      <div class="topbar-title" id="topbar-title">Dashboard</div>
       <div class="topbar-right">
-        <button class="btn-new-rel" onclick="goPage('submit','ni-submit')">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12l7-7 7 7"/></svg>New Release
+        <button class="tir-icon-btn" id="theme-toggle" onclick="toggleTheme()" title="Toggle dark / light theme">
+          <svg id="theme-icon-moon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <svg id="theme-icon-sun" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
         </button>
-        <div class="avatar-btn" id="top-av" onclick="goPage('profile','ni-profile')">A</div>
+        <button class="tir-icon-btn" id="notif-bell" onclick="goPage('notifs')" title="Notifications">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span class="tir-badge" id="notif-bell-count" style="display:none">0</span>
+        </button>
+        <div class="tir-chip" id="profile-chip">
+          <div class="tir-chip-main" onclick="toggleProfileMenu(event)">
+            <div class="avatar-btn" id="top-av">A</div>
+            <span class="tir-chip-name" id="tir-chip-name">Artist</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+          </div>
+          <div class="tir-menu" id="profile-menu">
+            <div class="tir-menu-item" onclick="goPage('profile')">My Profile</div>
+            <div class="tir-menu-item" onclick="goPage('wallet')">My Wallet</div>
+            <div class="tir-menu-item" onclick="goPage('withdrawals')">Withdrawals</div>
+            <div class="tir-menu-item" onclick="goPage('activity')">Activity Logs</div>
+            <div class="tir-menu-item" onclick="goPage('loginhistory')">Login History</div>
+            <div class="tir-menu-sep"></div>
+            <div class="tir-menu-item tir-danger" onclick="doSignOut()">Logout</div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -833,83 +1070,122 @@ html,body{
     <div class="mob-topbar">
       <button class="mob-menu-btn" onclick="openDrawer()"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
       <div class="mob-topbar-brand">T·I·R <em>MUSIC</em></div>
-      <div class="avatar-btn" id="mob-av" style="width:30px;height:30px;font-size:12px">A</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <button class="tir-icon-btn" onclick="toggleTheme()" title="Toggle theme" style="width:32px;height:32px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
+        <div class="avatar-btn" id="mob-av" style="width:30px;height:30px;font-size:12px" onclick="goPage('profile')">A</div>
+      </div>
     </div>
 
     <div class="content">
 
-      <!-- HOME -->
-      <div class="pg on" id="page-home">
-        <div class="dash-grid">
-          <div class="hero-main" onclick="goPage('submit','ni-submit')">
-            <div class="hero-main-bg"></div>
-            <div class="hero-main-content">
-              <h2>Releases are always special</h2>
-              <p>When you've got the beats right, there's no fun in keeping the world waiting.</p>
-              <div class="hero-btns">
-                <button class="btn-hero" onclick="event.stopPropagation();goPage('submit','ni-submit')">Release Music</button>
-                <button class="btn-hero-out" onclick="event.stopPropagation();goPage('blog','ni-blog')">Learn More</button>
+      <!-- HOME / DASHBOARD -->
+      <div class="page on" id="page-dashboard">
+        <div class="tir-welcome">
+          <h1>Welcome back, <span id="dash-welcome">Artist</span></h1>
+          <p>Here's what's happening with your music today.</p>
+        </div>
+
+        <div class="tir-stats">
+          <div class="tir-stat"><div class="tir-stat-label">Releases</div><div class="tir-stat-val" id="stat-releases">0</div><div class="tir-stat-sub">Total submitted</div></div>
+          <div class="tir-stat"><div class="tir-stat-label">Live Releases</div><div class="tir-stat-val tir-green" id="stat-live">0</div><div class="tir-stat-sub">On platforms now</div></div>
+          <div class="tir-stat"><div class="tir-stat-label">Artists</div><div class="tir-stat-val" id="stat-artists">0</div><div class="tir-stat-sub">On your roster</div></div>
+          <div class="tir-stat"><div class="tir-stat-label">Pending Review</div><div class="tir-stat-val tir-orange" id="stat-pending">0</div><div class="tir-stat-sub">Awaiting TIR review</div></div>
+          <div class="tir-stat"><div class="tir-stat-label">Wallet Balance</div><div class="tir-stat-val" id="stat-wallet">₹0.00</div><div class="tir-stat-sub">Available to withdraw</div></div>
+        </div>
+
+        <div class="tir-grid-2">
+          <div class="tir-panel">
+            <div class="tir-panel-head"><h3>Payout Overview</h3><span class="tir-link" onclick="goPage('wallet')">View wallet →</span></div>
+            <div class="tir-payout">
+              <div>
+                <div class="tir-payout-label">Available balance</div>
+                <div class="tir-payout-amt" id="payout-balance">₹0.00</div>
+                <div class="tir-hint">Royalty statements updated every quarter. Minimum payout is <strong>₹500</strong>.</div>
               </div>
+              <button class="tir-btn-primary" onclick="goPage('withdrawals')">Request Payout</button>
             </div>
           </div>
-          <div class="hero-right">
-            <div class="earn-card">
-              <div class="earn-label">Total Earnings</div>
-              <div class="earn-amount">₹<span id="home-earn">0.00</span></div>
-              <div class="earn-desc">See <a href="#" onclick="goPage('royalties','ni-royalties');return false">Royalty Statements</a> for details. Paid quarterly via PayPal.</div>
-            </div>
-            <div class="feat-card" onclick="goPage('submit','ni-submit')">
-              <span class="feat-badge badge-green">NEW</span>
-              <h3>ISRC Assignment Now Live!</h3>
-              <p>Submit your release and TIR automatically assigns ISRC codes at no cost.</p>
-              <span class="feat-link">Submit a release →<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+          <div class="tir-panel">
+            <div class="tir-panel-head"><h3>Release Distribution</h3><span class="tir-link" onclick="goPage('releases')">View all →</span></div>
+            <div class="tir-dist-grid">
+              <div class="tir-dist-card"><span class="tir-dist-n" id="dist-draft">0</span><span class="tir-dist-l">Draft</span></div>
+              <div class="tir-dist-card"><span class="tir-dist-n tir-orange" id="dist-pending">0</span><span class="tir-dist-l">Pending</span></div>
+              <div class="tir-dist-card"><span class="tir-dist-n tir-blue" id="dist-approved">0</span><span class="tir-dist-l">Approved</span></div>
+              <div class="tir-dist-card"><span class="tir-dist-n tir-green" id="dist-live">0</span><span class="tir-dist-l">Live</span></div>
+              <div class="tir-dist-card"><span class="tir-dist-n tir-red" id="dist-rejected">0</span><span class="tir-dist-l">Rejected</span></div>
+              <div class="tir-dist-card"><span class="tir-dist-n" id="dist-takedown">0</span><span class="tir-dist-l">Takedown</span></div>
             </div>
           </div>
         </div>
 
-        <div class="dash-row2">
-          <div class="feat-card">
-            <span class="feat-badge badge-blue">POPULAR</span>
-            <h3>200+ Platforms Worldwide</h3>
-            <p>Spotify, Apple Music, JioSaavn, Gaana, Tidal and more — all in one submission.</p>
-            <span class="feat-link" onclick="goPage('submit','ni-submit')">Submit Now →<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
-          </div>
-          <div class="feat-card" onclick="goPage('royalties','ni-royalties')">
-            <span class="feat-badge badge-green">85% ROYALTY</span>
-            <h3>Keep 85% of Your Earnings</h3>
-            <p>Track royalties seamlessly. TIR only retains 15% as distribution fee.</p>
-            <span class="feat-link">View Royalties →<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
-          </div>
+        <div class="tir-panel">
+          <div class="tir-panel-head"><h3>Monthly Upload Analytics</h3><span>Last 6 months</span></div>
+          <div class="tir-month-cards" id="dash-month-cards"></div>
+          <div class="tir-barchart" id="dash-chart"></div>
         </div>
 
-        <div class="section">
-          <div class="section-head"><h3>Recent Releases</h3><span id="rel-count2" style="cursor:pointer" onclick="goPage('releases','ni-releases')">View all →</span></div>
-          <div class="section-body" id="home-releases">
-            <div class="empty"><div class="empty-icon">🎵</div><div class="empty-title">No releases yet</div><div class="empty-sub">Submit your first release to get started</div></div>
-          </div>
+        <div class="tir-panel">
+          <div class="tir-panel-head"><h3>Recent Activity</h3><span class="tir-link" onclick="goPage('activity')">View all →</span></div>
+          <div id="dash-activity"><div class="empty"><div class="empty-icon">📋</div><div class="empty-title">No activity yet</div></div></div>
         </div>
       </div>
 
-      <!-- RELEASES -->
-      <div class="pg" id="page-releases">
-        <div class="section">
-          <div class="section-head">
-            <h3>All My Releases</h3>
-            <div style="display:flex;align-items:center;gap:10px">
-              <span id="rel-count" style="font-size:12px;color:var(--txt3)">0 releases</span>
-              <button onclick="goPage('submit','ni-submit')" style="padding:7px 14px;background:var(--green);border:none;border-radius:var(--r);color:#000;font-size:12px;font-weight:800;cursor:pointer">+ New Release</button>
+      <!-- MY RELEASES -->
+      <div class="page" id="page-releases">
+        <div class="tir-panel">
+          <div class="tir-panel-head">
+            <h3>My Releases</h3>
+            <button class="tir-btn-primary tir-btn-sm" onclick="goPage('submit')">+ New Release</button>
+          </div>
+          <div class="tir-toolbar">
+            <div class="tir-pills" id="rel-pills">
+              <button class="tir-pill on" data-f="all" onclick="setRelFilter('all')">All <span class="tir-pill-n" id="rel-c-all">0</span></button>
+              <button class="tir-pill" data-f="live" onclick="setRelFilter('live')">Live <span class="tir-pill-n" id="rel-c-live">0</span></button>
+              <button class="tir-pill" data-f="pending" onclick="setRelFilter('pending')">Pending <span class="tir-pill-n" id="rel-c-pending">0</span></button>
+              <button class="tir-pill" data-f="draft" onclick="setRelFilter('draft')">Draft <span class="tir-pill-n" id="rel-c-draft">0</span></button>
+              <button class="tir-pill" data-f="rejected" onclick="setRelFilter('rejected')">Rejected <span class="tir-pill-n" id="rel-c-rejected">0</span></button>
+              <button class="tir-pill" data-f="takedown" onclick="setRelFilter('takedown')">Takedown <span class="tir-pill-n" id="rel-c-takedown">0</span></button>
             </div>
           </div>
-          <div class="section-body">
-            <div class="releases-grid" id="all-releases">
-              <div class="empty" style="grid-column:1/-1"><div class="empty-icon">🎵</div><div class="empty-title">No releases yet</div></div>
+          <div class="tir-toolbar2">
+            <label class="tir-show">Show
+              <select id="rel-perpage" onchange="onRelPerPage(this.value)">
+                <option value="10">10</option><option value="25">25</option><option value="50">50</option>
+              </select> entries
+            </label>
+            <input class="tir-search" id="rel-search" placeholder="Search title or artist..." oninput="onRelSearch(this.value)"/>
+          </div>
+          <div class="tir-bulk" id="rel-bulk" style="display:none">
+            <span id="rel-bulk-count">0 selected</span>
+            <button class="tir-btn-ghost tir-btn-sm" onclick="requestTakedownBulk()">Request Takedown</button>
+          </div>
+          <div class="tir-table-wrap">
+            <table class="tir-table">
+              <thead><tr>
+                <th style="width:36px"><input type="checkbox" id="rel-select-all" onchange="toggleRelSelectAll(this.checked)"/></th>
+                <th style="width:44px">SN</th><th style="width:56px">Cover</th><th>Title</th><th>Artist</th><th>Status</th><th>ISRC</th><th>UPC</th><th>Release Date</th><th>Action</th>
+              </tr></thead>
+              <tbody id="rel-tbody"></tbody>
+            </table>
+          </div>
+          <div class="tir-pagination" id="rel-pagination"></div>
+        </div>
+      </div>
+      <!-- SUBMIT RELEASE (KYC-GATED) -->
+      <div class="page" id="page-submit">
+        <div id="submit-kyc-gate" style="display:none">
+          <div class="tir-panel" style="max-width:640px;margin:40px auto">
+            <div style="padding:44px 36px;text-align:center">
+              <div class="tir-gate-icon">🛡️</div>
+              <h2 style="font-size:22px;font-weight:900;margin-bottom:10px">KYC Verification Required</h2>
+              <p style="font-size:13px;color:var(--txt2);line-height:1.8;margin-bottom:8px">You need an approved KYC profile before you can submit releases for distribution.</p>
+              <p style="font-size:12px;color:var(--txt3);margin-bottom:22px" id="submit-gate-status"></p>
+              <button class="tir-btn-primary" onclick="goPage('kyc')">Complete KYC Verification</button>
             </div>
           </div>
         </div>
-      </div>
+        <div id="submit-builder">
 
-      <!-- SUBMIT RELEASE -->
-      <div class="pg" id="page-submit">
         <div class="al al-e" id="sub-e"></div>
         <div class="al al-s" id="sub-s"></div>
         <div id="draft-banner" style="display:none;background:rgba(255,193,7,.1);border:1px solid rgba(255,193,7,.3);border-radius:10px;padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
@@ -1247,6 +1523,7 @@ html,body{
             </div>
           </div>
         </div>
+        </div>
       </div>
 
       <div class="rf-modal" id="rf-start-modal" onclick="if(event.target===this)closeReleaseStartModal()">
@@ -1267,28 +1544,132 @@ html,body{
         </div>
       </div>
 
-      <!-- ROYALTIES -->
-      <div class="pg" id="page-royalties">
-        <div class="roy-grid">
-          <div class="roy-card"><div class="roy-card-label">Total Earned</div><div class="roy-card-val" style="color:var(--green)" id="roy-total">₹0.00</div><div class="roy-card-sub">All time</div></div>
-          <div class="roy-card"><div class="roy-card-label">This Quarter</div><div class="roy-card-val" id="roy-quarter">₹0.00</div></div>
-          <div class="roy-card"><div class="roy-card-label">Last Payout</div><div class="roy-card-val" id="roy-last">₹0.00</div><div class="roy-card-sub">Via PayPal</div></div>
+            <!-- MY ARTISTS -->
+      <div class="page" id="page-artists">
+        <div class="tir-panel">
+          <div class="tir-panel-head">
+            <h3>My Artists</h3>
+            <div style="display:flex;align-items:center;gap:12px">
+              <span id="artists-count" style="font-size:12px;color:var(--txt3)">0 artists</span>
+              <button class="tir-btn-primary tir-btn-sm" onclick="openArtistModal()">+ Add New Artist</button>
+            </div>
+          </div>
+          <div class="tir-table-wrap">
+            <table class="tir-table">
+              <thead><tr><th style="width:56px">Poster</th><th>Name</th><th>Type</th><th>Spotify</th><th>Apple Music</th><th>YouTube</th><th>Instagram</th><th>Added</th></tr></thead>
+              <tbody id="artists-tbody"></tbody>
+            </table>
+          </div>
         </div>
-        <div class="notice">Royalty statements updated every quarter. Minimum payout is <strong>₹500</strong>. Set your PayPal email in My Profile.</div>
-        <div class="section" style="margin-bottom:16px"><div class="section-head"><h3>Earnings by Platform</h3><span id="roy-period">—</span></div><div class="section-body" id="roy-platforms"><div class="empty"><div class="empty-icon">📊</div><div class="empty-title">No earnings yet</div></div></div></div>
-        <div class="section"><div class="section-head"><h3>Payout History</h3></div><div class="section-body" id="roy-history"><div class="empty"><div class="empty-icon">💸</div><div class="empty-title">No payouts yet</div></div></div></div>
       </div>
 
-      <!-- BLOG -->
-      <div class="pg" id="page-blog">
-        <div class="section"><div class="section-head"><h3>Music Blog</h3><span>Tips, news & insights from TIR</span></div><div class="section-body"><div class="blog-grid" id="blog-grid"><div class="empty" style="grid-column:1/-1"><div class="empty-icon">📝</div><div class="empty-title">No posts yet</div></div></div></div></div>
+      <!-- ADD ARTIST MODAL -->
+      <div class="modal-overlay" id="artist-modal" onclick="if(event.target===this)closeArtistModal()">
+        <div class="modal-box">
+          <div class="modal-head">
+            <div style="font-size:16px;font-weight:800">Add New Artist</div>
+            <button class="mclose" onclick="closeArtistModal()">✕</button>
+          </div>
+          <div class="modal-body">
+            <div class="al al-e" id="am-e"></div>
+            <div style="display:flex;gap:18px;flex-wrap:wrap">
+              <div>
+                <div class="tir-doc-box" id="artist-poster-zone" onclick="document.getElementById('artist-poster-input').click()" style="width:140px;height:140px">
+                  <img id="artist-poster-preview" alt="" style="display:none"/>
+                  <div id="artist-poster-ph"><div style="font-size:26px">🖼️</div><div style="font-size:11px;color:var(--txt3);margin-top:6px">Poster (1:1)<br/>Click to upload</div></div>
+                </div>
+                <input type="file" id="artist-poster-input" accept="image/jpeg,image/png" style="display:none" onchange="onArtistPosterChange(event)"/>
+                <div id="artist-poster-status" style="font-size:11px;color:var(--txt3);margin-top:6px;text-align:center"></div>
+              </div>
+              <div style="flex:1;min-width:220px">
+                <div class="form-group2"><label>Artist Name *</label><input type="text" id="am-name" placeholder="Artist or stage name"/></div>
+                <div class="form-group2"><label>Instagram</label><input type="url" id="am-instagram" placeholder="https://instagram.com/..."/></div>
+                <div class="form-group2"><label>Spotify Artist URL</label><input type="url" id="am-spotify" placeholder="https://open.spotify.com/artist/..."/></div>
+                <div class="form-group2"><label>Apple Music Artist URL</label><input type="url" id="am-apple" placeholder="https://music.apple.com/artist/..."/></div>
+                <div class="form-group2"><label>YouTube Channel URL</label><input type="url" id="am-youtube" placeholder="https://youtube.com/..."/></div>
+              </div>
+            </div>
+            <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:18px">
+              <button class="tir-btn-ghost" onclick="closeArtistModal()">Cancel</button>
+              <button class="tir-btn-primary" id="am-save-btn" onclick="saveRosterArtist()">Save Artist</button>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <!-- SUPPORT -->
-      <div class="pg" id="page-support">
-        <div class="section" style="margin-bottom:18px">
-          <div class="section-head"><h3>Support Center</h3></div>
-          <div class="section-body">
+      <!-- REPORTS -->
+      <div class="page" id="page-reports">
+        <div class="tir-panel">
+          <div class="tir-panel-head">
+            <h3>Reports</h3>
+            <div class="tir-dates">
+              <input type="date" id="rep-from" class="tir-date"/>
+              <input type="date" id="rep-to" class="tir-date"/>
+              <button class="tir-btn-ghost tir-btn-sm" onclick="applyRepDateFilter()">Apply</button>
+            </div>
+          </div>
+          <div style="padding:20px 22px 0">
+            <div class="tir-stats">
+              <div class="tir-stat"><div class="tir-stat-label">Total Streams</div><div class="tir-stat-val" id="rep-streams">—</div><div class="tir-stat-sub">All time</div></div>
+              <div class="tir-stat"><div class="tir-stat-label">Royalty Earnings</div><div class="tir-stat-val tir-green" id="roy-total">₹0.00</div><div class="tir-stat-sub">All time <span id="roy-period" style="color:var(--txt3)"></span></div></div>
+              <div class="tir-stat"><div class="tir-stat-label">This Quarter</div><div class="tir-stat-val" id="roy-quarter">₹0.00</div><div class="tir-stat-sub">Current period</div></div>
+              <div class="tir-stat"><div class="tir-stat-label">Last Payout</div><div class="tir-stat-val" id="roy-last">₹0.00</div><div class="tir-stat-sub">Via PayPal</div></div>
+            </div>
+            <div class="notice">Royalty statements updated every quarter. Minimum payout is <strong>₹500</strong>. Set your PayPal email in My Profile.</div>
+            <h4 class="tir-sec-title">Revenue Trend</h4>
+            <div class="tir-barchart" id="rep-trend"></div>
+            <div class="tir-grid-2">
+              <div><h4 class="tir-sec-title">Top Platforms</h4><div id="roy-platforms"><div class="empty"><div class="empty-icon">📊</div><div class="empty-title">No earnings yet</div></div></div></div>
+              <div><h4 class="tir-sec-title">Top Artists</h4><div id="rep-top-artists"><div class="empty"><div class="empty-icon">🎤</div><div class="empty-title">No artists yet</div></div></div></div>
+            </div>
+            <div class="tir-tabs" style="margin-top:18px">
+              <button class="tir-tab on" id="rep-tabbtn-releases" onclick="setRepTab('releases')">Releases</button>
+              <button class="tir-tab" id="rep-tabbtn-artists" onclick="setRepTab('artists')">Artists</button>
+              <button class="tir-tab" id="rep-tabbtn-monthly" onclick="setRepTab('monthly')">Monthly</button>
+            </div>
+            <div class="tir-tabpage on" id="rep-tab-releases">
+              <div class="tir-table-wrap"><table class="tir-table">
+                <thead><tr><th>Title</th><th>Artist</th><th>Status</th><th>Release Date</th></tr></thead>
+                <tbody id="rep-releases-tbody"></tbody>
+              </table></div>
+            </div>
+            <div class="tir-tabpage" id="rep-tab-artists">
+              <div class="tir-table-wrap"><table class="tir-table">
+                <thead><tr><th>Artist</th><th>Releases</th><th>Live</th></tr></thead>
+                <tbody id="rep-artists-tbody"></tbody>
+              </table></div>
+            </div>
+            <div class="tir-tabpage" id="rep-tab-monthly">
+              <div class="tir-table-wrap"><table class="tir-table">
+                <thead><tr><th>Period</th><th>Streams</th><th>Royalty (₹)</th></tr></thead>
+                <tbody id="rep-monthly-tbody"></tbody>
+              </table></div>
+            </div>
+            <h4 class="tir-sec-title" style="margin-top:18px">Payout History</h4>
+            <div id="roy-history"><div class="empty"><div class="empty-icon">💸</div><div class="empty-title">No payouts yet</div></div></div>
+          </div>
+          <div style="height:22px"></div>
+        </div>
+      </div>
+
+      <!-- SERVICE REQUEST -->
+      <div class="page" id="page-service">
+        <div class="tir-panel">
+          <div class="tir-panel-head">
+            <h3>Service Request</h3>
+            <div style="display:flex;align-items:center;gap:12px">
+              <span id="tkt-count" style="font-size:12px;color:var(--txt3)">0 tickets</span>
+              <button class="tir-btn-primary tir-btn-sm" onclick="openServiceModal()">+ New Request</button>
+            </div>
+          </div>
+          <div style="padding:18px 22px 0">
+            <div id="tkt-list"><div class="empty" style="padding:36px"><div class="empty-icon">💬</div><div class="empty-title">No tickets yet</div></div></div>
+          </div>
+          <div style="height:20px"></div>
+        </div>
+        <div class="tir-panel">
+          <div class="tir-panel-head"><h3>Frequently Asked Questions</h3></div>
+          <div style="padding:18px 22px">
             <div class="faq-search-wrap">
               <svg class="faq-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
               <input class="faq-search-input" id="faq-q" oninput="searchFAQ(this.value)" placeholder="Search questions..."/>
@@ -1296,145 +1677,359 @@ html,body{
             <div id="faq-list"></div>
           </div>
         </div>
-        <div class="section">
-          <div class="section-head"><h3>Still need help?</h3></div>
-          <div class="section-body" style="display:flex;gap:12px;flex-wrap:wrap">
-            <button class="btn-submit" onclick="goPage('tickets','ni-tickets')">Open Support Ticket</button>
-            <a href="mailto:theimaginaryrecords@gmail.com" style="text-decoration:none"><button class="btn-cancel">Email TIR Directly</button></a>
-          </div>
-        </div>
       </div>
 
-      <!-- TICKETS -->
-      <div class="pg" id="page-tickets">
-        <div class="section" style="margin-bottom:18px">
-          <div class="section-head"><h3>Open New Ticket</h3><span>Response within 24–48 hrs</span></div>
-          <div class="section-body">
-            <div class="al al-e" id="tkt-e"></div><div class="al al-s" id="tkt-s"></div>
-            <div class="form-grid">
-              <div class="form-group2"><label>Category *</label><select id="t0"><option value="">— Select —</option><option>Release Issue</option><option>Distribution Problem</option><option>Royalty / Payment</option><option>ISRC / UPC Request</option><option>Takedown Request</option><option>Account Problem</option><option>General Inquiry</option><option>Other</option></select></div>
-              <div class="form-group2"><label>Priority</label><select id="t1"><option value="normal">Normal</option><option value="urgent">Urgent</option></select></div>
-              <div class="form-group2 form-full"><label>Subject *</label><input type="text" id="t2" placeholder="Brief description"/></div>
-              <div class="form-group2 form-full"><label>Message *</label><textarea id="t3" style="min-height:120px" placeholder="Describe your issue..."></textarea></div>
-              <div class="form-full"><button class="btn-submit" id="btkt" onclick="submitTicket()">Submit Ticket</button></div>
-            </div>
+      <!-- SERVICE REQUEST MODAL -->
+      <div class="modal-overlay" id="service-modal" onclick="if(event.target===this)closeServiceModal()">
+        <div class="modal-box">
+          <div class="modal-head">
+            <div style="font-size:16px;font-weight:800">New Service Request</div>
+            <button class="mclose" onclick="closeServiceModal()">✕</button>
           </div>
-        </div>
-        <div class="section"><div class="section-head"><h3>My Tickets</h3><span id="tkt-count">0 tickets</span></div><div id="tkt-list"><div class="empty" style="padding:36px"><div class="empty-icon">💬</div><div class="empty-title">No tickets yet</div></div></div></div>
-      </div>
-
-      <!-- BANK & PAYOUT -->
-      <div class="pg" id="page-bank">
-        <div class="section">
-          <div class="section-head"><h3>Bank &amp; Payout Details</h3></div>
-          <div style="padding:20px;max-width:640px">
-            <div class="al al-s" id="bank-ok"></div>
-            <div style="font-size:12px;color:var(--txt3);margin-bottom:18px">Used for royalty payouts. Kept confidential and only visible to TIR admin.</div>
-            <div class="p2col">
-              <div class="pfield"><label>Account Holder Name</label><input type="text" id="pb0" placeholder="Full name on bank account"/></div>
-              <div class="pfield"><label>Bank Name</label><input type="text" id="pb1" placeholder="Bank name"/></div>
-              <div class="pfield"><label>Account Number</label><input type="text" id="pb2" placeholder="Bank account number"/></div>
-              <div class="pfield"><label>IFSC / SWIFT Code</label><input type="text" id="pb3" placeholder="IFSC or SWIFT code"/></div>
-              <div class="pfield"><label>Bank Country</label><input type="text" id="pb4" placeholder="India"/></div>
-              <div class="pfield"><label>UPI ID (optional)</label><input type="text" id="pb5" placeholder="yourname@upi"/></div>
-            </div>
-            <div style="margin-top:20px;display:flex;justify-content:flex-end"><button class="btn-submit" onclick="saveBankDetails()">Save Bank Details</button></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ALL ARTISTS (label accounts only) -->
-      <div class="pg" id="page-all-artists">
-        <div class="section">
-          <div class="section-head"><h3>All Artists</h3><span id="la-count">0 artists</span></div>
-          <div style="padding:20px">
-            <div style="border:1px solid var(--brd);border-radius:10px;padding:16px;margin-bottom:20px;background:var(--card)">
-              <div style="font-size:13px;font-weight:800;margin-bottom:12px">+ Add Artist to Your Roster</div>
-              <div class="p2col">
-                <div class="pfield"><label>Artist Name *</label><input type="text" id="la-name" placeholder="Artist name"/></div>
-                <div class="pfield"><label>Genre</label><input type="text" id="la-genre" placeholder="Genre"/></div>
-                <div class="pfield"><label>Spotify Artist URL</label><input type="text" id="la-spotify" placeholder="https://open.spotify.com/artist/..."/></div>
-                <div class="pfield"><label>Apple Music Artist URL</label><input type="text" id="la-apple" placeholder="https://music.apple.com/artist/..."/></div>
-                <div class="pfield" style="grid-column:1/-1"><label>Bio</label><textarea id="la-bio" placeholder="Short artist bio" style="background:transparent;border:none;border-bottom:1px solid var(--brd2);padding:8px 0;resize:none;min-height:50px;width:100%;color:var(--txt);font-family:'Inter',sans-serif;font-size:14px;outline:none"></textarea></div>
+          <div class="modal-body">
+            <div class="al al-e" id="svc-e"></div>
+            <div class="form-group2"><label>Request Type *</label>
+              <div class="tir-pills" id="svc-type-pills">
+                <button class="tir-pill on" data-t="Takedown Release" onclick="setSvcType('Takedown Release')">Takedown Release</button>
+                <button class="tir-pill" data-t="YouTube OAC" onclick="setSvcType('YouTube OAC')">YouTube OAC</button>
+                <button class="tir-pill" data-t="Content ID Enable" onclick="setSvcType('Content ID Enable')">Content ID Enable</button>
+                <button class="tir-pill" data-t="Content ID Disable" onclick="setSvcType('Content ID Disable')">Content ID Disable</button>
+                <button class="tir-pill" data-t="Profile Link" onclick="setSvcType('Profile Link')">Profile Link</button>
+                <button class="tir-pill" data-t="Support" onclick="setSvcType('Support')">Support</button>
+                <button class="tir-pill" data-t="Other" onclick="setSvcType('Other')">Other</button>
               </div>
-              <div style="margin-top:14px"><button class="btn-submit" id="la-add-btn" onclick="portalAddLabelArtist()">Add Artist</button></div>
             </div>
-            <div id="la-roster-list"></div>
+            <div class="form-group2"><label>Subject *</label><input type="text" id="svc-subject" placeholder="Brief description"/></div>
+            <div class="form-group2"><label>Priority</label>
+              <select id="svc-priority"><option value="normal">Normal</option><option value="urgent">Urgent</option></select>
+            </div>
+            <div class="form-group2"><label>Message *</label><textarea id="svc-message" style="min-height:120px" placeholder="Describe your request..."></textarea></div>
+            <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:16px">
+              <button class="tir-btn-ghost" onclick="closeServiceModal()">Cancel</button>
+              <button class="tir-btn-primary" id="svc-submit-btn" onclick="submitTicket()">Submit Request</button>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- ANALYTICS -->
-      <div class="pg" id="page-analytics">
-        <div class="section">
-          <div class="section-head"><h3>Analytics</h3></div>
-          <div id="analytics-content" style="padding:20px"></div>
+      <!-- KYC VERIFICATION -->
+      <div class="page" id="page-kyc">
+        <div class="tir-panel">
+          <div class="tir-panel-head">
+            <h3>KYC Verification</h3>
+            <span class="tir-status-badge st-none" id="kyc-status-badge">Not Submitted</span>
+          </div>
+          <div style="padding:20px 22px">
+            <div class="tir-note" id="kyc-review-note" style="display:none"></div>
+            <div class="tir-hint" style="margin-bottom:18px">Complete KYC verification to unlock release submissions and withdrawals. Your details are reviewed by TIR admin and kept confidential.</div>
+            <div class="tir-kyc-grid">
+              <div class="tir-kyc-sec">
+                <h4>Identity</h4>
+                <div class="form-group2"><label>Legal Name (as per ID) *</label><input type="text" id="kyc-legal" placeholder="Full legal name"/></div>
+                <div class="form-group2"><label>Mobile Number *</label><input type="tel" id="kyc-mobile" placeholder="+91 ..."/></div>
+                <div class="form-group2"><label>PAN Number *</label><input type="text" id="kyc-pan" placeholder="ABCDE1234F" style="text-transform:uppercase"/></div>
+                <div class="form-group2"><label>Aadhaar Number *</label><input type="text" id="kyc-aadhaar" placeholder="12-digit Aadhaar number"/></div>
+              </div>
+              <div class="tir-kyc-sec">
+                <h4>Address</h4>
+                <div class="form-group2"><label>Address Line 1 *</label><input type="text" id="kyc-addr1" placeholder="House / street"/></div>
+                <div class="form-group2"><label>Address Line 2</label><input type="text" id="kyc-addr2" placeholder="Area / landmark (optional)"/></div>
+                <div class="form-group2"><label>City *</label><input type="text" id="kyc-city" placeholder="City"/></div>
+                <div class="form-group2"><label>State *</label><input type="text" id="kyc-state" placeholder="State"/></div>
+                <div class="form-group2"><label>Pincode *</label><input type="text" id="kyc-pincode" placeholder="6-digit pincode"/></div>
+              </div>
+              <div class="tir-kyc-sec">
+                <h4>Bank Details</h4>
+                <div class="al al-s" id="bank-ok"></div>
+                <div class="form-group2"><label>Account Holder Name</label><input type="text" id="pb0" placeholder="Full name on bank account"/></div>
+                <div class="form-group2"><label>Bank Name</label><input type="text" id="pb1" placeholder="Bank name"/></div>
+                <div class="form-group2"><label>Account Number</label><input type="text" id="pb2" placeholder="Bank account number"/></div>
+                <div class="form-group2"><label>IFSC / SWIFT Code</label><input type="text" id="pb3" placeholder="IFSC or SWIFT code"/></div>
+                <div class="form-group2"><label>Bank Country</label><input type="text" id="pb4" placeholder="India"/></div>
+                <div class="form-group2"><label>UPI ID (optional)</label><input type="text" id="pb5" placeholder="yourname@upi"/></div>
+                <div class="tir-hint">Used for royalty payouts. Kept confidential and only visible to TIR admin.</div>
+                <button class="tir-btn-ghost tir-btn-sm" onclick="saveBankDetails()">Save Bank Details</button>
+              </div>
+              <div class="tir-kyc-sec">
+                <h4>Documents</h4>
+                <div class="tir-hint" style="margin-bottom:10px">JPG or PNG only, max 1MB each.</div>
+                <div class="tir-docs">
+                  <div class="tir-doc-box" onclick="document.getElementById('kyc-doc-af-input').click()">
+                    <img id="kyc-doc-af-preview" alt="" style="display:none"/>
+                    <div class="tir-doc-ph" id="kyc-doc-af-ph"><div style="font-size:22px">🪪</div><div>Aadhaar Front *</div></div>
+                    <input type="file" id="kyc-doc-af-input" accept="image/jpeg,image/png" style="display:none" onchange="onKYCDocChange(event,'aadhaarFront')"/>
+                  </div>
+                  <div class="tir-doc-box" onclick="document.getElementById('kyc-doc-ab-input').click()">
+                    <img id="kyc-doc-ab-preview" alt="" style="display:none"/>
+                    <div class="tir-doc-ph" id="kyc-doc-ab-ph"><div style="font-size:22px">🪪</div><div>Aadhaar Back *</div></div>
+                    <input type="file" id="kyc-doc-ab-input" accept="image/jpeg,image/png" style="display:none" onchange="onKYCDocChange(event,'aadhaarBack')"/>
+                  </div>
+                  <div class="tir-doc-box" onclick="document.getElementById('kyc-doc-pan-input').click()">
+                    <img id="kyc-doc-pan-preview" alt="" style="display:none"/>
+                    <div class="tir-doc-ph" id="kyc-doc-pan-ph"><div style="font-size:22px">📄</div><div>PAN Card *</div></div>
+                    <input type="file" id="kyc-doc-pan-input" accept="image/jpeg,image/png" style="display:none" onchange="onKYCDocChange(event,'panDoc')"/>
+                  </div>
+                  <div class="tir-doc-box" onclick="document.getElementById('kyc-doc-sig-input').click()">
+                    <img id="kyc-doc-sig-preview" alt="" style="display:none"/>
+                    <div class="tir-doc-ph" id="kyc-doc-sig-ph"><div style="font-size:22px">✍️</div><div>Signature *</div></div>
+                    <input type="file" id="kyc-doc-sig-input" accept="image/jpeg,image/png" style="display:none" onchange="onKYCDocChange(event,'signature')"/>
+                  </div>
+                </div>
+                <div id="kyc-doc-status" style="font-size:11px;color:var(--txt3);margin-top:8px"></div>
+              </div>
+            </div>
+            <div class="al al-e" id="kyc-e"></div>
+            <div class="al al-s" id="kyc-s"></div>
+            <div style="display:flex;justify-content:flex-end;margin-top:8px">
+              <button class="tir-btn-primary" id="kyc-submit-btn" onclick="saveKYC()">Submit for Verification</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- NOTIFICATIONS -->
+      <div class="page" id="page-notifs">
+        <div class="tir-panel">
+          <div class="tir-panel-head">
+            <h3>Notifications</h3>
+            <button class="tir-btn-primary tir-btn-sm" onclick="openNotifModal()">+ Message Admin</button>
+          </div>
+          <div style="padding:18px 22px 0">
+            <div class="tir-tabs">
+              <button class="tir-tab on" id="notif-tabbtn-inbox" onclick="setNotifTab('inbox')">Inbox</button>
+              <button class="tir-tab" id="notif-tabbtn-sent" onclick="setNotifTab('sent')">Sent</button>
+            </div>
+            <div class="tir-pills" style="margin:12px 0">
+              <button class="tir-pill on" data-nf="all" onclick="setNotifFilter('all')">All</button>
+              <button class="tir-pill" data-nf="unread" onclick="setNotifFilter('unread')">Unread</button>
+              <button class="tir-pill" data-nf="read" onclick="setNotifFilter('read')">Read</button>
+            </div>
+            <div id="notif-list"><div class="empty"><div class="empty-icon">🔔</div><div class="empty-title">No notifications</div></div></div>
+          </div>
+          <div style="height:20px"></div>
+        </div>
+      </div>
+
+      <!-- NOTIFICATION MODAL -->
+      <div class="modal-overlay" id="notif-modal" onclick="if(event.target===this)closeNotifModal()">
+        <div class="modal-box">
+          <div class="modal-head">
+            <div style="font-size:16px;font-weight:800">Message Admin</div>
+            <button class="mclose" onclick="closeNotifModal()">✕</button>
+          </div>
+          <div class="modal-body">
+            <div class="al al-e" id="notif-e"></div>
+            <div class="form-group2"><label>Subject *</label><input type="text" id="notif-subject" placeholder="Subject"/></div>
+            <div class="form-group2"><label>Message *</label><textarea id="notif-body" style="min-height:120px" placeholder="Write your message to the TIR admin team..."></textarea></div>
+            <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:16px">
+              <button class="tir-btn-ghost" onclick="closeNotifModal()">Cancel</button>
+              <button class="tir-btn-primary" id="notif-send-btn" onclick="sendNotification()">Send Message</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BLOG -->
+      <div class="page" id="page-blog">
+        <div class="tir-panel">
+          <div class="tir-panel-head"><h3>Music Blog</h3><span style="font-size:12px;color:var(--txt3)">Tips, news &amp; insights from TIR</span></div>
+          <div style="padding:20px 22px"><div class="blog-grid" id="blog-grid"><div class="empty" style="grid-column:1/-1"><div class="empty-icon">📝</div><div class="empty-title">No posts yet</div></div></div></div>
         </div>
       </div>
 
       <!-- PROFILE -->
-      <div class="pg" id="page-profile">
+      <div class="page" id="page-profile">
         <div class="al al-s" id="p-ok"></div>
-        <div class="section">
-          <div class="section-head"><h3>My Profile</h3></div>
-          <div class="section-body">
-            <div class="profile-grid">
-              <div class="profile-left">
-                <div>
-                  <div class="photo-zone" id="photo-zone" onclick="document.getElementById('photo-input').click()">
-                    <img class="photo-prev" id="photo-prev-img" alt="" style="display:none"/>
-                    <div class="photo-ov" id="photo-ov">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-                      <div class="photo-ov-btn">Change Photo</div>
+        <div class="tir-tabs" style="margin-bottom:16px">
+          <button class="tir-tab on" id="prof-tabbtn-info" onclick="setProfTab('info')">Profile Info</button>
+          <button class="tir-tab" id="prof-tabbtn-account" onclick="setProfTab('account')">Account Info</button>
+          <button class="tir-tab" id="prof-tabbtn-security" onclick="setProfTab('security')">Security</button>
+          <button class="tir-tab" id="prof-tabbtn-advanced" onclick="setProfTab('advanced')">Advanced</button>
+        </div>
+
+        <div class="tir-tabpage on" id="prof-tab-info">
+          <div class="tir-panel">
+            <div class="tir-panel-head"><h3>Profile Info</h3></div>
+            <div style="padding:20px 22px">
+              <div class="profile-grid">
+                <div class="profile-left">
+                  <div>
+                    <div class="photo-zone" id="photo-zone" onclick="document.getElementById('photo-input').click()">
+                      <img class="photo-prev" id="photo-prev-img" alt="" style="display:none"/>
+                      <div class="photo-ov" id="photo-ov">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                        <div class="photo-ov-btn">Change Photo</div>
+                      </div>
+                      <div class="photo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
+                      <div style="font-size:14px;font-weight:700">Upload Photo</div>
+                      <div style="font-size:11px;color:var(--txt3)">JPG, PNG · Max 5MB</div>
                     </div>
-                    <div class="photo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
-                    <div style="font-size:14px;font-weight:700">Upload Photo</div>
-                    <div style="font-size:11px;color:var(--txt3)">JPG, PNG · Max 5MB</div>
+                    <input type="file" id="photo-input" accept="image/jpeg,image/png,image/gif" onchange="handlePhotoUpload(event)"/>
+                    <div id="photo-status" style="margin-top:8px;font-size:12px;color:var(--txt3);text-align:center"></div>
                   </div>
-                  <input type="file" id="photo-input" accept="image/jpeg,image/png,image/gif" onchange="handlePhotoUpload(event)"/>
-                  <div id="photo-status" style="margin-top:8px;font-size:12px;color:var(--txt3);text-align:center"></div>
-                </div>
-                <div style="background:var(--card);border:1px solid var(--brd);border-radius:10px;padding:16px">
-                  <div style="font-size:13px;font-weight:800;margin-bottom:12px">Distribution Info</div>
-                  <div style="display:flex;flex-direction:column;gap:8px">
-                    <div style="display:flex;gap:8px;align-items:center"><span style="font-size:12px;color:var(--txt3)">Royalty Rate:</span><span id="dist-royalty-rate" style="font-size:13px;font-weight:700;color:var(--green)">85%</span></div>
-                    <div style="display:flex;gap:8px;align-items:center"><span style="font-size:12px;color:var(--txt3)">Platforms:</span><span style="font-size:13px;font-weight:700">200+</span></div>
-                    <div style="display:flex;gap:8px;align-items:center"><span style="font-size:12px;color:var(--txt3)">Payout:</span><span style="font-size:13px;font-weight:700">Quarterly (PayPal)</span></div>
+                  <div style="background:var(--card);border:1px solid var(--brd);border-radius:10px;padding:16px">
+                    <div style="font-size:13px;font-weight:800;margin-bottom:12px">Distribution Info</div>
+                    <div style="display:flex;flex-direction:column;gap:8px">
+                      <div style="display:flex;gap:8px;align-items:center"><span style="font-size:12px;color:var(--txt3)">Royalty Rate:</span><span id="dist-royalty-rate" style="font-size:13px;font-weight:700;color:var(--green)">85%</span></div>
+                      <div style="display:flex;gap:8px;align-items:center"><span style="font-size:12px;color:var(--txt3)">Platforms:</span><span style="font-size:13px;font-weight:700">200+</span></div>
+                      <div style="display:flex;gap:8px;align-items:center"><span style="font-size:12px;color:var(--txt3)">Payout:</span><span style="font-size:13px;font-weight:700">Quarterly (PayPal)</span></div>
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div>
-                <div class="profile-right-title">Your Details</div>
-                <div class="p2col">
-                  <div class="pfield" id="pfield-artist-name"><label>Artist / Stage Name</label><input type="text" id="p0" placeholder="Your artist name"/></div>
-                  <div class="pfield" id="pfield-legal-name" style="display:none"><label>Legal / Company Name</label><input type="text" id="p10" placeholder="Registered legal or company name"/></div>
-                  <div class="pfield"><label>Email (cannot change)</label><input type="email" id="p1" disabled/></div>
-                  <div class="pfield" id="pfield-genre"><label>Genre</label><select id="p2" style="background:transparent;border:none;border-bottom:1px solid var(--brd2);padding:8px 0;width:100%;color:var(--txt);font-family:'Inter',sans-serif;font-size:14px;outline:none"><option>Hip Hop / Trap</option><option>UK Drill</option><option>R&amp;B / Soul</option><option>Nasheed / Islamic</option><option>Lofi / Chillhop</option><option>Instrumental</option><option>Other</option></select></div>
-                  <div class="pfield"><label>Country</label><input type="text" id="p3" placeholder="India"/></div>
-                  <div class="pfield" style="grid-column:1/-1"><label>Bio</label><textarea id="p4" placeholder="Tell the world about yourself..." style="background:transparent;border:none;border-bottom:1px solid var(--brd2);border-radius:0;padding:8px 0;resize:none;min-height:70px;width:100%;color:var(--txt);font-family:'Inter',sans-serif;font-size:14px;outline:none"></textarea></div>
-                  <div class="pfield" id="pfield-spotify"><label>Spotify Artist ID</label><input type="text" id="p6" placeholder="spotify:artist:..."/></div>
-                  <div class="pfield" id="pfield-apple"><label>Apple Music Artist ID</label><input type="text" id="p9" placeholder="https://music.apple.com/artist/..."/></div>
-                  <div class="pfield" id="pfield-label-reg" style="display:none"><label>Label Registration / Business Number</label><input type="text" id="p11" placeholder="Company or MSME registration number"/></div>
-                  <div class="pfield"><label>Instagram</label><input type="text" id="p7" placeholder="@handle"/></div>
-                  <div class="pfield"><label>YouTube</label><input type="text" id="p8" placeholder="Channel URL"/></div>
+                <div>
+                  <div class="profile-right-title">Your Details</div>
+                  <div class="p2col">
+                    <div class="pfield" id="pfield-artist-name"><label>Artist / Stage Name</label><input type="text" id="p0" placeholder="Your artist name"/></div>
+                    <div class="pfield" id="pfield-legal-name" style="display:none"><label>Legal / Company Name</label><input type="text" id="p10" placeholder="Registered legal or company name"/></div>
+                    <div class="pfield" id="pfield-genre"><label>Genre</label><select id="p2"><option>Hip Hop / Trap</option><option>UK Drill</option><option>R&amp;B / Soul</option><option>Nasheed / Islamic</option><option>Lofi / Chillhop</option><option>Instrumental</option><option>Other</option></select></div>
+                    <div class="pfield"><label>Country</label><input type="text" id="p3" placeholder="India"/></div>
+                    <div class="pfield" style="grid-column:1/-1"><label>Bio</label><textarea id="p4" placeholder="Tell the world about yourself..."></textarea></div>
+                    <div class="pfield" id="pfield-spotify"><label>Spotify Artist ID</label><input type="text" id="p6" placeholder="spotify:artist:..."/></div>
+                    <div class="pfield" id="pfield-apple"><label>Apple Music Artist ID</label><input type="text" id="p9" placeholder="https://music.apple.com/artist/..."/></div>
+                    <div class="pfield" id="pfield-label-reg" style="display:none"><label>Label Registration / Business Number</label><input type="text" id="p11" placeholder="Company or MSME registration number"/></div>
+                    <div class="pfield"><label>Instagram</label><input type="text" id="p7" placeholder="@handle"/></div>
+                    <div class="pfield"><label>YouTube</label><input type="text" id="p8" placeholder="Channel URL"/></div>
+                  </div>
+                  <div style="margin-top:20px;display:flex;justify-content:flex-end"><button class="tir-btn-primary" onclick="saveProfile()">Save Changes</button></div>
                 </div>
-                <div style="margin-top:20px;display:flex;justify-content:flex-end"><button class="btn-submit" onclick="saveProfile()">Save Changes</button></div>
               </div>
             </div>
           </div>
         </div>
-        <div class="section">
-          <div class="section-head"><h3>Change Password</h3></div>
-          <div class="section-body">
-            <div class="p2col">
-              <div class="pfield"><label>Current password</label><input type="password" id="pw-cur" placeholder="••••••••"/></div>
-              <div class="pfield"><label>New password (min 6 characters)</label><input type="password" id="pw-new" placeholder="••••••••"/></div>
+
+        <div class="tir-tabpage" id="prof-tab-account">
+          <div class="tir-panel">
+            <div class="tir-panel-head"><h3>Account Info</h3></div>
+            <div style="padding:20px 22px;max-width:640px">
+              <div class="pfield"><label>Email (cannot change)</label><input type="email" id="p1" disabled/></div>
+              <div class="pfield"><label>KYC Status</label><div id="prof-kyc-status" style="font-size:14px;font-weight:700">Not Submitted</div>
+                <div style="margin-top:6px"><span class="tir-link" onclick="goPage('kyc','ni-kyc')">Go to KYC Verification →</span></div>
+              </div>
+              <div class="pfield"><label>Distribution Agreement</label><div id="prof-agreement" style="font-size:13px;color:var(--txt2)">—</div></div>
             </div>
-            <div style="margin-top:16px;display:flex;justify-content:flex-end"><button class="btn-submit" onclick="doChangePassword()">Update Password</button></div>
+          </div>
+        </div>
+
+        <div class="tir-tabpage" id="prof-tab-security">
+          <div class="tir-panel">
+            <div class="tir-panel-head"><h3>Change Password</h3></div>
+            <div style="padding:20px 22px;max-width:640px">
+              <div class="p2col">
+                <div class="pfield"><label>Current password</label><input type="password" id="pw-cur" placeholder="••••••••"/></div>
+                <div class="pfield"><label>New password (min 6 characters)</label><input type="password" id="pw-new" placeholder="••••••••"/></div>
+              </div>
+              <div style="margin-top:16px;display:flex;justify-content:flex-end"><button class="tir-btn-primary" onclick="doChangePassword()">Update Password</button></div>
+            </div>
+          </div>
+          <div class="tir-panel">
+            <div class="tir-panel-head"><h3>Active Sessions</h3><span style="font-size:12px;color:var(--txt3)">Recent sign-ins to your account</span></div>
+            <div style="padding:6px 22px 20px" id="prof-sessions"><div class="empty"><div class="empty-icon">🔐</div><div class="empty-title">No sessions recorded yet</div></div></div>
+          </div>
+        </div>
+
+        <div class="tir-tabpage" id="prof-tab-advanced">
+          <div class="tir-panel">
+            <div class="tir-panel-head"><h3>Payout Settings</h3></div>
+            <div style="padding:20px 22px;max-width:640px">
+              <div class="pfield"><label>PayPal Email (for royalty payouts)</label><input type="email" id="p5" placeholder="you@paypal.com"/></div>
+              <div class="tir-hint">Royalty statements updated every quarter. Minimum payout is <strong>₹500</strong>.</div>
+              <div style="margin-top:16px;display:flex;justify-content:flex-end"><button class="tir-btn-primary" onclick="saveProfile()">Save Changes</button></div>
+            </div>
+          </div>
+          <div class="tir-panel">
+            <div class="tir-panel-head"><h3>Account Management</h3></div>
+            <div style="padding:20px 22px">
+              <div class="tir-hint">To request account data export or account deletion, please contact the TIR administrator at <strong>support@theimaginaryrecords.in</strong>.</div>
+            </div>
           </div>
         </div>
       </div>
 
+      <!-- WALLET -->
+      <div class="page" id="page-wallet">
+        <div class="tir-panel">
+          <div class="tir-panel-head"><h3>My Wallet</h3><button class="tir-btn-primary tir-btn-sm" onclick="goPage('withdrawals')">Withdraw</button></div>
+          <div style="padding:20px 22px">
+            <div class="tir-wallet-hero">
+              <div><div class="tir-payout-label">Available balance</div><div class="tir-wallet-amt" id="wallet-balance-val">₹0.00</div></div>
+              <div class="tir-hint">Credits are royalty earnings added by TIR.<br/>Debits are completed payouts.</div>
+            </div>
+            <div class="tir-pills" style="margin:16px 0">
+              <button class="tir-pill on" data-wf="all" onclick="setWalletFilter('all')">All</button>
+              <button class="tir-pill" data-wf="credit" onclick="setWalletFilter('credit')">Credits</button>
+              <button class="tir-pill" data-wf="debit" onclick="setWalletFilter('debit')">Debits</button>
+            </div>
+            <div class="tir-table-wrap"><table class="tir-table">
+              <thead><tr><th>Date</th><th>Description</th><th>Type</th><th style="text-align:right">Amount</th></tr></thead>
+              <tbody id="wallet-tx-tbody"></tbody>
+            </table></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- WITHDRAWALS -->
+      <div class="page" id="page-withdrawals">
+        <div id="wd-gate" style="display:none">
+          <div class="tir-panel"><div style="padding:40px 22px;text-align:center">
+            <div style="font-size:40px;margin-bottom:12px">🔒</div>
+            <div style="font-size:17px;font-weight:800;margin-bottom:8px">KYC verification required</div>
+            <div class="tir-hint" style="margin-bottom:18px">Complete KYC verification and get approved by TIR admin before requesting withdrawals.</div>
+            <button class="tir-btn-primary" onclick="goPage('kyc','ni-kyc')">Go to KYC Verification</button>
+          </div></div>
+        </div>
+        <div id="wd-main">
+          <div class="tir-panel">
+            <div class="tir-panel-head"><h3>Request Withdrawal</h3></div>
+            <div style="padding:20px 22px;max-width:640px">
+              <div class="al al-e" id="wd-e"></div>
+              <div class="al al-s" id="wd-s"></div>
+              <div class="tir-hint" style="margin-bottom:14px">Available balance: <strong id="wd-available" style="color:var(--txt)">₹0.00</strong></div>
+              <div class="form-group2"><label>Amount (₹) *</label><input type="number" id="wd-amount" min="1" step="0.01" placeholder="e.g. 1500"/></div>
+              <div class="form-group2"><label>Payout Method *</label>
+                <select id="wd-method"><option value="">— Select —</option><option>Bank Transfer</option><option>UPI</option><option>PayPal</option></select>
+              </div>
+              <div class="form-group2"><label>Payment Details *</label><textarea id="wd-details" style="min-height:90px" placeholder="Account / UPI / PayPal details for this payout"></textarea></div>
+              <div class="tir-hint">Royalty statements updated every quarter. Minimum payout is <strong>₹500</strong>.</div>
+              <div style="margin-top:16px;display:flex;justify-content:flex-end"><button class="tir-btn-primary" id="wd-btn" onclick="requestWithdrawal()">Submit Request</button></div>
+            </div>
+          </div>
+          <div class="tir-panel">
+            <div class="tir-panel-head"><h3>Payment History</h3></div>
+            <div style="padding:6px 22px 20px">
+              <div class="tir-table-wrap"><table class="tir-table">
+                <thead><tr><th>Date</th><th style="text-align:right">Amount</th><th>Method</th><th>Status</th><th>Admin Note</th></tr></thead>
+                <tbody id="wd-tbody"></tbody>
+              </table></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ACTIVITY LOGS -->
+      <div class="page" id="page-activity">
+        <div class="tir-panel">
+          <div class="tir-panel-head"><h3>Activity Logs</h3></div>
+          <div style="padding:6px 22px 20px">
+            <div class="tir-table-wrap"><table class="tir-table">
+              <thead><tr><th>Date &amp; Time</th><th>Action</th><th>Detail</th></tr></thead>
+              <tbody id="activity-tbody"></tbody>
+            </table></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LOGIN HISTORY -->
+      <div class="page" id="page-loginhistory">
+        <div class="tir-panel">
+          <div class="tir-panel-head"><h3>Login History</h3></div>
+          <div style="padding:6px 22px 20px">
+            <div class="tir-table-wrap"><table class="tir-table">
+              <thead><tr><th>Date &amp; Time</th><th>Email</th><th>Device / Browser</th></tr></thead>
+              <tbody id="lh-tbody"></tbody>
+            </table></div>
+          </div>
+        </div>
+      </div>
     </div><!-- /content -->
   </div><!-- /main -->
 </div><!-- /layout -->
@@ -1448,17 +2043,20 @@ html,body{
   </div>
   <div class="sb-artist"><div class="sb-avatar" id="mob-av2">A</div><div><div class="sb-artist-name" id="mob-name2">Artist</div><div class="sb-artist-plan">TIR Artist</div></div></div>
   <nav>
-    <div class="nav-item active" onclick="goPage('home','ni-home');closeDrawer()"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Dashboard</div>
-    <div class="nav-item" onclick="goPage('releases','ni-releases');closeDrawer()"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>My Releases</div>
-    <div class="nav-item" onclick="goPage('submit','ni-submit');closeDrawer()"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7-7 7 7"/></svg>Submit Release</div>
-    <div class="nav-item" onclick="goPage('royalties','ni-royalties');closeDrawer()"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Royalties</div>
-    <div class="nav-item" onclick="goPage('blog','ni-blog');closeDrawer()"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Music Blog</div>
-    <div class="nav-item" onclick="goPage('support','ni-support');closeDrawer()"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/></svg>Support Center</div>
-    <div class="nav-item" onclick="goPage('tickets','ni-tickets');closeDrawer()"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>My Tickets</div>
-    <div class="nav-item" onclick="goPage('bank','ni-bank');closeDrawer()"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Bank &amp; Payout</div>
-    <div class="nav-item" id="mob-nav-all-artists" style="display:none" onclick="goPage('all-artists','nav-all-artists');closeDrawer()"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>All Artists</div>
-    <div class="nav-item" id="mob-ni-analytics" style="display:none" onclick="goPage('analytics','ni-analytics');closeDrawer()"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Analytics</div>
-    <div class="nav-item" onclick="goPage('profile','ni-profile');closeDrawer()"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>My Profile</div>
+    <div class="nav-item" onclick="goPage('dashboard')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Dashboard</div>
+    <div class="nav-item" onclick="goPage('releases')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>My Releases</div>
+    <div class="nav-item" onclick="goPage('submit')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7-7 7 7"/></svg>Submit Release</div>
+    <div class="nav-item" onclick="goPage('artists')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 1 0 7.75"/></svg>My Artists</div>
+    <div class="nav-item" onclick="goPage('reports')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Reports</div>
+    <div class="nav-item" onclick="goPage('service')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Service Request</div>
+    <div class="nav-item" onclick="goPage('kyc')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>KYC Verification</div>
+    <div class="nav-item" onclick="goPage('notifs')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>Notifications</div>
+    <div class="nav-item" onclick="goPage('blog')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 4 19.5z"/></svg>Music Blog</div>
+    <div class="nav-item" onclick="goPage('profile')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>My Profile</div>
+    <div class="nav-item" onclick="goPage('wallet')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>My Wallet</div>
+    <div class="nav-item" onclick="goPage('withdrawals')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Withdrawals</div>
+    <div class="nav-item" onclick="goPage('activity')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Activity Logs</div>
+    <div class="nav-item" onclick="goPage('loginhistory')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Login History</div>
   </nav>
   <div class="sb-bottom"><div class="sb-sign-out" onclick="doSignOut()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16,17 21,12 16,7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign Out</div></div>
 </div>
@@ -1466,16 +2064,14 @@ html,body{
 <!-- MOBILE BOTTOM NAV -->
 <div class="mob-bottom-nav">
   <div class="mob-nav-items">
-    <div class="mob-ni on" id="mni-home" onclick="goPage('home','ni-home');setMob('home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg><span>Home</span></div>
-    <div class="mob-ni" id="mni-releases" onclick="goPage('releases','ni-releases');setMob('releases')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg><span>Releases</span></div>
-    <div class="mob-ni" id="mni-submit" onclick="goPage('submit','ni-submit');setMob('submit')"><div class="mob-fab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12l7-7 7 7"/></svg></div><span>Submit</span></div>
-    <div class="mob-ni" id="mni-royalties" onclick="goPage('royalties','ni-royalties');setMob('royalties')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg><span>Royalties</span></div>
+    <div class="mob-ni on" id="mni-dashboard" onclick="goPage('dashboard');setMob('dashboard')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg><span>Home</span></div>
+    <div class="mob-ni" id="mni-releases" onclick="goPage('releases');setMob('releases')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg><span>Releases</span></div>
+    <div class="mob-ni" id="mni-submit" onclick="goPage('submit');setMob('submit')"><div class="mob-fab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12l7-7 7 7"/></svg></div><span>Submit</span></div>
+    <div class="mob-ni" id="mni-service" onclick="goPage('service');setMob('service')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span>Service</span></div>
     <div class="mob-ni" id="mni-more" onclick="openDrawer()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="12" r="1" fill="currentColor"/><circle cx="12" cy="12" r="1" fill="currentColor"/><circle cx="19" cy="12" r="1" fill="currentColor"/></svg><span>More</span></div>
   </div>
 </div>
 </div><!-- /#dash -->
-
-<!-- RELEASE DETAIL MODAL -->
 <div class="rmodal" id="rel-modal" onclick="if(event.target===this)closeRelModal()">
   <div class="rmodal-box" id="rel-modal-box"></div>
 </div>
@@ -1576,6 +2172,13 @@ async function showDash(user) {
   try { await loadReleases(); } catch(e) {}
   try { await loadRoyalties(); } catch(e) {}
   try { await loadTickets(); } catch(e) {}
+  try { await loadNotifications(); } catch(e) {}
+  try { loadNotifCount(); } catch(e) {}
+  try { await loadWallet(); } catch(e) {}
+  try { loadKYC(); } catch(e) {}
+  try { updateDashboard(); } catch(e) {}
+  try { loadRecentActivity(); } catch(e) {}
+  try { loadLoginHistory(); } catch(e) {}
   loadFAQ();
   loadBlog();
 }
@@ -1670,6 +2273,11 @@ function setAvatars(init, name) {
     var el = document.getElementById(id);
     if (el) el.textContent = name;
   });
+  document.querySelectorAll('.user-avatar').forEach(function(el){
+    if (el && !el.querySelector('img')) el.textContent = init;
+  });
+  var chip = document.getElementById('tir-chip-name');
+  if (chip) chip.textContent = name || 'Artist';
 }
 
 function setPhoto(url) {
@@ -1679,6 +2287,9 @@ function setPhoto(url) {
   });
   var ta = document.getElementById('top-av');
   if (ta) ta.innerHTML = '<img src="'+safeUrl(url)+'" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>';
+  document.querySelectorAll('.user-avatar').forEach(function(el){
+    el.innerHTML = '<img src="'+safeUrl(url)+'" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>';
+  });
   var pp = document.getElementById('photo-prev-img');
   if (pp) { pp.src = url; pp.style.display = 'block'; }
   var pov = document.getElementById('photo-ov');
@@ -1697,7 +2308,18 @@ async function doLogin() {
   if (!em || !pw) { err.textContent = 'Please enter your email and password.'; err.classList.add('on'); return; }
   btn.disabled = true; btn.textContent = 'Signing in...';
   try {
-    await _auth.signInWithEmailAndPassword(em, pw);
+    var rememberMe = false;
+    try { rememberMe = document.getElementById('lrm').checked; } catch(e) {}
+    var cred = await _auth.signInWithEmailAndPassword(em, pw);
+    try { await _auth.setPersistence(rememberMe ? firebase.auth.Auth.Persistence.LOCAL : firebase.auth.Auth.Persistence.SESSION); } catch(e) {}
+    try {
+      if (rememberMe) { localStorage.setItem('tir_remember','1'); localStorage.setItem('tir_email',em); }
+      else { localStorage.removeItem('tir_remember'); localStorage.removeItem('tir_email'); }
+    } catch(e) {}
+    try { await _db.collection('loginHistory').add({uid:cred.user.uid,email:em,createdAt:new Date().toISOString(),userAgent:(navigator.userAgent||'').substring(0,250)}); } catch(e) {}
+    CU = {uid:cred.user.uid,email:em,displayName:cred.user.displayName||''};
+    try { logActivity('login','Signed in'); } catch(e) {}
+    toast('Welcome back ✓');
   } catch(e) {
     var m = 'Login failed. ';
     if (e.code === 'auth/user-not-found' || e.code === 'auth/wrong-password' || e.code === 'auth/invalid-credential') m += 'Wrong email or password.';
@@ -1926,6 +2548,7 @@ async function loadProfile() {
   if (AD.name) setAvatars((AD.name||'A')[0].toUpperCase(), AD.name);
   applyAccountTypeProfileFields();
   loadBankDetailsIntoForm();
+  try { loadKYC(); } catch(e) {}
 }
 async function saveBankDetails() {
   var data = {
@@ -2053,6 +2676,7 @@ async function saveProfile() {
     ok.textContent = '✓ Profile saved.'; ok.classList.add('on');
     setTimeout(function(){ ok.classList.remove('on'); }, 3000);
     toast('Profile saved ✓');
+    try { logActivity('profile_update','Profile updated'); } catch(e) {}
   } catch(e) { toast('Error: ' + e.message); }
 }
 
@@ -2082,16 +2706,17 @@ async function handlePhotoUpload(event) {
   if (file.size > 5*1024*1024) { toast('Photo must be under 5MB.'); return; }
   var localUrl = URL.createObjectURL(file);
   setPhoto(localUrl);
-  document.getElementById('photo-status').textContent = 'Uploading...';
+  var ps = document.getElementById('photo-status');
+  if (ps) ps.textContent = 'Uploading...';
   try {
     var r = await uploadCDN(file, null);
     setPhoto(r.secure_url);
     await _db.collection('users').doc(CU.uid).set({photoUrl: r.secure_url}, {merge:true});
     AD.photoUrl = r.secure_url;
-    document.getElementById('photo-status').textContent = '';
+    if (ps) ps.textContent = '✓ Photo updated';
     toast('Photo updated ✓');
   } catch(e) {
-    document.getElementById('photo-status').textContent = 'Upload failed';
+    if (ps) ps.textContent = 'Upload failed';
     toast('Photo upload failed: ' + e.message);
   }
 }
@@ -2345,14 +2970,15 @@ function resetArtworkZone() {
 // RELEASES
 // ═══════════════════════════════════════════════════════════
 async function loadReleases() {
-  var snap = await _db.collection('releases').where('userId','==',CU.uid).get();
-  allRels = [];
-  snap.forEach(function(d){ allRels.push(Object.assign({id:d.id}, d.data())); });
-  allRels.sort(function(a,b){ return new Date(b.submittedAt||0) - new Date(a.submittedAt||0); });
-  document.getElementById('rel-count').textContent = allRels.length + ' release' + (allRels.length!==1?'s':'');
-  document.getElementById('rel-count2').textContent = allRels.length + ' total · View all →';
-  renderHomeRels(allRels.slice(0,4));
-  renderRelGrid('all-releases', allRels);
+  try {
+    var snap = await _db.collection('releases').where('userId','==',CU.uid).get();
+    allRels = [];
+    snap.forEach(function(d){ allRels.push(Object.assign({id:d.id}, d.data())); });
+    allRels.sort(function(a,b){ return new Date(b.submittedAt||0) - new Date(a.submittedAt||0); });
+    relSelected = {};
+    renderReleasesTable();
+    updateDashboard();
+  } catch(e) { console.log('Releases:', e); }
 }
 
 function renderHomeRels(list) {
@@ -2750,32 +3376,38 @@ async function submitRelease() {
 async function loadRoyalties() {
   try {
     var snap = await _db.collection('royalties').where('userId','==',CU.uid).get();
-    if (snap.empty) return;
     var totalAll=0, totalQ=0;
-    var platforms={}, history=[];
+    var platforms={}, history=[], allRoy=[];
     snap.forEach(function(d){
       var r=d.data();
+      allRoy.push(r);
       totalAll += Number(r.totalAmount||0);
       if (r.isCurrent) totalQ += Number(r.totalAmount||0);
       if (r.type==='payout') history.push(r);
-      if (r.platforms) Object.entries(r.platforms).forEach(function(kv){ platforms[kv[0]]=(platforms[kv[0]]||0)+Number(kv[1]||0); });
+      if (r.platforms) Object.keys(r.platforms).forEach(function(k){ platforms[k]=(platforms[k]||0)+Number(r.platforms[k]||0); });
       royData = r;
     });
-    document.getElementById('sb-earn').textContent = '₹'+totalAll.toFixed(2);
-    document.getElementById('home-earn').textContent = totalAll.toFixed(2);
-    document.getElementById('roy-total').textContent = '₹'+totalAll.toFixed(2);
-    document.getElementById('roy-quarter').textContent = '₹'+totalQ.toFixed(2);
-    if (history.length) document.getElementById('roy-last').textContent = '₹'+Math.max.apply(null,history.map(function(h){return Number(h.amount||0);})).toFixed(2);
-    if (royData.period) document.getElementById('roy-period').textContent = royData.period;
+    var setT=function(id,v){ var el=document.getElementById(id); if(el) el.textContent=v; };
+    setT('sb-earn','₹'+totalAll.toFixed(2));
+    setT('roy-total','₹'+totalAll.toFixed(2));
+    setT('roy-quarter','₹'+totalQ.toFixed(2));
+    if (history.length) setT('roy-last','₹'+Math.max.apply(null,history.map(function(h){return Number(h.amount||0);})).toFixed(2));
+    if (royData.period) setT('roy-period',royData.period);
     var pe = document.getElementById('roy-platforms');
-    var pes = Object.entries(platforms);
+    var pes = Object.keys(platforms);
     var icons = {Spotify:'🎧','Apple Music':'🍎','Amazon Music':'📦','YouTube Music':'▶️',JioSaavn:'🎵',Gaana:'🎶',Tidal:'🌊',Deezer:'🎸'};
-    if (pes.length) pe.innerHTML = '<table class="roy-table"><thead><tr><th>Platform</th><th>Earnings</th></tr></thead><tbody>' +
-      pes.map(function(kv){ return '<tr><td>'+(icons[kv[0]]||'🎵')+' '+kv[0]+'</td><td class="roy-amt">₹'+Number(kv[1]).toFixed(2)+'</td></tr>'; }).join('') +
-      '</tbody></table>';
-    if (history.length) document.getElementById('roy-history').innerHTML = '<table class="roy-table"><thead><tr><th>Period</th><th>Amount</th><th>Status</th></tr></thead><tbody>' +
-      history.map(function(h){ return '<tr><td>'+(h.period||'—')+'</td><td class="roy-amt">₹'+Number(h.amount||0).toFixed(2)+'</td><td><span class="rbadge rb-live">Paid</span></td></tr>'; }).join('') +
-      '</tbody></table>';
+    if (pe) {
+      pe.innerHTML = pes.length ? '<table class="roy-table"><thead><tr><th>Platform</th><th>Earnings</th></tr></thead><tbody>' +
+        pes.map(function(k){ return '<tr><td>'+(icons[k]||'🎵')+' '+escA2(k)+'</td><td class="roy-amt">₹'+Number(platforms[k]).toFixed(2)+'</td></tr>'; }).join('') +
+        '</tbody></table>' : '<div class="empty"><div class="empty-icon">📊</div><div class="empty-title">No platform data yet</div></div>';
+    }
+    var he = document.getElementById('roy-history');
+    if (he) {
+      he.innerHTML = history.length ? '<table class="roy-table"><thead><tr><th>Period</th><th>Amount</th><th>Status</th></tr></thead><tbody>' +
+        history.map(function(h){ return '<tr><td>'+escA2(h.period||'—')+'</td><td class="roy-amt">₹'+Number(h.amount||0).toFixed(2)+'</td><td><span class="rbadge rb-live">Paid</span></td></tr>'; }).join('') +
+        '</tbody></table>' : '<div class="empty"><div class="empty-icon">💸</div><div class="empty-title">No payouts yet</div></div>';
+    }
+    try{ renderReportWidgets({allRoy:allRoy,totalAll:totalAll,totalQ:totalQ,platforms:platforms,history:history}); }catch(e2){}
   } catch(e) { console.log('Royalties error:', e); }
 }
 
@@ -2792,9 +3424,9 @@ async function loadBlog() {
     var emj = ['🎵','🎸','🎤','🎧','🎶','🔥','⚡','🎹'];
     grid.innerHTML = posts.map(function(p,i){
       return '<div class="blog-card" onclick="openBlog(\''+p.id+'\')"><div class="blog-img">'+emj[i%emj.length]+'</div>' +
-        '<div class="blog-body"><div class="blog-cat">'+(p.category||'Music')+'</div><div class="blog-title">'+(p.title||'—')+'</div>' +
-        '<div class="blog-excerpt">'+(p.content||'').substring(0,90)+'...</div>' +
-        '<div class="blog-meta">By TIR · '+(p.createdAt?p.createdAt.substring(0,10):'—')+'</div></div></div>';
+        '<div class="blog-body"><div class="blog-cat">'+escA2(p.category||'Music')+'</div><div class="blog-title">'+escA2(p.title||'—')+'</div>' +
+        '<div class="blog-excerpt">'+escA2((p.content||'').substring(0,90))+'...</div>' +
+        '<div class="blog-meta">By TIR · '+escA2(p.createdAt?p.createdAt.substring(0,10):'—')+'</div></div></div>';
     }).join('');
   } catch(e) {}
 }
@@ -2874,9 +3506,9 @@ async function loadTickets() {
     var bc = {open:'rb-pending',pending:'rb-review',resolved:'rb-approved',closed:'rb-rejected'};
     el.innerHTML = list.map(function(t){
       return '<div class="ticket-item" onclick="this.querySelector(\'.ticket-reply\').classList.toggle(\'on\')">' +
-        '<div class="ticket-top"><div class="ticket-subject">'+(t.subject||'—')+'</div><span class="rbadge '+(bc[t.status]||'rb-pending')+'">'+(t.status||'Open')+'</span></div>' +
-        '<div class="ticket-preview">'+(t.message||'').substring(0,100)+'...</div>' +
-        '<div style="font-size:11px;color:var(--txt3);margin-top:6px">'+(t.category||'—')+' · '+(t.priority||'Normal')+' · '+(t.createdAt?t.createdAt.substring(0,10):'—')+'</div>' +
+        '<div class="ticket-top"><div class="ticket-subject">'+escA2(t.subject||'—')+'</div><span class="rbadge '+(bc[t.status]||'rb-pending')+'">'+escA2(t.status||'Open')+'</span></div>' +
+        '<div class="ticket-preview">'+escA2((t.message||'').substring(0,100))+'...</div>' +
+        '<div style="font-size:11px;color:var(--txt3);margin-top:6px">'+escA2(t.category||'—')+' · '+escA2(t.priority||'Normal')+' · '+escA2(t.createdAt?t.createdAt.substring(0,10):'—')+'</div>' +
         '<div class="ticket-reply '+(t.reply?'on':'')+'">' +
         '<div class="tr-label">TIR Response</div>' +
         '<div class="tr-text">'+escA2(t.reply||'Your ticket has been received. We will respond within 24–48 hours.')+'</div></div></div>';
@@ -2885,56 +3517,81 @@ async function loadTickets() {
 }
 
 async function submitTicket() {
-  var cat=document.getElementById('t0').value, pri=document.getElementById('t1').value,
-      sub=document.getElementById('t2').value.trim(), msg=document.getElementById('t3').value.trim();
-  document.getElementById('tkt-e').classList.remove('on');
-  document.getElementById('tkt-s').classList.remove('on');
-  if (!cat) return showAl('tkt-e','Please select a category.');
-  if (!sub) return showAl('tkt-e','Please enter a subject.');
-  if (!msg) return showAl('tkt-e','Please describe your issue.');
-  var btn = document.getElementById('btkt');
-  btn.disabled = true; btn.textContent = 'Submitting...';
+  var sub=document.getElementById('svc-subject').value.trim();
+  var msg=document.getElementById('svc-message').value.trim();
+  var pri=document.getElementById('svc-priority').value;
+  var errEl=document.getElementById('svc-e');
+  if (errEl) errEl.classList.remove('on');
+  var fail=function(m){ if(errEl){ errEl.textContent=m; errEl.classList.add('on'); } };
+  if (!sub) return fail('Please enter a subject.');
+  if (!msg) return fail('Please describe your request.');
+  var btn=document.getElementById('svc-submit-btn');
+  btn.disabled=true; btn.textContent='Submitting…';
   try {
-    await _db.collection('tickets').add({userId:CU.uid, artistName:AD.name||CU.displayName, artistEmail:CU.email, category:cat, priority:pri, subject:sub, message:msg, status:'open', reply:'', createdAt:new Date().toISOString()});
-    ['t0','t2','t3'].forEach(function(id){ document.getElementById(id).value=''; });
-    document.getElementById('t1').value = 'normal';
-    showAl('tkt-s','✓ Ticket submitted!');
+    await _db.collection('tickets').add({userId:CU.uid, artistName:AD.name||CU.displayName, artistEmail:CU.email, category:svcType, ticketType:svcType, priority:pri, subject:sub, message:msg, status:'open', reply:'', createdAt:new Date().toISOString()});
+    document.getElementById('svc-subject').value='';
+    document.getElementById('svc-message').value='';
+    document.getElementById('svc-priority').value='normal';
+    closeServiceModal();
     await loadTickets();
-    toast('Ticket submitted ✓');
-  } catch(e) { showAl('tkt-e','Failed: '+e.message); }
-  btn.disabled = false; btn.textContent = 'Submit Ticket';
+    try { logActivity('ticket_created',svcType+': '+sub); } catch(e) {}
+    toast('Request submitted ✓');
+  } catch(e) { fail('Failed: '+e.message); }
+  btn.disabled=false; btn.textContent='Submit Request';
 }
 
 // ═══════════════════════════════════════════════════════════
 // PAGE NAV
 // ═══════════════════════════════════════════════════════════
-var pageNames = {home:'Dashboard',releases:'My Releases',submit:'Submit Release',royalties:'Royalties',blog:'Music Blog',support:'Support Center',tickets:'My Tickets',profile:'My Profile','all-artists':'All Artists',analytics:'Analytics',bank:'Bank & Payout'};
+var pageNames = {dashboard:'Dashboard',releases:'My Releases',submit:'New Release',reports:'Reports',artists:'My Artists',service:'Service Request',kyc:'KYC Verification',notifs:'Notifications',blog:'Music Blog',profile:'My Profile',wallet:'My Wallet',withdrawals:'Withdrawals',activity:'Activity Logs',loginhistory:'Login History'};
 function goPage(name, niId) {
-  var _t=document.getElementById('toast'); if(_t) _t.classList.remove('on');
-  document.querySelectorAll('.pg').forEach(function(p){ p.classList.remove('on'); });
-  document.querySelectorAll('.nav-item').forEach(function(n){ n.classList.remove('active'); });
-  var pg = document.getElementById('page-'+name);
-  if (pg) pg.classList.add('on');
-  if (niId) { var ni = document.getElementById(niId); if (ni) ni.classList.add('active'); }
-  document.getElementById('page-title').textContent = pageNames[name]||'Dashboard';
-  if (name==='royalties') loadRoyalties();
-  if (name==='blog') loadBlog();
-  if (name==='all-artists') { loadProfile().then(renderLaRoster); }
-  if (name==='analytics') { loadProfile().then(renderAnalytics); }
-  if (name==='bank') { loadProfile(); }
-  if (name==='profile') { loadProfile(); }
-  if (name==='submit') { checkForReleaseDraft(); startAutosaveTimer(); } else { stopAutosaveTimer(); }
+  clearToasts();
+  closeProfileMenu();
+  closeDrawer();
+  var doNav = function(){
+    document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('on'); });
+    document.querySelectorAll('.nav-item').forEach(function(n){ n.classList.remove('active'); });
+    var pg = document.getElementById('page-'+name);
+    if (!pg) return;
+    pg.classList.add('on');
+    var ni = document.getElementById(niId||('nav-'+name));
+    if (ni) ni.classList.add('active');
+    setMob(name);
+    var t = document.getElementById('topbar-title');
+    if (t) t.textContent = pageNames[name]||'';
+    if (name==='submit') {
+      var g = document.getElementById('submit-kyc-gate'); if (g) g.style.display='none';
+      var b = document.getElementById('submit-builder'); if (b) b.style.display='';
+      checkForReleaseDraft(); startAutosaveTimer();
+      syncReleaseReview();
+      setTimeout(function(){
+        if (!releaseFlowStarted && !document.getElementById('s0').value.trim()) openReleaseStartModal();
+        else setReleaseStep(releaseStep||0);
+      }, 20);
+    } else { stopAutosaveTimer(); }
+    if (name==='dashboard') { updateDashboard(); loadRecentActivity(); }
+    if (name==='releases') { renderReleasesTable(); }
+    if (name==='artists') { renderArtistsRoster(); }
+    if (name==='reports') { loadRoyalties(); }
+    if (name==='service') { loadTickets(); }
+    if (name==='kyc') { loadKYC(); }
+    if (name==='notifs') { loadNotifications(); }
+    if (name==='profile') { loadLoginHistory(); }
+    if (name==='wallet') { loadWallet(); }
+    if (name==='withdrawals') { loadWithdrawals(); }
+    if (name==='activity') { loadActivityLogs(); }
+    if (name==='loginhistory') { loadLoginHistory(); }
+    if (name==='blog') { loadBlog(); }
+    window.scrollTo(0,0);
+  };
   if (name==='submit') {
-    syncReleaseReview();
-    setTimeout(function(){
-      if (!releaseFlowStarted && !document.getElementById('s0').value.trim()) openReleaseStartModal();
-      else setReleaseStep(releaseStep||0);
-    }, 20);
+    loadProfile().then(function(){ if (kycApproved()) doNav(); else showKycGate(); });
+  } else {
+    doNav();
   }
-  window.scrollTo(0,0);
 }
-function openDrawer() { document.getElementById('mob-drawer').classList.add('on'); document.getElementById('mob-overlay').classList.add('on'); document.body.style.overflow='hidden'; }
-function closeDrawer() { document.getElementById('mob-drawer').classList.remove('on'); document.getElementById('mob-overlay').classList.remove('on'); document.body.style.overflow=''; }
+function openDrawer() { var d=document.getElementById('mob-drawer'); if(d) d.classList.add('on'); var o=document.getElementById('mob-overlay'); if(o) o.classList.add('on'); document.body.style.overflow='hidden'; }
+function closeDrawer() { var d=document.getElementById('mob-drawer'); if(d) d.classList.remove('on'); var o=document.getElementById('mob-overlay'); if(o) o.classList.remove('on'); document.body.style.overflow=''; }
 function setMob(name) { document.querySelectorAll('.mob-ni').forEach(function(n){ n.classList.remove('on'); }); var el=document.getElementById('mni-'+name); if (el) el.classList.add('on'); }
 
 // ═══════════════════════════════════════════════════════════
@@ -2944,6 +3601,594 @@ function showAl(id, m) { var e=document.getElementById(id); if(e){ e.textContent
 function toast(m) { var t=document.getElementById('toast'); document.getElementById('toast-msg').textContent=m; t.classList.add('on'); setTimeout(function(){ t.classList.remove('on'); },3500); }
 function escA2(s){ return escapeHtml(s==null?'':s); }
 function safeUrl(u){ try{ var x=String(u||'').trim(); if(/^https?:\/\//i.test(x)) return x; }catch(e){} return '#'; }
+
+
+/* ═══════════════════════════════════════════════════════════
+   TIR PORTAL — NEW FEATURE LOGIC (theme, dashboard, releases,
+   artists, KYC, wallet, withdrawals, notifications, reports,
+   activity logs, login history)
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Shared helpers ── */
+function fmtINR(n){ return '₹'+Number(n||0).toFixed(2); }
+function fmtDT(iso){ return String(iso||'').substring(0,16).replace('T',' '); }
+function kycStatusOf(){ return (AD && AD.kycStatus) ? AD.kycStatus : 'none'; }
+function kycApproved(){ return kycStatusOf()==='approved'; }
+function logActivity(action,detail){
+  try{
+    if(!CU || !_db) return;
+    _db.collection('activityLogs').add({uid:CU.uid,email:CU.email||'',action:action,detail:detail||'',createdAt:new Date().toISOString()}).catch(function(){});
+  }catch(e){}
+}
+
+/* ── Theme (persisted via localStorage key: tir-theme) ── */
+function applyThemeIcon(){
+  var light=document.documentElement.getAttribute('data-theme')==='light';
+  var m=document.getElementById('theme-icon-moon'), s=document.getElementById('theme-icon-sun');
+  if(m) m.style.display=light?'none':'';
+  if(s) s.style.display=light?'':'none';
+}
+function toggleTheme(){
+  var cur=document.documentElement.getAttribute('data-theme');
+  var next=cur==='light'?'dark':'light';
+  document.documentElement.setAttribute('data-theme',next);
+  try{ localStorage.setItem('tir-theme',next); }catch(e){}
+  applyThemeIcon();
+}
+document.addEventListener('DOMContentLoaded', function(){ applyThemeIcon(); });
+
+/* ── Profile dropdown menu ── */
+function toggleProfileMenu(ev){ if(ev) ev.stopPropagation(); var m=document.getElementById('profile-menu'); if(m) m.classList.toggle('on'); }
+function closeProfileMenu(){ var m=document.getElementById('profile-menu'); if(m) m.classList.remove('on'); }
+document.addEventListener('click', function(){ closeProfileMenu(); });
+
+/* ── DASHBOARD ── */
+function updateDashboard(){
+  try{
+    var name=(AD&&AD.name)||(CU&&CU.displayName)||'Artist';
+    var w=document.getElementById('dash-welcome'); if(w) w.textContent=name;
+    var set=function(id,v){ var el=document.getElementById(id); if(el) el.textContent=v; };
+    var live=0,pending=0,draft=0,approved=0,rejected=0,takedown=0;
+    allRels.forEach(function(r){ var s=String(r.status||'pending').toLowerCase();
+      if(s==='live')live++; else if(s==='draft')draft++; else if(s==='rejected')rejected++;
+      else if(s==='takedown')takedown++; else if(s==='approved')approved++; else pending++; });
+    set('stat-releases',allRels.length); set('stat-live',live);
+    set('stat-artists',((AD&&AD.savedArtists)||[]).length+((AD&&AD.labelArtists)||[]).length);
+    set('stat-pending',pending+approved);
+    var wb=(AD&&typeof AD.walletBalance==='number')?AD.walletBalance:0;
+    set('stat-wallet',fmtINR(wb)); set('payout-balance',fmtINR(wb));
+    set('dist-draft',draft); set('dist-pending',pending); set('dist-approved',approved);
+    set('dist-live',live); set('dist-rejected',rejected); set('dist-takedown',takedown);
+    var mc=document.getElementById('dash-month-cards'), ch=document.getElementById('dash-chart');
+    if(mc||ch){
+      var now=new Date(); var months=[];
+      for(var i=5;i>=0;i--){ var d=new Date(now.getFullYear(),now.getMonth()-i,1);
+        months.push({y:d.getFullYear(),m:d.getMonth(),label:d.toLocaleString('en',{month:'short'}),count:0}); }
+      allRels.forEach(function(r){ var dt=new Date(r.submittedAt||0); if(isNaN(dt.getTime()))return;
+        for(var j=0;j<months.length;j++){ if(months[j].y===dt.getFullYear()&&months[j].m===dt.getMonth()){ months[j].count++; break; } } });
+      if(mc) mc.innerHTML=months.map(function(x){ return '<div class="tir-month-card"><div class="m">'+x.label+'</div><div class="n">'+x.count+'</div></div>'; }).join('');
+      if(ch){ var max=Math.max.apply(null,months.map(function(x){return x.count;}).concat([1]));
+        ch.innerHTML=months.map(function(x){ var h=Math.max(4,Math.round(x.count/max*110));
+          return '<div class="tir-bar"><span class="tir-bar-val">'+x.count+'</span><div class="tir-bar-fill" style="height:'+h+'px"></div><span class="tir-bar-lbl">'+x.label+'</span></div>'; }).join(''); }
+    }
+  }catch(e){ console.log('Dashboard:',e); }
+}
+var ACT_LABELS={login:'Sign in',release_submit:'Release submitted',profile_update:'Profile updated',kyc_submit:'KYC submitted',withdrawal_request:'Withdrawal requested',ticket_created:'Ticket created',artist_added:'Artist added'};
+async function loadRecentActivity(){
+  var el=document.getElementById('dash-activity'); if(!el) return;
+  try{
+    var q=await _db.collection('activityLogs').where('uid','==',CU.uid).get();
+    var rows=[]; q.forEach(function(d){ rows.push(d.data()); });
+    rows.sort(function(a,b){ return new Date(b.createdAt||0)-new Date(a.createdAt||0); });
+    rows=rows.slice(0,8);
+    if(!rows.length){ el.innerHTML='<div class="empty"><div class="empty-icon">📋</div><div class="empty-title">No activity yet</div></div>'; return; }
+    el.innerHTML=rows.map(function(r){
+      return '<div class="tir-activity-item"><span class="tir-activity-dot"></span><div><div style="font-weight:700">'+escA2(ACT_LABELS[r.action]||r.action||'Activity')+'</div><div style="font-size:12px;color:var(--txt3);margin-top:2px">'+escA2(r.detail||'')+'</div></div><span class="tir-activity-time">'+escA2(fmtDT(r.createdAt))+'</span></div>';
+    }).join('');
+  }catch(e){ el.innerHTML='<div class="empty"><div class="empty-icon">📋</div><div class="empty-title">Could not load activity</div></div>'; }
+}
+
+/* ── RELEASES TABLE (filter/search/pagination/selection) ── */
+var relFilter='all', relSearchQ='', relPageNum=1, relPerPage=10, relSelected={};
+function relStatusGroup(s){ s=String(s||'pending').toLowerCase(); if(s==='live')return 'live'; if(s==='draft')return 'draft'; if(s==='rejected')return 'rejected'; if(s==='takedown')return 'takedown'; return 'pending'; }
+function relBadgeClass(s){ var m={pending:'rb-pending',review:'rb-review',approved:'rb-approved',live:'rb-live',rejected:'rb-rejected',draft:'rb-draft',takedown:'rb-takedown'}; return m[String(s||'pending').toLowerCase()]||'rb-pending'; }
+function relFilteredList(){
+  return allRels.filter(function(r){
+    if(relFilter!=='all' && relStatusGroup(r.status)!==relFilter) return false;
+    if(relSearchQ){ var q=relSearchQ.toLowerCase(); var hay=((r.title||'')+' '+(r.primaryArtist||'')+' '+(r.artistName||'')).toLowerCase(); if(hay.indexOf(q)===-1) return false; }
+    return true;
+  });
+}
+function renderReleasesTable(){
+  var tb=document.getElementById('rel-tbody'); if(!tb) return;
+  var counts={all:allRels.length,live:0,pending:0,draft:0,rejected:0,takedown:0};
+  allRels.forEach(function(r){ counts[relStatusGroup(r.status)]++; });
+  ['all','live','pending','draft','rejected','takedown'].forEach(function(f){ var el=document.getElementById('rel-c-'+f); if(el) el.textContent=counts[f]; });
+  document.querySelectorAll('#rel-pills .tir-pill').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-f')===relFilter); });
+  var list=relFilteredList();
+  var totalPages=Math.max(1,Math.ceil(list.length/relPerPage));
+  if(relPageNum>totalPages) relPageNum=totalPages;
+  var start=(relPageNum-1)*relPerPage;
+  var page=list.slice(start,start+relPerPage);
+  if(!page.length){ tb.innerHTML='<tr class="tir-empty-row"><td colspan="10">No releases found</td></tr>'; }
+  else{
+    tb.innerHTML=page.map(function(r,i){
+      var sel=relSelected[r.id];
+      return '<tr>'+
+      '<td><input type="checkbox" '+(sel?'checked':'')+' onchange="toggleRelSelect(\''+r.id+'\',this)"/></td>'+
+      '<td style="color:var(--txt3)">'+(start+i+1)+'</td>'+
+      '<td><div class="tir-cover">'+(r.artworkUrl?'<img src="'+safeUrl(r.artworkUrl)+'" alt=""/>':'🎵')+'</div></td>'+
+      '<td class="tir-row-title">'+escA2(r.title||'—')+'<div class="tir-row-sub">'+escA2(r.type||'Single')+' · '+(r.releaseMedium==='video'?'Video':'Audio')+'</div></td>'+
+      '<td>'+escA2(r.primaryArtist||r.artistName||'—')+'</td>'+
+      '<td><span class="rbadge '+relBadgeClass(r.status)+'">'+escA2(r.status||'pending')+'</span></td>'+
+      '<td style="font-family:\'DM Mono\',monospace;font-size:12px">'+escA2(r.isrc||'—')+'</td>'+
+      '<td style="font-family:\'DM Mono\',monospace;font-size:12px">'+escA2(r.upc||'Auto')+'</td>'+
+      '<td style="white-space:nowrap">'+escA2(r.releaseDate||'—')+'</td>'+
+      '<td><button class="tir-btn-ghost tir-btn-sm" onclick="openRelDetail(\''+r.id+'\')">View</button></td></tr>';
+    }).join('');
+  }
+  var bb=document.getElementById('rel-bulk');
+  var nsel=Object.keys(relSelected).length;
+  if(bb){ bb.style.display=nsel>0?'flex':'none'; var bc=document.getElementById('rel-bulk-count'); if(bc) bc.textContent=nsel+' selected'; }
+  var pg=document.getElementById('rel-pagination');
+  if(pg){
+    var html='<span class="tir-page-info">Showing '+(list.length?(start+1):0)+'–'+Math.min(start+relPerPage,list.length)+' of '+list.length+'</span>';
+    html+='<button class="tir-page-btn" '+(relPageNum<=1?'disabled':'')+' onclick="relGotoPage('+(relPageNum-1)+')">‹</button>';
+    for(var p=1;p<=totalPages;p++){ if(totalPages>7 && Math.abs(p-relPageNum)>2 && p!==1 && p!==totalPages) continue; html+='<button class="tir-page-btn'+(p===relPageNum?' on':'')+'" onclick="relGotoPage('+p+')">'+p+'</button>'; }
+    html+='<button class="tir-page-btn" '+(relPageNum>=totalPages?'disabled':'')+' onclick="relGotoPage('+(relPageNum+1)+')">›</button>';
+    pg.innerHTML=html;
+  }
+}
+function setRelFilter(f){ relFilter=f; relPageNum=1; renderReleasesTable(); }
+function onRelSearch(q){ relSearchQ=q.trim(); relPageNum=1; renderReleasesTable(); }
+function onRelPerPage(n){ relPerPage=Number(n)||10; relPageNum=1; renderReleasesTable(); }
+function relGotoPage(p){ relPageNum=p; renderReleasesTable(); }
+function toggleRelSelect(id,el){ if(el.checked) relSelected[id]=true; else delete relSelected[id]; renderReleasesTable(); }
+function toggleRelSelectAll(checked){ var list=relFilteredList(); var start=(relPageNum-1)*relPerPage; list.slice(start,start+relPerPage).forEach(function(r){ if(checked) relSelected[r.id]=true; else delete relSelected[r.id]; }); renderReleasesTable(); }
+async function requestTakedownBulk(){
+  var ids=Object.keys(relSelected);
+  if(!ids.length) return;
+  if(!confirm('Request takedown for '+ids.length+' release(s)? TIR will process each request.')) return;
+  try{
+    for(var i=0;i<ids.length;i++){
+      var r=null;
+      for(var j=0;j<allRels.length;j++){ if(allRels[j].id===ids[i]){ r=allRels[j]; break; } }
+      var title=r?(r.title||'Untitled'):'Release';
+      await _db.collection('tickets').add({userId:CU.uid,artistName:AD.name||CU.displayName,artistEmail:CU.email,category:'Takedown Release',ticketType:'Takedown Release',priority:'normal',subject:'Takedown request: '+title,message:'Please take down the release "'+title+'"'+(r&&r.upc?' (UPC: '+r.upc+')':'')+' from all platforms.',status:'open',reply:'',createdAt:new Date().toISOString()});
+    }
+    relSelected={};
+    renderReleasesTable();
+    await loadTickets();
+    toast('Takedown request(s) submitted ✓');
+  }catch(e){ toast('Failed: '+e.message); }
+}
+
+/* ── SERVICE REQUEST (tickets) ── */
+var svcType='Takedown Release';
+function setSvcType(t){
+  svcType=t;
+  document.querySelectorAll('#svc-type-pills .tir-pill').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-t')===t); });
+}
+function openServiceModal(){ var m=document.getElementById('service-modal'); if(m) m.classList.add('on'); document.body.style.overflow='hidden'; }
+function closeServiceModal(){ var m=document.getElementById('service-modal'); if(m) m.classList.remove('on'); document.body.style.overflow=''; }
+
+/* ── KYC VERIFICATION ── */
+var kycDocUrls={};
+function loadKYC(){
+  var k=(AD&&AD.kyc)||{};
+  var set=function(id,v){ var el=document.getElementById(id); if(el) el.value=v||''; };
+  set('kyc-legal',k.legalName); set('kyc-mobile',k.mobile); set('kyc-pan',k.pan); set('kyc-aadhaar',k.aadhaar);
+  set('kyc-addr1',k.address1); set('kyc-addr2',k.address2); set('kyc-city',k.city);
+  set('kyc-state',k.state); set('kyc-pincode',k.pincode);
+  kycDocUrls=Object.assign({},k.docs||{});
+  setKYCDocPreview('aadhaarFront',kycDocUrls.aadhaarFront);
+  setKYCDocPreview('aadhaarBack',kycDocUrls.aadhaarBack);
+  setKYCDocPreview('panDoc',kycDocUrls.panDoc);
+  setKYCDocPreview('signature',kycDocUrls.signature);
+  var st=kycStatusOf();
+  var badge=document.getElementById('kyc-status-badge');
+  if(badge){ var label={none:'Not Submitted',pending:'Pending',approved:'Approved',rejected:'Rejected'}[st]||'Not Submitted'; badge.textContent=label; badge.className='tir-status-badge st-'+st; }
+  var note=document.getElementById('kyc-review-note');
+  if(note){
+    if(st==='rejected'&&k.reviewNote){ note.style.display='block'; note.innerHTML='<strong>Reviewer note:</strong> '+escA2(k.reviewNote); }
+    else if(st==='approved'){ note.style.display='block'; note.innerHTML='✓ Your KYC has been approved. You can now submit releases and request withdrawals.'; }
+    else note.style.display='none';
+  }
+  var ps=document.getElementById('prof-kyc-status');
+  if(ps){ var l2={none:'Not Submitted',pending:'Pending review',approved:'Approved',rejected:'Rejected'}[st]||'Not Submitted'; ps.textContent=l2; }
+  var pa=document.getElementById('prof-agreement');
+  if(pa){ pa.textContent=(AD.agreement&&AD.agreement.signed)?('Agreement v'+(AD.agreement.version||AGREEMENT_VERSION)+' signed'):('Not signed'); }
+}
+function setKYCDocPreview(key,url){
+  var map={aadhaarFront:'af',aadhaarBack:'ab',panDoc:'pan',signature:'sig'};
+  var c=map[key]; if(!c) return;
+  var img=document.getElementById('kyc-doc-'+c+'-preview');
+  var ph=document.getElementById('kyc-doc-'+c+'-ph');
+  if(!img) return;
+  var box=img.parentNode;
+  if(url){ img.src=url; img.style.display='block'; if(ph) ph.style.display='none'; if(box) box.classList.add('has-file'); }
+  else{ img.style.display='none'; img.src=''; if(ph) ph.style.display=''; if(box) box.classList.remove('has-file'); }
+}
+async function onKYCDocChange(ev,key){
+  var file=ev.target.files[0]; if(!file) return;
+  var st=document.getElementById('kyc-doc-status');
+  if(!/image\/(jpeg|png)/.test(file.type)){ toast('Only JPG or PNG images are allowed.'); return; }
+  if(file.size>1024*1024){ toast('Document must be 1MB or less.'); return; }
+  st.textContent='Uploading document…';
+  try{
+    var r=await uploadCDN(file,null);
+    kycDocUrls[key]=r.secure_url;
+    setKYCDocPreview(key,r.secure_url);
+    st.textContent='✓ Document uploaded';
+    toast('Document uploaded ✓');
+  }catch(e){ st.textContent='Upload failed: '+e.message; }
+}
+async function saveKYC(){
+  var g=function(id){ var el=document.getElementById(id); return el?el.value.trim():''; };
+  var err=document.getElementById('kyc-e'); err.classList.remove('on');
+  var okS=document.getElementById('kyc-s'); okS.classList.remove('on');
+  var legalName=g('kyc-legal'), mobile=g('kyc-mobile'), pan=g('kyc-pan').toUpperCase(), aadhaar=g('kyc-aadhaar').replace(/\s/g,'');
+  var address1=g('kyc-addr1'), address2=g('kyc-addr2'), city=g('kyc-city'), state=g('kyc-state'), pincode=g('kyc-pincode');
+  var fail=function(m){ err.textContent=m; err.classList.add('on'); window.scrollTo(0,0); };
+  if(!legalName) return fail('Please enter your legal name as per Aadhaar.');
+  if(!mobile) return fail('Please enter your mobile number.');
+  if(!/^[A-Z]{5}[0-9]{4}[A-Z]$/.test(pan)) return fail('Please enter a valid PAN number (e.g. ABCDE1234F).');
+  if(!/^\d{12}$/.test(aadhaar)) return fail('Please enter a valid 12-digit Aadhaar number.');
+  if(!address1) return fail('Please enter address line 1.');
+  if(!city) return fail('Please enter your city.');
+  if(!state) return fail('Please enter your state.');
+  if(!/^\d{6}$/.test(pincode)) return fail('Please enter a valid 6-digit pincode.');
+  var docs=kycDocUrls||{};
+  if(!docs.aadhaarFront) return fail('Please upload your Aadhaar front.');
+  if(!docs.aadhaarBack) return fail('Please upload your Aadhaar back.');
+  if(!docs.panDoc) return fail('Please upload your PAN card.');
+  if(!docs.signature) return fail('Please upload your signature.');
+  var btn=document.getElementById('kyc-submit-btn'); btn.disabled=true; btn.textContent='Submitting…';
+  try{
+    var kyc={ legalName:legalName, mobile:mobile, pan:pan, aadhaar:aadhaar,
+      address1:address1, address2:address2, city:city, state:state, pincode:pincode,
+      bankHolder:g('pb0'), bankName:g('pb1'), accountNumber:g('pb2'), ifsc:g('pb3'), upiId:g('pb5'),
+      docs:{aadhaarFront:docs.aadhaarFront,aadhaarBack:docs.aadhaarBack,panDoc:docs.panDoc,signature:docs.signature},
+      status:'pending', submittedAt:new Date().toISOString(), reviewedAt:'', reviewNote:'' };
+    await _db.collection('users').doc(CU.uid).set({kyc:kyc,kycStatus:'pending'},{merge:true});
+    AD.kyc=kyc; AD.kycStatus='pending';
+    loadKYC();
+    okS.textContent='✓ KYC submitted for verification. TIR will review it shortly.'; okS.classList.add('on');
+    toast('KYC submitted ✓');
+    try{ logActivity('kyc_submit','KYC submitted for verification'); }catch(e){}
+  }catch(e){ fail('Could not submit KYC: '+e.message); }
+  btn.disabled=false; btn.textContent='Submit for Verification';
+}
+
+/* ── MY WALLET ── */
+var walletTxCache=[], walletFilter='all';
+async function loadWallet(){
+  try{
+    var snap=await _db.collection('users').doc(CU.uid).get();
+    var wb=0;
+    if(snap.exists){ var d=snap.data(); AD=Object.assign({},AD,d); if(typeof d.walletBalance==='number') wb=d.walletBalance; }
+    var wv=document.getElementById('wallet-balance-val'); if(wv) wv.textContent=fmtINR(wb);
+    var q=await _db.collection('walletTx').where('uid','==',CU.uid).get();
+    walletTxCache=[];
+    q.forEach(function(doc){ walletTxCache.push(Object.assign({id:doc.id},doc.data())); });
+    walletTxCache.sort(function(a,b){ return new Date(b.createdAt||0)-new Date(a.createdAt||0); });
+    renderWalletTx();
+  }catch(e){ console.log('Wallet:',e); }
+}
+function setWalletFilter(f){ walletFilter=f; document.querySelectorAll('[data-wf]').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-wf')===f); }); renderWalletTx(); }
+function renderWalletTx(){
+  var tb=document.getElementById('wallet-tx-tbody'); if(!tb) return;
+  var list=walletTxCache.filter(function(t){ return walletFilter==='all'||t.type===walletFilter; });
+  if(!list.length){ tb.innerHTML='<tr class="tir-empty-row"><td colspan="4">No transactions yet</td></tr>'; return; }
+  tb.innerHTML=list.map(function(t){
+    var credit=t.type==='credit';
+    return '<tr><td style="white-space:nowrap">'+escA2((t.createdAt||'').substring(0,10))+'</td><td>'+escA2(t.label||'—')+'</td><td><span class="tir-type-pill '+(credit?'tp-credit':'tp-debit')+'">'+(credit?'Credit':'Debit')+'</span></td><td class="'+(credit?'tir-tx-credit':'tir-tx-debit')+'">'+(credit?'+':'−')+fmtINR(t.amount||0)+'</td></tr>';
+  }).join('');
+}
+
+/* ── WITHDRAWALS ── */
+async function loadWithdrawals(){
+  var approved=kycApproved();
+  document.getElementById('wd-gate').style.display=approved?'none':'block';
+  document.getElementById('wd-main').style.display=approved?'':'none';
+  if(!approved) return;
+  try{
+    var snap=await _db.collection('users').doc(CU.uid).get();
+    var wb=(snap.exists&&typeof snap.data().walletBalance==='number')?snap.data().walletBalance:0;
+    AD.walletBalance=wb;
+    document.getElementById('wd-available').textContent=fmtINR(wb);
+    var q=await _db.collection('withdrawals').where('uid','==',CU.uid).get();
+    var rows=[]; q.forEach(function(doc){ rows.push(Object.assign({id:doc.id},doc.data())); });
+    rows.sort(function(a,b){ return new Date(b.createdAt||0)-new Date(a.createdAt||0); });
+    var tb=document.getElementById('wd-tbody');
+    if(!rows.length){ tb.innerHTML='<tr class="tir-empty-row"><td colspan="5">No withdrawal requests yet</td></tr>'; return; }
+    var bc={pending:'rb-pending',approved:'rb-approved',rejected:'rb-rejected',paid:'rb-live'};
+    tb.innerHTML=rows.map(function(w){
+      return '<tr><td style="white-space:nowrap">'+escA2((w.createdAt||'').substring(0,10))+'</td><td style="text-align:right;font-family:\'DM Mono\',monospace;font-weight:800">'+fmtINR(w.amount||0)+'</td><td>'+escA2(w.method||'—')+'</td><td><span class="rbadge '+(bc[w.status]||'rb-pending')+'">'+escA2(w.status||'pending')+'</span></td><td style="font-size:12px;color:var(--txt3)">'+escA2(w.note||'—')+'</td></tr>';
+    }).join('');
+  }catch(e){ console.log('Withdrawals:',e); }
+}
+async function requestWithdrawal(){
+  var amt=Number(document.getElementById('wd-amount').value);
+  var method=document.getElementById('wd-method').value;
+  var details=document.getElementById('wd-details').value.trim();
+  var err=document.getElementById('wd-e'); err.classList.remove('on');
+  var okS=document.getElementById('wd-s'); okS.classList.remove('on');
+  var fail=function(m){ err.textContent=m; err.classList.add('on'); };
+  if(!kycApproved()) return fail('KYC verification is required before requesting a withdrawal.');
+  if(!(amt>0)) return fail('Please enter a valid amount.');
+  var avail=Number((document.getElementById('wd-available').textContent||'').replace(/[^0-9.]/g,''))||0;
+  if(amt>avail) return fail('Amount exceeds your available balance.');
+  if(!method) return fail('Please select a payout method.');
+  if(!details) return fail('Please enter your payment details.');
+  var btn=document.getElementById('wd-btn'); btn.disabled=true; btn.textContent='Submitting…';
+  try{
+    var _kycDoc=await _db.collection('users').doc(CU.uid).get();
+    var _kycStatus=_kycDoc.exists?(_kycDoc.data().kycStatus||'none'):'none';
+    if(_kycStatus!=='approved'){ btn.disabled=false; btn.textContent='Submit Request'; return fail('KYC verification is required before requesting a withdrawal.'); }
+    await _db.collection('withdrawals').add({uid:CU.uid,amount:amt,method:method,details:details,status:'pending',createdAt:new Date().toISOString()});
+    document.getElementById('wd-amount').value=''; document.getElementById('wd-method').value=''; document.getElementById('wd-details').value='';
+    okS.textContent='✓ Withdrawal request submitted. TIR will process it shortly.'; okS.classList.add('on');
+    try{ logActivity('withdrawal_request','Requested withdrawal of '+fmtINR(amt)+' via '+method); }catch(e){}
+    toast('Withdrawal requested ✓');
+    loadWithdrawals();
+  }catch(e){ fail('Could not submit request: '+e.message); }
+  btn.disabled=false; btn.textContent='Submit Request';
+}
+
+/* ── NOTIFICATIONS ── */
+var notifCache={inbox:[],sent:[]}, notifTab='inbox', notifFilter='all';
+async function loadNotifications(){
+  try{
+    var qi=await _db.collection('notifications').where('toUid','==',CU.uid).get();
+    var qs=await _db.collection('notifications').where('fromUid','==',CU.uid).get();
+    notifCache.inbox=[]; notifCache.sent=[];
+    qi.forEach(function(d){ notifCache.inbox.push(Object.assign({id:d.id},d.data())); });
+    qs.forEach(function(d){ notifCache.sent.push(Object.assign({id:d.id},d.data())); });
+    notifCache.inbox.sort(function(a,b){ return new Date(b.createdAt||0)-new Date(a.createdAt||0); });
+    notifCache.sent.sort(function(a,b){ return new Date(b.createdAt||0)-new Date(a.createdAt||0); });
+    renderNotifications();
+    loadNotifCount();
+  }catch(e){ console.log('Notifications:',e); }
+}
+function setNotifTab(t){ notifTab=t; ['inbox','sent'].forEach(function(x){ var b=document.getElementById('notif-tabbtn-'+x); if(b) b.classList.toggle('on',x===t); }); renderNotifications(); }
+function setNotifFilter(f){ notifFilter=f; document.querySelectorAll('[data-nf]').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-nf')===f); }); renderNotifications(); }
+function renderNotifications(){
+  var el=document.getElementById('notif-list'); if(!el) return;
+  var list=(notifTab==='inbox'?notifCache.inbox:notifCache.sent).filter(function(n){ return notifFilter==='all'||(notifFilter==='unread'?!n.read:!!n.read); });
+  if(!list.length){ el.innerHTML='<div class="empty"><div class="empty-icon">🔔</div><div class="empty-title">No notifications</div></div>'; return; }
+  el.innerHTML=list.map(function(n){
+    var unread=!n.read&&notifTab==='inbox';
+    return '<div class="tir-notif-item'+(unread?' unread':'')+'" onclick="toggleNotifItem(\''+n.id+'\',this)">'+
+      '<div class="tir-notif-top"><div style="display:flex;align-items:center;gap:8px">'+(unread?'<span class="tir-unread-dot"></span>':'')+'<span class="tir-notif-sub">'+escA2(n.subject||'(No subject)')+'</span></div>'+
+      '<span class="tir-notif-meta">'+escA2(fmtDT(n.createdAt))+'</span></div>'+
+      '<div class="tir-notif-meta">'+escA2(notifTab==='inbox'?'From: TIR Admin':'To: TIR Admin')+'</div>'+
+      '<div class="tir-notif-body">'+escA2(n.body||'')+'</div></div>';
+  }).join('');
+}
+async function toggleNotifItem(id,el){
+  el.classList.toggle('open');
+  var n=null;
+  for(var i=0;i<notifCache.inbox.length;i++){ if(notifCache.inbox[i].id===id){ n=notifCache.inbox[i]; break; } }
+  if(n&&!n.read){ n.read=true; el.classList.remove('unread'); var d=el.querySelector('.tir-unread-dot'); if(d) d.remove(); try{ await _db.collection('notifications').doc(id).update({read:true}); }catch(e){} loadNotifCount(); }
+}
+function openNotifModal(){ var m=document.getElementById('notif-modal'); if(m) m.classList.add('on'); document.body.style.overflow='hidden'; }
+function closeNotifModal(){ var m=document.getElementById('notif-modal'); if(m) m.classList.remove('on'); document.body.style.overflow=''; }
+async function sendNotification(){
+  var sub=document.getElementById('notif-subject').value.trim();
+  var body=document.getElementById('notif-body').value.trim();
+  var err=document.getElementById('notif-e'); err.classList.remove('on');
+  if(!sub){ err.textContent='Please enter a subject.'; err.classList.add('on'); return; }
+  if(!body){ err.textContent='Please write a message.'; err.classList.add('on'); return; }
+  var btn=document.getElementById('notif-send-btn'); btn.disabled=true; btn.textContent='Sending…';
+  try{
+    await _db.collection('notifications').add({fromUid:CU.uid,toUid:'admin',subject:sub,body:body,createdAt:new Date().toISOString(),read:false});
+    document.getElementById('notif-subject').value=''; document.getElementById('notif-body').value='';
+    closeNotifModal(); toast('Message sent ✓'); loadNotifications();
+  }catch(e){ err.textContent='Could not send: '+e.message; err.classList.add('on'); }
+  btn.disabled=false; btn.textContent='Send Message';
+}
+async function loadNotifCount(){
+  try{
+    var q=await _db.collection('notifications').where('toUid','==',CU.uid).get();
+    var c=0; q.forEach(function(d){ if(!d.data().read) c++; });
+    var b=document.getElementById('notif-bell-count');
+    if(b){ b.textContent=c>99?'99+':c; b.style.display=c>0?'flex':'none'; }
+    var nb=document.getElementById('notif-nav-count');
+    if(nb){ nb.textContent=c>99?'99+':c; nb.style.display=c>0?'inline':'none'; }
+  }catch(e){}
+}
+
+/* ── ACTIVITY LOGS & LOGIN HISTORY ── */
+async function loadActivityLogs(){
+  var tb=document.getElementById('activity-tbody'); if(!tb) return;
+  try{
+    var q=await _db.collection('activityLogs').where('uid','==',CU.uid).get();
+    var rows=[]; q.forEach(function(d){ rows.push(d.data()); });
+    rows.sort(function(a,b){ return new Date(b.createdAt||0)-new Date(a.createdAt||0); });
+    rows=rows.slice(0,100);
+    if(!rows.length){ tb.innerHTML='<tr class="tir-empty-row"><td colspan="3">No activity recorded yet</td></tr>'; return; }
+    tb.innerHTML=rows.map(function(r){
+      return '<tr><td style="white-space:nowrap">'+escA2(fmtDT(r.createdAt))+'</td><td><span class="tir-type-pill tp-credit">'+escA2(ACT_LABELS[r.action]||r.action||'—')+'</span></td><td style="font-size:12px;color:var(--txt2)">'+escA2(r.detail||'—')+'</td></tr>';
+    }).join('');
+  }catch(e){ tb.innerHTML='<tr class="tir-empty-row"><td colspan="3">Could not load activity.</td></tr>'; }
+}
+async function loadLoginHistory(){
+  var tb=document.getElementById('lh-tbody');
+  var rows=[];
+  try{
+    var q=await _db.collection('loginHistory').where('uid','==',CU.uid).get();
+    q.forEach(function(d){ rows.push(d.data()); });
+    rows.sort(function(a,b){ return new Date(b.createdAt||0)-new Date(a.createdAt||0); });
+  }catch(e){}
+  if(tb){
+    if(!rows.length){ tb.innerHTML='<tr class="tir-empty-row"><td colspan="3">No login records yet</td></tr>'; }
+    else{
+      tb.innerHTML=rows.slice(0,50).map(function(r){
+        return '<tr><td style="white-space:nowrap">'+escA2(fmtDT(r.createdAt))+'</td><td>'+escA2(r.email||'—')+'</td><td style="font-size:12px;color:var(--txt2);max-width:320px;overflow:hidden;text-overflow:ellipsis">'+escA2(r.userAgent||'—')+'</td></tr>';
+      }).join('');
+    }
+  }
+  var se=document.getElementById('prof-sessions');
+  if(se){
+    if(!rows.length){ se.innerHTML='<div class="empty"><div class="empty-icon">🖥️</div><div class="empty-title">No recent sessions</div></div>'; }
+    else{
+      se.innerHTML=rows.slice(0,5).map(function(r){
+        return '<div class="tir-activity-item"><span class="tir-activity-dot"></span><div><div style="font-weight:700">Sign in — '+escA2(r.email||'')+'</div><div style="font-size:12px;color:var(--txt3);margin-top:2px">'+escA2((r.userAgent||'').substring(0,80))+'</div></div><span class="tir-activity-time">'+escA2(fmtDT(r.createdAt))+'</span></div>';
+      }).join('');
+    }
+  }
+}
+
+/* ── ARTISTS ROSTER ── */
+var artistPosterUrl=null;
+function renderArtistsRoster(){
+  var tb=document.getElementById('artists-tbody'); if(!tb) return;
+  var saved=(AD&&AD.savedArtists)||[];
+  var roster=(AD&&AD.labelArtists)||[];
+  var total=saved.length+roster.length;
+  var countEl=document.getElementById('artists-count');
+  if(countEl) countEl.textContent=total+' artist'+(total!==1?'s':'');
+  if(!total){ tb.innerHTML='<tr class="tir-empty-row"><td colspan="8">No artists yet — add your first artist to build your roster.</td></tr>'; return; }
+  var link=function(u){ return u?'<a href="'+safeUrl(u)+'" target="_blank" style="color:var(--green);font-size:12px;font-weight:700">Open ↗</a>':'<span style="color:var(--txt3)">—</span>'; };
+  var html='';
+  saved.forEach(function(a){
+    html+='<tr><td><div class="tir-cover">'+(a.posterUrl?'<img src="'+safeUrl(a.posterUrl)+'" alt=""/>':'🎤')+'</div></td><td class="tir-row-title">'+escA2(a.name||'—')+'</td><td><span class="tir-type-pill tp-credit">Artist</span></td><td>'+link(a.spotifyUrl)+'</td><td>'+link(a.appleMusicUrl)+'</td><td>'+link(a.youtube)+'</td><td>'+(a.instagram?link(a.instagram):'<span style="color:var(--txt3)">—</span>')+'</td><td style="font-size:12px;color:var(--txt3);white-space:nowrap">'+escA2((a.addedAt||'').substring(0,10)||'—')+'</td></tr>';
+  });
+  roster.forEach(function(a){
+    html+='<tr><td><div class="tir-cover">🎤</div></td><td class="tir-row-title">'+escA2(a.name||'—')+'<div class="tir-row-sub">'+escA2(a.genre||'')+'</div></td><td><span class="tir-type-pill" style="background:rgba(168,85,247,.12);color:var(--purple)">Roster</span></td><td>'+link(a.spotifyUrl)+'</td><td>'+link(a.appleMusicUrl)+'</td><td><span style="color:var(--txt3)">—</span></td><td><span style="color:var(--txt3)">—</span></td><td style="font-size:12px;color:var(--txt3);white-space:nowrap">'+escA2((a.addedAt||'').substring(0,10)||'—')+'</td></tr>';
+  });
+  tb.innerHTML=html;
+}
+function openArtistModal(){ artistPosterUrl=null; var m=document.getElementById('artist-modal'); if(m) m.classList.add('on'); document.body.style.overflow='hidden'; }
+function closeArtistModal(){ var m=document.getElementById('artist-modal'); if(m) m.classList.remove('on'); document.body.style.overflow=''; }
+async function onArtistPosterChange(ev){
+  var file=ev.target.files[0]; if(!file) return;
+  var st=document.getElementById('artist-poster-status');
+  if(!/image\/(jpeg|png)/.test(file.type)){ toast('Only JPG or PNG allowed.'); return; }
+  if(file.size>5*1024*1024){ toast('Poster must be under 5MB.'); return; }
+  st.textContent='Uploading…';
+  try{
+    var r=await uploadCDN(file,null);
+    artistPosterUrl=r.secure_url;
+    var prev=document.getElementById('artist-poster-preview');
+    prev.src=r.secure_url; prev.style.display='block';
+    document.getElementById('artist-poster-ph').style.display='none';
+    st.textContent='✓ Uploaded';
+    toast('Poster uploaded ✓');
+  }catch(e){ st.textContent='Upload failed'; toast('Upload failed: '+e.message); }
+}
+async function saveRosterArtist(){
+  var name=document.getElementById('am-name').value.trim();
+  var err=document.getElementById('am-e'); err.classList.remove('on');
+  if(!name){ err.textContent='Please enter an artist name.'; err.classList.add('on'); return; }
+  var entry={ id:'a_'+Date.now(), name:name, posterUrl:artistPosterUrl,
+    instagram:document.getElementById('am-instagram').value.trim(),
+    spotifyUrl:document.getElementById('am-spotify').value.trim(),
+    appleMusicUrl:document.getElementById('am-apple').value.trim(),
+    youtube:document.getElementById('am-youtube').value.trim(),
+    addedAt:new Date().toISOString() };
+  var btn=document.getElementById('am-save-btn'); btn.disabled=true; btn.textContent='Saving…';
+  try{
+    AD.savedArtists=(AD.savedArtists||[]).concat([entry]);
+    await _db.collection('users').doc(CU.uid).set({savedArtists:AD.savedArtists},{merge:true});
+    renderArtistsRoster(); renderArtistSelect();
+    ['am-name','am-instagram','am-spotify','am-apple','am-youtube'].forEach(function(id){document.getElementById(id).value='';});
+    document.getElementById('artist-poster-input').value='';
+    var prev=document.getElementById('artist-poster-preview'); prev.style.display='none'; prev.src='';
+    document.getElementById('artist-poster-ph').style.display='';
+    document.getElementById('artist-poster-status').textContent='';
+    artistPosterUrl=null;
+    closeArtistModal();
+    toast('Artist added ✓');
+    try{ logActivity('artist_added','Added artist: '+name); }catch(e){}
+  }catch(e){ err.textContent='Could not save artist: '+e.message; err.classList.add('on'); }
+  btn.disabled=false; btn.textContent='Save Artist';
+}
+
+/* ── REPORTS ── */
+var repDateFrom='', repDateTo='';
+function setRepTab(t){ ['releases','artists','monthly'].forEach(function(x){ var b=document.getElementById('rep-tabbtn-'+x); if(b) b.classList.toggle('on',x===t); var p=document.getElementById('rep-tab-'+x); if(p) p.classList.toggle('on',x===t); }); }
+function applyRepDateFilter(){ repDateFrom=document.getElementById('rep-from').value; repDateTo=document.getElementById('rep-to').value; loadRoyalties(); }
+function renderReportWidgets(p){
+  var se=document.getElementById('rep-streams');
+  if(se){ var st=0, has=false; (p.allRoy||[]).forEach(function(r){ ['streams','totalStreams','streamCount'].forEach(function(k){ if(r[k]!=null){ st+=Number(r[k])||0; has=true; } }); }); se.textContent=has?Number(st).toLocaleString():'—'; }
+  var tr=document.getElementById('rep-trend');
+  if(tr){
+    var months={};
+    (p.allRoy||[]).forEach(function(r){ var key=(r.period||'Unknown'); months[key]=(months[key]||0)+Number(r.totalAmount||r.amount||0); });
+    var keys=Object.keys(months).sort().slice(-8);
+    if(!keys.length){ tr.innerHTML='<div class="empty"><div class="empty-icon">📈</div><div class="empty-title">No revenue data yet</div></div>'; }
+    else{ var max=Math.max.apply(null,keys.map(function(k){return months[k];}))||1;
+      tr.innerHTML=keys.map(function(k){ var h=Math.max(4,Math.round(months[k]/max*110)); return '<div class="tir-bar"><span class="tir-bar-val">₹'+Math.round(months[k]).toLocaleString()+'</span><div class="tir-bar-fill" style="height:'+h+'px"></div><span class="tir-bar-lbl">'+escA2(k)+'</span></div>'; }).join(''); }
+  }
+  var ta=document.getElementById('rep-top-artists');
+  if(ta){
+    var counts={};
+    allRels.forEach(function(r){ var n=r.primaryArtist||r.artistName||'Unknown'; counts[n]=(counts[n]||0)+1; });
+    var arr=Object.keys(counts).map(function(k){return {n:k,c:counts[k]};}).sort(function(a,b){return b.c-a.c;}).slice(0,5);
+    ta.innerHTML=arr.length?arr.map(function(a,i){ return '<div style="display:flex;justify-content:space-between;padding:10px 0;border-top:1px solid var(--brd)'+(i===0?';border-top:none':'')+'"><span style="font-weight:700">'+escA2(a.n)+'</span><span style="color:var(--txt3);font-size:12px">'+a.c+' release'+(a.c!==1?'s':'')+'</span></div>'; }).join(''):'<div class="empty"><div class="empty-icon">🎤</div><div class="empty-title">No artists yet</div></div>';
+  }
+  var rtb=document.getElementById('rep-releases-tbody');
+  if(rtb){ rtb.innerHTML=allRels.length?allRels.slice(0,50).map(function(r){ return '<tr><td class="tir-row-title">'+escA2(r.title||'—')+'</td><td>'+escA2(r.primaryArtist||r.artistName||'—')+'</td><td><span class="rbadge '+relBadgeClass(r.status)+'">'+escA2(r.status||'pending')+'</span></td><td style="white-space:nowrap">'+escA2(r.releaseDate||'—')+'</td></tr>'; }).join(''):'<tr class="tir-empty-row"><td colspan="4">No releases yet</td></tr>'; }
+  var atb=document.getElementById('rep-artists-tbody');
+  if(atb){
+    var m={};
+    allRels.forEach(function(r){ var n=r.primaryArtist||r.artistName||'Unknown'; m[n]=m[n]||{t:0,l:0}; m[n].t++; if(String(r.status).toLowerCase()==='live') m[n].l++; });
+    var ks=Object.keys(m);
+    atb.innerHTML=ks.length?ks.map(function(k){ return '<tr><td class="tir-row-title">'+escA2(k)+'</td><td>'+m[k].t+'</td><td>'+m[k].l+'</td></tr>'; }).join(''):'<tr class="tir-empty-row"><td colspan="3">No artists yet</td></tr>';
+  }
+  var mtb=document.getElementById('rep-monthly-tbody');
+  if(mtb){
+    var per={};
+    (p.allRoy||[]).forEach(function(r){
+      var dt=(r.createdAt||'').substring(0,10);
+      if(repDateFrom&&dt<repDateFrom) return;
+      if(repDateTo&&dt>repDateTo) return;
+      var key=(r.period||dt.substring(0,7)||'Unknown');
+      per[key]=per[key]||{s:0,a:0};
+      ['streams','totalStreams','streamCount'].forEach(function(k){ if(r[k]!=null) per[key].s+=Number(r[k])||0; });
+      per[key].a+=Number(r.totalAmount||r.amount||0);
+    });
+    var pks=Object.keys(per).sort();
+    mtb.innerHTML=pks.length?pks.map(function(k){ return '<tr><td class="tir-row-title">'+escA2(k)+'</td><td>'+(per[k].s?Number(per[k].s).toLocaleString():'—')+'</td><td style="text-align:right;font-weight:800">'+fmtINR(per[k].a)+'</td></tr>'; }).join(''):'<tr class="tir-empty-row"><td colspan="3">No royalty data for this period</td></tr>';
+  }
+}
+
+/* ── PROFILE TABS ── */
+function setProfTab(t){ ['info','account','security','advanced'].forEach(function(x){ var b=document.getElementById('prof-tabbtn-'+x); if(b) b.classList.toggle('on',x===t); var p=document.getElementById('prof-tab-'+x); if(p) p.classList.toggle('on',x===t); }); if(t==='security') loadLoginHistory(); }
+
+/* ── KYC GATE for the release builder ── */
+function showKycGate(){
+  clearToasts();
+  closeProfileMenu();
+  closeDrawer();
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('on');});
+  document.querySelectorAll('.nav-item').forEach(function(n){n.classList.remove('active');});
+  var pg=document.getElementById('page-submit');
+  if(pg) pg.classList.add('on');
+  var gate=document.getElementById('submit-kyc-gate');
+  var builder=document.getElementById('submit-builder');
+  if(gate) gate.style.display='block';
+  if(builder) builder.style.display='none';
+  var t=document.getElementById('topbar-title'); if(t) t.textContent='New Release';
+  var st=kycStatusOf();
+  var stEl=document.getElementById('submit-gate-status');
+  if(stEl){ var label={none:'Not Submitted',pending:'Pending review',approved:'Approved',rejected:'Rejected'}[st]||'Not Submitted'; stEl.innerHTML='KYC status: <strong style="color:var(--txt)">'+escA2(label)+'</strong>'; }
+  window.scrollTo(0,0);
+}
+
+/* ── Toast helper ── */
+function clearToasts(){ var t=document.getElementById('toast'); if(t) t.classList.remove('on'); }
+
+/* ── Restore remembered login ── */
+(function(){ try{
+  if (localStorage.getItem('tir_remember')==='1'){
+    var e = localStorage.getItem('tir_email');
+    var le = document.getElementById('lem'); if (e && le) le.value = e;
+    var cb = document.getElementById('lrm'); if (cb) cb.checked = true;
+  }
+}catch(_){}})();
 </script>
 
 <style>
@@ -3209,13 +4454,13 @@ window.submitRelease=async function(){
   var title=gv('s0'),type=gv('s1'),artist=gv('s2'),genre=gv('s4'),lang=gv('s6'),date=gv('s7'),writers=gv('s12'),spotifyUrl=gv('s-spotify-url'),appleMusicUrl=gv('s-applemusic-url');
   document.getElementById('sub-e').classList.remove('on'); document.getElementById('sub-s').classList.remove('on');
   if(!title) return showAl('sub-e','Please enter a release title.'); if(!type) return showAl('sub-e','Please select a release type.'); if(!artist) return showAl('sub-e','Please enter the primary artist name.'); if(!genre) return showAl('sub-e','Please select a genre.'); if(!lang) return showAl('sub-e','Please select a language.'); if(!date) return showAl('sub-e','Please select a release date.'); if(!writers) return showAl('sub-e','Please enter songwriter name(s).'); if(!selectedPlatforms().length) return showAl('sub-e','Please choose at least one delivery platform.');
-  var tmsg=trackValidationMessage(); if(tmsg) return showAl('sub-e',tmsg); if(!isMultiTrackRelease() && !uploadState.audio.url) return showAl('sub-e','Please upload your audio file (WAV or FLAC).');
+  var tmsg=trackValidationMessage(); if(tmsg) return showAl('sub-e',tmsg); if(!isMultiTrackRelease() && !uploadState.audio.url) return showAl('sub-e','Please upload your audio file (WAV or FLAC).'); try{ var _kycD=await _db.collection('users').doc(CU.uid).get(); var _kycS=_kycD.exists?(_kycD.data().kycStatus||'none'):'none'; if(_kycS!=='approved') return showAl('sub-e','KYC verification is required before submitting a release. Please complete KYC Verification first.'); }catch(_kycE){ return showAl('sub-e','Could not verify KYC status. Please try again.'); }
   var btn=document.getElementById('bsub'); btn.disabled=true; btn.textContent='Submitting...'; var medium=releaseMedium();
   var data={ userId:CU.uid, artistName:AD.name||CU.displayName||artist, title:title, type:type, primaryArtist:artist, featuredArtists:gv('s3'), spotifyArtistUrl:spotifyUrl, appleMusicArtistUrl:appleMusicUrl, genre:genre, subGenre:gv('s5'), language:lang, releaseDate:date, contentRating:document.getElementById('s8').value, recordedYear:gv('s-rec-year'), originalReleaseDate:gv('s-orig-date'), copyrightYear:gv('s-c-year'), copyrightText:gv('s-c-text'), phonogramYear:gv('s-p-year'), phonogramText:gv('s-p-text'), label:gv('s10'), upc:gv('s11'), writers:writers, producers:gv('s13'), platforms:document.getElementById('s14').value, selectedPlatforms:selectedPlatforms(), territories:document.getElementById('s15').value, previewStartTime:gv('rf-preview-start')?Number(gv('rf-preview-start')):null, lyrics:gv('s16'), notes:gv('s17'), version:gv('rf-version'), releaseMedium:medium, releaseCategory:medium==='video'?'music-video':'audio', audioUrl:!isMultiTrackRelease()?(uploadState.audio.url||null):null, audioPublicId:!isMultiTrackRelease()?(uploadState.audio.pid||null):null, audioFilename:!isMultiTrackRelease()?(uploadState.audio.filename||null):null, audioFormat:!isMultiTrackRelease()?(uploadState.audio.format||null):null, audioSize:!isMultiTrackRelease()?(uploadState.audio.size||null):null, trackItems:isMultiTrackRelease()?readTracksFromDOM().map(function(t,idx){ return {trackNumber:idx+1,title:t.title||'',artist:t.artist||artist||'',featured:t.featured||'',composer:t.composer||writers||'',lyricist:t.lyricist||writers||'',producer:t.producer||gv('s13')||'',otherContributors:t.otherContributors||'',audioUrl:t.audio?t.audio.url:null,audioFilename:t.audio?t.audio.filename:null,audioFormat:t.audio?t.audio.format:null,audioSize:t.audio?t.audio.size:null}; }):[], videoUrl:medium==='video'?gv('rf-video-url'):null, videoDirector:medium==='video'?gv('rf-video-director'):null, videoChannel:medium==='video'?gv('rf-video-channel'):null, videoCredits:medium==='video'?gv('rf-video-credits'):null, videoNotes:medium==='video'?gv('rf-video-notes'):null, thumbnailUrl:medium==='video'?(uploadState.thumbnail.url||null):null, thumbnailPublicId:medium==='video'?(uploadState.thumbnail.pid||null):null, thumbnailFilename:medium==='video'?(uploadState.thumbnail.filename||null):null, thumbnailDimensions:medium==='video'?(uploadState.thumbnail.dims||null):null, artworkUrl:uploadState.artwork.url||null, artworkPublicId:uploadState.artwork.pid||null, artworkFilename:uploadState.artwork.filename||null, artworkDimensions:uploadState.artwork.dims||null, status:'pending', submittedAt:new Date().toISOString() };
   try{ await _db.collection('releases').add(data); try{ if(typeof emailjs!=='undefined'){ await emailjs.send('service_3bit5yi','eg3omh9',{ artist_name:data.artistName, release_title:title, release_type:type, genre:genre, release_date:date, audio_link: medium==='video'?(gv('rf-video-url')||'Video URL not provided'):(isMultiTrackRelease()?'Multi-track release':uploadState.audio.url), artwork_link:uploadState.artwork.url||'Not provided' }); } }catch(e){ console.log('Email:',e);} }
   catch(e){ btn.disabled=false; btn.textContent='Submit for distribution'; return showAl('sub-e','Submission failed: '+e.message); }
   try{
-    var _clr=function(id,v){ var _e=document.getElementById(id); if(_e) _e.value=v; };     ['s0','s2','s3','s5','s11','s12','s13','s16','s17','rf-version','rf-video-url','rf-video-director','rf-video-channel','rf-video-credits','rf-video-notes','rf-preview-start','s-spotify-url','s-applemusic-url'].forEach(function(id){ _clr(id,''); }); _clr('s2-artist-select',''); var nab=document.getElementById('new-artist-box'); if(nab) nab.classList.add('rf-hidden'); ['s1','s4','s6'].forEach(function(id){ _clr(id,''); }); _clr('s7',''); _clr('s8','no'); _clr('s9','2025'); _clr('s10','The Imaginary Records'); if(window.resetAudioZone) resetAudioZone(); if(window.resetArtworkZone) resetArtworkZone(); if(window.resetThumbnailZone) resetThumbnailZone(); uploadState.audio={url:null,pid:null,filename:null,size:null,format:null}; uploadState.artwork={url:null,pid:null,filename:null,dims:null}; uploadState.thumbnail={url:null,pid:null,filename:null,dims:null}; trackAudioData={}; var _tl=document.getElementById('rf-track-list'); if(_tl) _tl.innerHTML=''; renderTrackList(); toggleAllPlatforms(true); try{ localStorage.removeItem(DRAFT_KEY); }catch(e){} var _db2=document.getElementById('draft-banner'); if(_db2) _db2.style.display='none'; showAl('sub-s','✓ Release submitted! We will review within 3–5 business days.'); if(window.loadReleases) await loadReleases(); toast('🎵 Release submitted successfully!'); }catch(e){ console.warn('[TIR] post-submit cleanup failed:',e); }
+    var _clr=function(id,v){ var _e=document.getElementById(id); if(_e) _e.value=v; };     ['s0','s2','s3','s5','s11','s12','s13','s16','s17','rf-version','rf-video-url','rf-video-director','rf-video-channel','rf-video-credits','rf-video-notes','rf-preview-start','s-spotify-url','s-applemusic-url'].forEach(function(id){ _clr(id,''); }); _clr('s2-artist-select',''); var nab=document.getElementById('new-artist-box'); if(nab) nab.classList.add('rf-hidden'); ['s1','s4','s6'].forEach(function(id){ _clr(id,''); }); _clr('s7',''); _clr('s8','no'); _clr('s9','2025'); _clr('s10','The Imaginary Records'); if(window.resetAudioZone) resetAudioZone(); if(window.resetArtworkZone) resetArtworkZone(); if(window.resetThumbnailZone) resetThumbnailZone(); uploadState.audio={url:null,pid:null,filename:null,size:null,format:null}; uploadState.artwork={url:null,pid:null,filename:null,dims:null}; uploadState.thumbnail={url:null,pid:null,filename:null,dims:null}; trackAudioData={}; var _tl=document.getElementById('rf-track-list'); if(_tl) _tl.innerHTML=''; renderTrackList(); toggleAllPlatforms(true); try{ localStorage.removeItem(DRAFT_KEY); }catch(e){} var _db2=document.getElementById('draft-banner'); if(_db2) _db2.style.display='none'; showAl('sub-s','✓ Release submitted! We will review within 3–5 business days.'); if(window.loadReleases) await loadReleases(); toast('🎵 Release submitted successfully!'); try{ logActivity('release_submit','Release submitted: '+title); }catch(_le){} }catch(e){ console.warn('[TIR] post-submit cleanup failed:',e); }
   btn.disabled=false; btn.textContent='Submit for distribution';
 };
 window.resetThumbnailZone=function(){ var z=document.getElementById('thumbnail-zone'); if(!z) return; z.classList.remove('has-file','uploading','error'); var c=z.querySelector('.uz-c'); if(c) c.style.display='flex'; var u=document.getElementById('thumbnail-uploading'); if(u) u.style.display='none'; var p=document.getElementById('thumbnail-preview'); if(p){ p.style.display='none'; p.src=''; } var ov=document.getElementById('thumbnail-overlay'); if(ov) ov.style.display='none'; var sr=document.getElementById('thumbnail-status-row'); if(sr) sr.style.display='none'; var inp=document.getElementById('thumbnail-input'); if(inp) inp.value=''; z.onclick=function(){ document.getElementById('thumbnail-input').click(); }; };

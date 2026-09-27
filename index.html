@@ -318,6 +318,9 @@ input[type=range]{accent-color:var(--accent);width:100%}
 .wiz-foot{display:flex;justify-content:space-between;gap:10px;padding:18px 26px;border-top:1px solid var(--brd);flex-wrap:wrap}
 .rev-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid var(--brd);font-size:13.5px}
 .rev-row:last-child{border-bottom:none}
+.rev-k{display:flex;align-items:center;min-width:0}
+.store-logo{display:inline-flex;align-items:center;justify-content:center;flex:none;border-radius:6px;overflow:hidden;margin-right:10px;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.store-logo svg{width:100%;height:100%;display:block}
 .rev-k{color:var(--txt2);font-weight:600}
 .rev-v{font-weight:700;text-align:right}
 /* split rows */
@@ -794,6 +797,15 @@ input[type=range]{accent-color:var(--accent);width:100%}
           <p class="page-sub">Where your money comes from.</p>
           <div class="card mb"><div class="toolbar"><div class="pills" id="an-range"><button class="pill on" onclick="setAnRange(30,this)">30 days</button><button class="pill" onclick="setAnRange(90,this)">90 days</button><button class="pill" onclick="setAnRange(365,this)">12 months</button><button class="pill" onclick="setAnRange(0,this)">All time</button></div></div></div>
           <div class="stat-grid mb"><div class="stat"><div class="stat-label">Total Revenue</div><div class="stat-val" id="an-total-rev" style="color:var(--accent)">₹0.00</div></div><div class="stat"><div class="stat-label">Total Units</div><div class="stat-val" id="an-total-units">0</div></div><div class="stat"><div class="stat-label">Release Earnings</div><div class="stat-val" id="an-rel-count">0</div></div><div class="stat"><div class="stat-label">Avg / Release</div><div class="stat-val" id="an-avg-rel">₹0.00</div></div></div>
+          <div class="card mb" id="an-plat-card" style="display:none">
+            <div class="card-head"><h3>Streaming Platforms</h3><span class="hint" id="an-plat-sub"></span></div>
+            <div class="stat-grid" style="padding:18px 22px 0">
+              <div class="stat"><div class="stat-label">Total Streams</div><div class="stat-val" id="anp-streams-total">—</div></div>
+              <div class="stat"><div class="stat-label">Streams This Month</div><div class="stat-val" id="anp-streams-month">—</div></div>
+              <div class="stat"><div class="stat-label">Revenue This Month</div><div class="stat-val" id="anp-rev-month" style="color:var(--accent)">—</div></div>
+            </div>
+            <div id="an-dim-platforms" style="padding:8px 22px 18px"></div>
+          </div>
           <div class="card mb"><div class="card-head"><h3>Revenue Trend</h3></div><div style="padding:18px 22px"><canvas id="an-chart" width="900" height="260" style="width:100%;height:260px"></canvas></div></div>
           <div class="grid-3 mb">
             <div class="card"><div class="card-head"><h3>Top Tracks</h3></div><div id="an-dim-tracks" style="padding:8px 22px 18px"></div></div>
@@ -1326,6 +1338,8 @@ input[type=range]{accent-color:var(--accent);width:100%}
       <div class="fg"><label>Email</label><input id="ar-email" placeholder="artist@example.com"/></div>
       <div class="fg"><label>Bio</label><textarea id="ar-bio" placeholder="Short bio…"></textarea></div>
       <div class="fg-row"><div class="fg"><label>Website</label><input id="ar-website" placeholder="https://…"/></div><div class="fg"><label>Social / Platform Links</label><input id="ar-socials" placeholder="Spotify, Instagram… (comma separated)"/></div></div>
+      <div class="eyebrow" style="margin-top:6px">Store Profiles</div>
+      <div class="fg-row3"><div class="fg"><label>Spotify URL</label><input id="ar-spotify" placeholder="https://open.spotify.com/artist/…"/></div><div class="fg"><label>Apple Music URL</label><input id="ar-apple" placeholder="https://music.apple.com/…"/></div><div class="fg"><label>SoundCloud URL</label><input id="ar-soundcloud" placeholder="https://soundcloud.com/…"/></div></div>
       <div class="err-box" id="ar-err"></div>
     </div>
     <div class="modal-foot"><button class="btn-ghost" onclick="closeModal('artist-modal')">Cancel</button><button class="btn" onclick="saveArtistEntry()">Save Artist</button></div>
@@ -1727,6 +1741,7 @@ function goPage(name) {
   var pg = document.getElementById('page-'+name);
   if (!pg) return;
   pg.classList.add('on');
+  try { if (typeof CU!=='undefined' && CU) localStorage.setItem('tir-page-'+CU.uid, name); } catch(e) {}
   var ni = document.getElementById('nav-'+name); if (ni) ni.classList.add('active');
   var mn = document.getElementById('mnav-'+name); if (mn) mn.classList.add('active');
   var parent = pageParents[name];
@@ -2048,7 +2063,11 @@ async function showDash(user) {
   try { loadKYC(); } catch(e) {}
   try { updateOverview(); } catch(e) {}
   try { logActivity('dashboard_view','Opened dashboard'); } catch(e) {}
-  goPage('overview');
+  // restore last page (refresh keeps you where you were)
+  var _sp = null;
+  try { _sp = localStorage.getItem('tir-page-'+user.uid); } catch(e) {}
+  goPage(_sp && document.getElementById('page-'+_sp) ? _sp : 'overview');
+  try { restoreWizardSession(); } catch(e) {}
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -2068,22 +2087,40 @@ async function loadProfile() {
   if (AD.name) setAvatars((AD.name||'A')[0].toUpperCase(), AD.name);
   loadBankDetailsIntoForm();
   renderPayoneer();
+  try { applyProfileByType(); } catch(e) {}
+}
+// Label accounts don't have artist-only profile fields (name / store URLs / PayPal)
+function applyProfileByType(){
+  var isLabel = (typeof AD!=='undefined' && AD && AD.accountType)==='label';
+  ['p0','p5','p6','p9'].forEach(function(id){
+    var el = document.getElementById(id); if(!el) return;
+    var fg = el.closest('.fg'); if(fg) fg.style.display = isLabel ? 'none' : '';
+  });
+  document.querySelectorAll('#prof-tab-info .fg-row, #prof-tab-info .fg-row3').forEach(function(row){
+    var anyVisible = Array.prototype.some.call(row.querySelectorAll('.fg'), function(f){ return f.style.display!=='none'; });
+    row.style.display = anyVisible ? '' : 'none';
+  });
+  var sub = document.querySelector('#page-profile .page-sub');
+  if (sub) sub.textContent = isLabel ? 'How the world sees your label — and how you secure your account.' : 'How the world sees you — and how you secure your account.';
 }
 async function saveProfile() {
+  var isLabel = (typeof AD!=='undefined' && AD && AD.accountType)==='label';
   var data = {
-    name: document.getElementById('p0').value.trim(),
     email: CU.email,
     genre: document.getElementById('p2').value,
     country: document.getElementById('p3').value.trim(),
     bio: document.getElementById('p4').value.trim(),
-    paypal: document.getElementById('p5').value.trim(),
-    spotify: document.getElementById('p6').value.trim(),
-    appleMusicUrl: document.getElementById('p9').value.trim(),
     legalName: document.getElementById('p10').value.trim(),
     labelRegistrationNumber: document.getElementById('p11').value.trim(),
     instagram: document.getElementById('p7').value.trim(),
     youtube: document.getElementById('p8').value.trim()
   };
+  if (!isLabel) {
+    data.name = document.getElementById('p0').value.trim();
+    data.paypal = document.getElementById('p5').value.trim();
+    data.spotify = document.getElementById('p6').value.trim();
+    data.appleMusicUrl = document.getElementById('p9').value.trim();
+  }
   try {
     await _db.collection('users').doc(CU.uid).set(data, {merge:true});
     AD = Object.assign({}, AD, data);
@@ -2593,7 +2630,8 @@ function openArtistModal(){ ['ar-name','ar-email','ar-bio','ar-website','ar-soci
 async function saveArtistEntry(){
   var name = gv('ar-name');
   if (!name) { showAl('ar-err','Please enter an artist name.'); return; }
-  var entry = {name:name, email:gv('ar-email'), bio:gv('ar-bio'), website:gv('ar-website'), socials:gv('ar-socials'), createdAt:new Date().toISOString()};
+  var entry = {name:name, email:gv('ar-email'), bio:gv('ar-bio'), website:gv('ar-website'), socials:gv('ar-socials'),
+    spotify:gv('ar-spotify'), appleMusic:gv('ar-apple'), soundcloud:gv('ar-soundcloud'), createdAt:new Date().toISOString()};
   try {
     await rhSave('savedArtists', rhGet('savedArtists').concat([entry]));
     closeModal('artist-modal'); renderArtistsTbl();
@@ -2612,9 +2650,12 @@ function renderArtistsTbl(){
   var html = f.map(function(x){
     var a = x.a;
     var links = [a.website].concat((a.socials||'').split(',')).map(function(s){return (s||'').trim();}).filter(Boolean);
+    var storeLinks = [['spotify',a.spotify],['apple music',a.appleMusic],['soundcloud',a.soundcloud]].filter(function(s){ return s[1]; }).map(function(s){
+      return '<a class="link" style="margin-right:8px" href="'+safeUrl(s[1])+'" target="_blank" rel="noopener" title="'+escA2(prettyStore(s[0]))+'">'+storeLogo(s[0],20)+'</a>';
+    });
     return '<tr><td><div class="cover">'+escA2((a.name||'A')[0].toUpperCase())+'</div></td><td><div class="row-title">'+escA2(a.name)+'</div><div class="row-sub">Artist</div></td><td>'+escA2(a.email||'—')+'</td>'
       + '<td style="max-width:260px"><div class="row-sub">'+escA2(a.bio||'—')+'</div></td>'
-      + '<td>'+(links.length?links.map(function(l){ return '<a class="link" style="margin-right:8px" href="'+safeUrl(l)+'" target="_blank" rel="noopener" aria-label="Open link"><span class="link-ic">'+IC.link+'</span></a>'; }).join(''):'—')+'</td>'
+      + '<td>'+(storeLinks.join('')||'')+(links.length?links.map(function(l){ return '<a class="link" style="margin-right:8px" href="'+safeUrl(l)+'" target="_blank" rel="noopener" aria-label="Open link"><span class="link-ic">'+IC.link+'</span></a>'; }).join(''):(storeLinks.length?'':'—'))+'</td>'
       + '<td><button class="btn-ghost btn-sm btn-danger-ghost" onclick="rhDelete(\'savedArtists\','+x.i+',\'renderArtistsTbl\')">Remove</button></td></tr>';
   }).join('');
   html += roster.map(function(a){
@@ -2866,10 +2907,51 @@ function setAnRange(days, el){
   if (el) el.classList.add('on');
   renderAnalytics();
 }
-function dimList(el, entries, empty){
+// ── Store brand logos (original brand marks for analytics) ──
+function storeKey(n){ return (n||'').toLowerCase().replace(/[^a-z]/g,''); }
+var STORE_LOGOS = {
+'spotify':'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="12" fill="#1DB954"/><g stroke="#191414" stroke-width="1.7" fill="none" stroke-linecap="round"><path d="M7.2 9.8c3.2-1 6.5-.7 9.4.9"/><path d="M7.5 12.6c2.7-.8 5.4-.5 7.9.8"/><path d="M7.8 15.2c2.2-.6 4.3-.4 6.2.6"/></g></svg>',
+'applemusic':'<svg viewBox="0 0 24 24"><defs><linearGradient id="amg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FC5C7D"/><stop offset="1" stop-color="#FA243C"/></linearGradient></defs><rect x="1" y="1" width="22" height="22" rx="6" fill="url(#amg)"/><path transform="translate(6.3,4.3) scale(0.030)" fill="#fff" d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52.7 16.2-69.9 34.8-13.9 15-30.7 44.5-27.6 71.8 26.6 2.1 50.3-13.4 73.5-34.1z"/></svg>',
+'apple':'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="12" fill="#000"/><path transform="translate(6.3,4.3) scale(0.030)" fill="#fff" d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52.7 16.2-69.9 34.8-13.9 15-30.7 44.5-27.6 71.8 26.6 2.1 50.3-13.4 73.5-34.1z"/></svg>',
+'itunes':'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="12" fill="#000"/><path transform="translate(6.3,4.3) scale(0.030)" fill="#fff" d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52.7 16.2-69.9 34.8-13.9 15-30.7 44.5-27.6 71.8 26.6 2.1 50.3-13.4 73.5-34.1z"/></svg>',
+'meta':'<svg viewBox="0 0 24 24"><path fill="#0082FB" d="M12 5.5c-2.7 0-4.6 1.1-6.4 3.4L2.5 12l3.1 3.1c1.8 2.3 3.7 3.4 6.4 3.4s4.6-1.1 6.4-3.4l3.1-3.1-3.1-3.1c-1.8-2.3-3.7-3.4-6.4-3.4zm0 3.2c1.2 0 2 .4 2.9 1.4l1.5 1.9-1.5 1.9c-.9 1-1.7 1.4-2.9 1.4s-2-.4-2.9-1.4L7.6 12l1.5-1.9c.9-1 1.7-1.4 2.9-1.4z"/></svg>',
+'facebook':'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="12" fill="#1877F2"/><text x="12" y="17.5" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="800" font-size="14" fill="#fff">f</text></svg>',
+'instagram':'<svg viewBox="0 0 24 24"><defs><linearGradient id="igg" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#FEDA75"/><stop offset=".5" stop-color="#FA7E1E"/><stop offset="1" stop-color="#D62976"/></linearGradient></defs><rect x="1" y="1" width="22" height="22" rx="6" fill="url(#igg)"/><rect x="6.8" y="6.8" width="10.4" height="10.4" rx="3" stroke="#fff" stroke-width="1.8" fill="none"/><circle cx="12" cy="12" r="2.6" stroke="#fff" stroke-width="1.8" fill="none"/><circle cx="15.6" cy="8.4" r="1.3" fill="#fff"/></svg>',
+'jiosaavn':'<svg viewBox="0 0 24 24"><rect x="1" y="1" width="22" height="22" rx="6" fill="#2BC86A"/><path d="M10 16.5V8.2l8-2v8.3" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7.6" cy="16.5" r="2.6" fill="#fff"/><circle cx="15.6" cy="14.5" r="2.6" fill="#fff"/></svg>',
+'saavn':'<svg viewBox="0 0 24 24"><rect x="1" y="1" width="22" height="22" rx="6" fill="#2BC86A"/><path d="M10 16.5V8.2l8-2v8.3" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7.6" cy="16.5" r="2.6" fill="#fff"/><circle cx="15.6" cy="14.5" r="2.6" fill="#fff"/></svg>',
+'youtubemusic':'<svg viewBox="0 0 24 24"><rect x="1.5" y="5" width="21" height="14" rx="4" fill="#FF0000"/><path d="M10.3 9.3v5.4l4.8-2.7z" fill="#fff"/><circle cx="17.2" cy="15.8" r="1.6" fill="#fff"/></svg>',
+'youtube':'<svg viewBox="0 0 24 24"><rect x="1.5" y="5" width="21" height="14" rx="4" fill="#FF0000"/><path d="M10.3 9.3v5.4l4.8-2.7z" fill="#fff"/></svg>',
+'amazonmusic':'<svg viewBox="0 0 24 24"><rect x="1" y="1" width="22" height="22" rx="6" fill="#0F1111"/><text x="12" y="12.5" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="800" font-size="10" fill="#fff">a</text><path d="M6 15.5c3 2.1 8 2.1 12-1" stroke="#FF9900" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg>',
+'amazon':'<svg viewBox="0 0 24 24"><rect x="1" y="1" width="22" height="22" rx="6" fill="#0F1111"/><text x="12" y="12.5" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="800" font-size="10" fill="#fff">a</text><path d="M6 15.5c3 2.1 8 2.1 12-1" stroke="#FF9900" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg>',
+'gaana':'<svg viewBox="0 0 24 24"><rect x="1" y="1" width="22" height="22" rx="6" fill="#E72C30"/><text x="12" y="17.5" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="800" font-size="14" fill="#fff">g</text></svg>',
+'wynk':'<svg viewBox="0 0 24 24"><rect x="1" y="1" width="22" height="22" rx="6" fill="#00A9A5"/><text x="12" y="17.5" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="800" font-size="14" fill="#fff">w</text></svg>',
+'wynkmusic':'<svg viewBox="0 0 24 24"><rect x="1" y="1" width="22" height="22" rx="6" fill="#00A9A5"/><text x="12" y="17.5" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="800" font-size="14" fill="#fff">w</text></svg>',
+'hungama':'<svg viewBox="0 0 24 24"><rect x="1" y="1" width="22" height="22" rx="6" fill="#F26522"/><text x="12" y="17.5" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="800" font-size="14" fill="#fff">h</text></svg>',
+'hungamamusic':'<svg viewBox="0 0 24 24"><rect x="1" y="1" width="22" height="22" rx="6" fill="#F26522"/><text x="12" y="17.5" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="800" font-size="14" fill="#fff">h</text></svg>',
+'deezer':'<svg viewBox="0 0 24 24"><rect x="1" y="1" width="22" height="22" rx="6" fill="#191919"/><g><rect x="5.5" y="11" width="2.6" height="7" rx="1" fill="#A238FF"/><rect x="8.9" y="8" width="2.6" height="10" rx="1" fill="#FF0092"/><rect x="12.3" y="10" width="2.6" height="8" rx="1" fill="#FF7A00"/><rect x="15.7" y="6.5" width="2.6" height="11.5" rx="1" fill="#FFDC00"/></g></svg>',
+'tidal':'<svg viewBox="0 0 24 24"><rect x="1" y="1" width="22" height="22" rx="6" fill="#000"/><g fill="#fff"><path d="M8.5 6.5l2.2 2.2-2.2 2.2-2.2-2.2z"/><path d="M14.5 9.5l2.2 2.2-2.2 2.2-2.2-2.2z"/><path d="M8.5 13l2.2 2.2-2.2 2.2-2.2-2.2z"/></g></svg>',
+'pandora':'<svg viewBox="0 0 24 24"><rect x="1" y="1" width="22" height="22" rx="6" fill="#224099"/><text x="12" y="17.5" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="800" font-size="14" fill="#fff">P</text></svg>',
+'tiktok':'<svg viewBox="0 0 24 24"><rect x="1" y="1" width="22" height="22" rx="6" fill="#000"/><path d="M14.5 6.5v8.7a3.2 3.2 0 1 1-2.2-3" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M14.5 6.5v8.7a3.2 3.2 0 1 1-2.2-3" stroke="#FE2C55" stroke-width="2" fill="none" stroke-linecap="round" transform="translate(1,0)" opacity=".55"/></svg>',
+'soundcloud':'<svg viewBox="0 0 24 24"><rect x="1" y="1" width="22" height="22" rx="6" fill="#FF5500"/><path d="M6.5 15h10a3.2 3.2 0 0 0 .7-6.3 4.6 4.6 0 0 0-9-1A3.6 3.6 0 0 0 6.5 15z" fill="#fff"/></svg>',
+'audiomack':'<svg viewBox="0 0 24 24"><rect x="1" y="1" width="22" height="22" rx="6" fill="#FFA200"/><path d="M10 16.5V8l8-2v8.5" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7.5" cy="16.5" r="2.5" fill="#fff"/><circle cx="15.5" cy="14.5" r="2.5" fill="#fff"/></svg>',
+'napster':'<svg viewBox="0 0 24 24"><rect x="1" y="1" width="22" height="22" rx="6" fill="#225BFF"/><circle cx="12" cy="12" r="5" stroke="#fff" stroke-width="2" fill="none"/><circle cx="12" cy="12" r="1.6" fill="#fff"/></svg>',
+'iheartradio':'<svg viewBox="0 0 24 24"><rect x="1" y="1" width="22" height="22" rx="6" fill="#C6002B"/><path d="M12 17.5s-5.5-3.4-5.5-7.3c0-2 1.5-3.4 3.2-3.4 1 0 1.9.5 2.3 1.3.4-.8 1.3-1.3 2.3-1.3 1.7 0 3.2 1.4 3.2 3.4 0 3.9-5.5 7.3-5.5 7.3z" fill="#fff"/></svg>'
+};
+var STORE_LOGO_FALLBACK = '<svg viewBox="0 0 24 24"><rect x="1" y="1" width="22" height="22" rx="6" fill="#3a4356"/><path d="M10 16.5V8l8-2v8.5" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7.5" cy="16.5" r="2.5" fill="#fff"/><circle cx="15.5" cy="14.5" r="2.5" fill="#fff"/></svg>';
+function storeLogo(name, px){
+  px = px || 22;
+  var svg = STORE_LOGOS[storeKey(name)] || STORE_LOGO_FALLBACK;
+  return '<span class="store-logo" style="width:'+px+'px;height:'+px+'px">'+svg+'</span>';
+}
+var STORE_DISPLAY = {'spotify':'Spotify','applemusic':'Apple Music','apple':'Apple Music','itunes':'iTunes','meta':'Meta','facebook':'Facebook','instagram':'Instagram','jiosaavn':'JioSaavn','saavn':'JioSaavn','youtubemusic':'YouTube Music','youtube':'YouTube Music','amazonmusic':'Amazon Music','amazon':'Amazon Music','gaana':'Gaana','wynk':'Wynk Music','wynkmusic':'Wynk Music','hungama':'Hungama Music','hungamamusic':'Hungama Music','deezer':'Deezer','tidal':'TIDAL','pandora':'Pandora','tiktok':'TikTok','soundcloud':'SoundCloud','audiomack':'Audiomack','napster':'Napster','iheartradio':'iHeartRadio','resso':'Resso','jio':'JioSaavn'};
+function prettyStore(n){ var d = STORE_DISPLAY[storeKey(n)]; if (d) return d; n=(n||'').trim(); return n ? n.charAt(0).toUpperCase()+n.slice(1) : 'Unknown'; }
+function dimList(el, entries, empty, logoFn){
   var e = document.getElementById(el); if(!e) return;
   e.innerHTML = entries.length ? entries.map(function(x,i){
-    return '<div class="rev-row"><span class="rev-k"><strong style="color:var(--accent);margin-right:8px">'+(i+1)+'</strong>'+escA2(x.k||'Unknown')+'</span><span class="rev-v">'+fmtINR(x.v)+'</span></div>';
+    var logo = logoFn ? logoFn(x.k) : '';
+    var label = logoFn ? prettyStore(x.k) : escA2(x.k||'Unknown');
+    var labHtml = logoFn ? escA2(label) : label;
+    return '<div class="rev-row"><span class="rev-k"><strong style="color:var(--accent);margin-right:8px">'+(i+1)+'</strong>'+logo+labHtml+'</span><span class="rev-v">'+fmtINR(x.v)+'</span></div>';
   }).join('') : '<div class="hint" style="padding:10px 0">'+empty+'</div>';
 }
 function renderAnalytics(){
@@ -2882,11 +2964,32 @@ function renderAnalytics(){
   setT('an-avg-rel', fmtINR(relN ? agg.total/relN : 0));
   dimList('an-dim-tracks', topEntries(agg.byTrack), 'No track data in this period.');
   dimList('an-dim-releases', topEntries(agg.byRelease), 'No release data in this period.');
-  dimList('an-dim-stores', topEntries(agg.byStore), 'No store data in this period.');
+  dimList('an-dim-stores', topEntries(agg.byStore), 'No store data in this period.', storeLogo);
   dimList('an-dim-labels', topEntries(agg.byLabel), 'No label data in this period.');
   dimList('an-dim-artists', topEntries(agg.byArtist), 'No artist data in this period.');
   dimList('an-dim-countries', topEntries(agg.byCountry), 'No country data in this period.');
   drawAnalyticsChart();
+  try { renderAdminAnalytics(); } catch(e) {}
+}
+// Streams/revenue entered by TIR admin (users/{uid}.analytics) with store logos
+function renderAdminAnalytics(){
+  var card = document.getElementById('an-plat-card'); if(!card) return;
+  var an = (typeof AD!=='undefined' && AD && AD.analytics) || {};
+  var plats = an.platforms || {};
+  var keys = Object.keys(plats);
+  var hasStreams = an.streams && (an.streams.total!=null || an.streams.thisMonth!=null);
+  if (an.enabled===false || (!keys.length && !hasStreams)) { card.style.display='none'; return; }
+  card.style.display='block';
+  var setT = function(id,v){ var el=document.getElementById(id); if(el) el.textContent=v; };
+  setT('anp-streams-total', an.streams&&an.streams.total!=null ? Number(an.streams.total).toLocaleString('en-IN') : '—');
+  setT('anp-streams-month', an.streams&&an.streams.thisMonth!=null ? Number(an.streams.thisMonth).toLocaleString('en-IN') : '—');
+  setT('anp-rev-month', an.revenue&&an.revenue.thisMonth!=null ? fmtINR(an.revenue.thisMonth) : '—');
+  setT('an-plat-sub', 'updated by TIR');
+  var rows = keys.map(function(k){ return {k:k, v:Number(plats[k])||0}; }).sort(function(a,b){ return b.v-a.v; });
+  var host = document.getElementById('an-dim-platforms');
+  if (host) host.innerHTML = rows.length ? rows.map(function(x,i){
+    return '<div class="rev-row"><span class="rev-k"><strong style="color:var(--accent);margin-right:8px">'+(i+1)+'</strong>'+storeLogo(x.k,24)+escA2(prettyStore(x.k))+'</span><span class="rev-v">'+x.v.toLocaleString('en-IN')+' streams</span></div>';
+  }).join('') : '<div class="hint" style="padding:10px 0">No platform data yet.</div>';
 }
 function drawAnalyticsChart(){
   var cv = document.getElementById('an-chart'); if(!cv) return;
@@ -3930,9 +4033,15 @@ function openWizardShell(){
   openModal('wizard-modal');
   wizGo(WZ.tab||1);
   startWizardAutosave();
-  // wire simple inputs
-  var zt = document.getElementById('wz-title');
-  if (zt) zt.oninput = function(){ WZ.title = zt.value; saveWzDraft(); };
+  try{ saveWzOpen(); }catch(e){}
+  // wire simple inputs -> WZ live (so a refresh never loses typed data)
+  var WZ_FIELD_MAP = {'wz-title':'title','wz-version':'version','wz-created-by':'createdBy','wz-upc':'upc','wz-catno':'catno','wz-c-year':'cYear','wz-c-holder':'cHolder','wz-p-year':'pYear','wz-p-holder':'pHolder','wz-release-date':'releaseDate','wz-enddate-val':'endDate','wz-album-format':'albumFormat','wz-genre':'genre','wz-genre2':'genre2','wz-price-band':'priceBand'};
+  Object.keys(WZ_FIELD_MAP).forEach(function(id){
+    var el = document.getElementById(id); if(!el || el._wzBound) return; el._wzBound = true;
+    var key = WZ_FIELD_MAP[id];
+    var h = function(){ if (WZ) { WZ[key] = el.value; saveWzDraft(); } };
+    el.addEventListener('input', h); el.addEventListener('change', h);
+  });
   document.querySelectorAll('input[name="wz-enddate"]').forEach(function(r){
     r.onchange = function(){ WZ.endDateType = document.querySelector('input[name="wz-enddate"]:checked').value; document.getElementById('wz-enddate-val').style.display = WZ.endDateType==='set'?'block':'none'; saveWzDraft(); };
   });
@@ -3943,6 +4052,7 @@ function openWizardShell(){
 function closeWizard(){
   try{ if (WZ && (WZ.tracks.length || WZ.title)) saveWzDraft(); }catch(e){}
   try{ stopWizardAutosave(); }catch(e){}
+  try{ clearWzOpen(); }catch(e){}
   closeModal('wizard-modal');
   try { goPage('releases'); } catch(e) {}
 }
@@ -3961,10 +4071,12 @@ function wizGo(n){
   if (n===5) renderSplitEditor('wz');
   if (n===6) renderWzReview();
   saveWzDraft();
+  try{ saveWzOpen(); }catch(e){}
 }
 function wizSkip(){
   saveWzDraft();
   stopWizardAutosave();
+  try{ clearWzOpen(); }catch(e){}
   closeModal('wizard-modal');
   toast('Progress saved as a draft');
   try { goPage('releases'); } catch(e) {}
@@ -3988,6 +4100,39 @@ function getWzDraft(){
   try { return JSON.parse(localStorage.getItem(wzDraftKey())||'null'); } catch(e) { return null; }
 }
 function clearWzDraft(){ try { localStorage.removeItem(wzDraftKey()); } catch(e) {} checkReleaseDraftBanner(); }
+// ── wizard open-state persistence (refresh keeps the wizard open) ──
+function wzOpenKey(){ return 'tir-wz-open-'+(CU?CU.uid:'anon'); }
+function saveWzOpen(){
+  try { if (WZ && CU) localStorage.setItem(wzOpenKey(), JSON.stringify({open:true, tab:(WZ.tab||1), at:new Date().toISOString()})); } catch(e) {}
+}
+function getWzOpen(){ try { return JSON.parse(localStorage.getItem(wzOpenKey())||'null'); } catch(e) { return null; } }
+function clearWzOpen(){ try { localStorage.removeItem(wzOpenKey()); } catch(e) {} }
+function restoreWizardSession(){
+  var d = null, wo = null;
+  try { d = getWzDraft(); wo = getWzOpen(); } catch(e) {}
+  if (!d || !wo || !wo.open) return false;
+  if (!wzHasData(d)) return false;
+  WZ = Object.assign(newWZ(), d); WZ._fromDraft = true; WZ.tab = wo.tab || 1;
+  var wb = document.getElementById('wiz-draft-banner'); if (wb) wb.style.display='none';
+  openWizardShell();
+  try { wizGo(WZ.tab); saveWzOpen(); } catch(e) {}
+  toast('Draft restored — pick up where you left off');
+  return true;
+}
+// any meaningful wizard input at all (not just title/tracks)
+function wzHasData(d){
+  if (!d || typeof d!=='object') return false;
+  var skip = {tab:1, savedAt:1, _fromDraft:1, _step:1, artists:1};
+  for (var k in d){
+    if (skip[k] || k.charAt(0)==='_') continue;
+    var v = d[k];
+    if (v==null || v==='' || v===false) continue;
+    if (Array.isArray(v) && !v.length) continue;
+    if (typeof v==='object' && !Array.isArray(v) && !Object.keys(v).length) continue;
+    return true;
+  }
+  return false;
+}
 function restoreWizardDraft(){
   var d = getWzDraft(); if(!d) return;
   WZ = Object.assign(newWZ(), d); WZ._fromDraft = true; WZ.tab = 1;
@@ -3999,6 +4144,7 @@ async function discardWizardDraft(){
   if (!(await uiConfirm('Discard this draft?','Discard'))) return;
   try{ stopWizardAutosave(); }catch(e){}
   try{ clearWzDraft(); }catch(e){}
+  try{ clearWzOpen(); }catch(e){}
   try{ WZ = newWZ(); }catch(e){}
   try{ var wb=document.getElementById('wiz-draft-banner'); if(wb) wb.style.display='none'; }catch(e){}
   try{ var rb=document.getElementById('rel-draft-banner'); if(rb) rb.style.display='none'; }catch(e){}
@@ -4567,6 +4713,7 @@ async function submitWizardRelease(){
   catch(e) { console.log('Mirror sync:', e); }
   try { logActivity('release_submit','Submitted release: '+WZ.title+' ('+tracks.length+' tracks)'); } catch(e) {}
   clearWzDraft();
+  try{ clearWzOpen(); }catch(e){}
   var doneTitle = WZ.title;
   WZ = newWZ();
   stopWizardAutosave();
@@ -4601,10 +4748,15 @@ async function submitWizardRelease(){
   // ── Esc closes any open modal ──
   document.addEventListener('keydown', function(e){
     if (e.key === 'Escape') {
-      document.querySelectorAll('.modal-overlay.on').forEach(function(m){ m.classList.remove('on'); });
+      document.querySelectorAll('.modal-overlay.on').forEach(function(m){ m.classList.remove('on'); if (m.id==='wizard-modal') { try{ clearWzOpen(); }catch(_){}} });
       document.body.style.overflow = '';
       try { closeProfileMenu(); } catch(_){}
     }
+  });
+  // ── beforeunload: never lose wizard input on refresh/close ──
+  window.addEventListener('beforeunload', function(){
+    try { if (typeof WZ!=='undefined' && WZ && typeof CU!=='undefined' && CU && (WZ.tracks.length || WZ.title)) saveWzDraft(); } catch(e) {}
+    try { var wm = document.getElementById('wizard-modal'); if (wm && wm.classList.contains('on')) saveWzOpen(); } catch(e) {}
   });
   // ── boot ──
   function boot(){

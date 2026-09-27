@@ -1683,6 +1683,7 @@ function openModal(id){ var m=document.getElementById(id); if(m){ m.classList.ad
 function closeModal(id){ var m=document.getElementById(id); if(m){ m.classList.remove('on'); document.body.style.overflow=''; } }
 function toggleProfileMenu(ev){ if(ev) ev.stopPropagation(); var m=document.getElementById('profile-menu'); if(m) m.classList.toggle('on'); }
 function closeProfileMenu(){ var m=document.getElementById('profile-menu'); if(m) m.classList.remove('on'); }
+function closeUserMenu(){ closeProfileMenu(); }
 document.addEventListener('click', function(){ closeProfileMenu(); });
 function openDrawer() { var d=document.getElementById('mob-drawer'); if(d) d.classList.add('on'); document.body.style.overflow='hidden'; }
 function closeDrawer() { var d=document.getElementById('mob-drawer'); if(d) d.classList.remove('on'); document.body.style.overflow=''; }
@@ -4389,6 +4390,59 @@ function wzAutoISRC(t){
   var yy = String(new Date().getFullYear()).slice(2);
   return 'IN' + 'TIR' + yy + String(Math.floor(10000+Math.random()*89999));
 }
+// Mirror a release's tracks, licenses and split sheet into the top-level
+// collections the admin Tracks / Licenses / Split Sheets pages read.
+// Deterministic: doc ids derive from the release id, so editing and
+// resubmitting overwrites instead of duplicating; stale docs are pruned.
+async function syncReleaseMirrors(releaseId, tracks, licenses, splitData, releaseTitle){
+  var now = new Date().toISOString();
+  // prune previous mirrors for this release (handles shrunk track/license lists on edit)
+  try {
+    var old = await _db.collection('tracks').where('releaseId','==',releaseId).get();
+    var batch = _db.batch(); old.forEach(function(d){ batch.delete(d.ref); });
+    var oldL = await _db.collection('licenses').where('releaseId','==',releaseId).get();
+    oldL.forEach(function(d){ batch.delete(d.ref); });
+    var oldS = await _db.collection('splits').where('releaseId','==',releaseId).get();
+    oldS.forEach(function(d){ batch.delete(d.ref); });
+    await batch.commit();
+  } catch(e) { console.log('Mirror prune:', e); }
+  // tracks — full schema, same object the release embeds
+  for (var i=0;i<tracks.length;i++){
+    var t = tracks[i];
+    var doc = {};
+    for (var k in t) doc[k] = t[k];
+    doc.uid = CU.uid; doc.releaseId = releaseId; doc.releaseName = releaseTitle||'';
+    doc.albumOrder = i+1; doc.createdAt = now; doc.updatedAt = now;
+    try { await _db.collection('tracks').doc(releaseId+'_t'+(i+1)).set(doc); }
+    catch(e) { console.log('Track mirror:', e); }
+  }
+  // licenses
+  licenses = licenses||[];
+  for (var j=0;j<licenses.length;j++){
+    var l = licenses[j], ld = {};
+    for (var k2 in l) ld[k2] = l[k2];
+    ld.uid = CU.uid; ld.releaseId = releaseId; ld.releaseTitle = releaseTitle||'';
+    ld.status = ld.status||'pending'; ld.createdAt = now; ld.updatedAt = now;
+    try { await _db.collection('licenses').doc(releaseId+'_l'+(j+1)).set(ld); }
+    catch(e) { console.log('License mirror:', e); }
+  }
+  // split sheet
+  var collabs = ((splitData&&splitData.collaborators)||[]).map(function(c){
+    return { email:c.email||'', name:c.name||'', role:c.role||'',
+      percentage:(c.percentage==null||c.percentage==='')?0:Number(c.percentage),
+      signed:((c.email||'').toLowerCase()===(CU.email||'').toLowerCase()) };
+  });
+  if (collabs.length) {
+    try {
+      await _db.collection('splits').doc(releaseId+'_splits').set({
+        uid: CU.uid, name: (releaseTitle||'Untitled release') + ' — Release Splits',
+        splitType: (splitData&&splitData.type)||'release', collaborators: collabs,
+        releaseIds: [releaseId], releaseId: releaseId, releaseTitle: releaseTitle||'',
+        status: 'pending', createdAt: now, updatedAt: now
+      });
+    } catch(e) { console.log('Split mirror:', e); }
+  }
+}
 async function submitWizardRelease(){
   // FRESH Firestore KYC reread immediately before acting — never the cached copy
   var kyc = await freshKYC();
@@ -4506,17 +4560,11 @@ async function submitWizardRelease(){
       });
     }
   } catch(e) { console.log('Email:', e); }
-  // best-effort: push tracks into the top-level catalog
-  try {
-    for (var i=0;i<tracks.length;i++){
-      var t = tracks[i];
-      if (!t.catalogId && t.audioUrl) {
-        await _db.collection('tracks').add({uid:CU.uid, title:t.title, artist:t.artist, isrc:t.isrc||'',
-          explicit:!!t.explicit, lyrics:t.lyrics||'', duration:t.duration||0, size:t.size||0,
-          audioUrl:t.audioUrl, releaseId:releaseId, releaseName:WZ.title, createdAt:new Date().toISOString()});
-      }
-    }
-  } catch(e) { console.log('Catalog push:', e); }
+  // ── deterministic mirror sync: top-level tracks / licenses / splits ──
+  // Uses stable doc ids (releaseId + suffix) so resubmits/edits overwrite
+  // instead of duplicating, and stale mirrors are pruned first.
+  try { await syncReleaseMirrors(releaseId, tracks, data.licenses, data.splits, WZ.title||''); }
+  catch(e) { console.log('Mirror sync:', e); }
   try { logActivity('release_submit','Submitted release: '+WZ.title+' ('+tracks.length+' tracks)'); } catch(e) {}
   clearWzDraft();
   var doneTitle = WZ.title;

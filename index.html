@@ -447,11 +447,12 @@ input[type=range]{accent-color:var(--accent);width:100%}
         </select>
       </div>
       <div class="form-group"><label>Upload ID (image or PDF, max 10MB)</label>
-        <div id="ob-id-zone" onclick="document.getElementById('ob-id-file').click()" style="border:1.5px dashed var(--brd2);border-radius:10px;padding:20px;text-align:center;cursor:pointer;background:var(--card)">
+        <div id="ob-id-zone" style="position:relative;overflow:hidden;border:1.5px dashed var(--brd2);border-radius:10px;padding:20px;text-align:center;cursor:pointer;background:var(--card)">
           <div id="ob-id-zone-text" style="font-size:13px;color:var(--txt2)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg> Click to choose a file</div>
           <div id="ob-id-zone-name" style="font-size:11px;color:var(--green);margin-top:6px;font-weight:700"></div>
+          <input type="file" id="ob-id-file" accept="image/*,application/pdf" onchange="obHandleIdFileChange(event)" aria-label="Upload ID document" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer"/>
         </div>
-        <input type="file" id="ob-id-file" accept="image/*,application/pdf" style="display:none" onchange="obHandleIdFileChange(event)"/>
+        
       </div>
       <div id="ob-id-status" style="font-size:12px;color:var(--txt3);margin-bottom:10px"></div>
       <div class="err-box" id="ob-id-err"></div>
@@ -1016,10 +1017,10 @@ input[type=range]{accent-color:var(--accent);width:100%}
               <div class="eyebrow">Documents</div>
               <div class="hint" style="margin-bottom:10px">JPG or PNG only, max 1MB each.</div>
               <div class="grid-4 mb" style="grid-template-columns:repeat(4,1fr)">
-                <div class="uzone" onclick="document.getElementById('kyc-doc-af-input').click()"><img id="kyc-doc-af-preview" alt="" style="display:none;max-width:100%;border-radius:8px"/><div id="kyc-doc-af-ph"><div class="uz-ic"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="8" cy="11" r="2"/><path d="M5.5 16a2.5 2.5 0 0 1 5 0"/><path d="M14 9h5"/><path d="M14 13h5"/></svg></div><div class="uz-t">Aadhaar Front *</div></div><input type="file" id="kyc-doc-af-input" accept="image/jpeg,image/png" style="display:none" onchange="onKYCDocChange(event,'aadhaarFront')"/></div>
-                <div class="uzone" onclick="document.getElementById('kyc-doc-ab-input').click()"><img id="kyc-doc-ab-preview" alt="" style="display:none;max-width:100%;border-radius:8px"/><div id="kyc-doc-ab-ph"><div class="uz-ic"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="8" cy="11" r="2"/><path d="M5.5 16a2.5 2.5 0 0 1 5 0"/><path d="M14 9h5"/><path d="M14 13h5"/></svg></div><div class="uz-t">Aadhaar Back *</div></div><input type="file" id="kyc-doc-ab-input" accept="image/jpeg,image/png" style="display:none" onchange="onKYCDocChange(event,'aadhaarBack')"/></div>
-                <div class="uzone" onclick="document.getElementById('kyc-doc-pan-input').click()"><img id="kyc-doc-pan-preview" alt="" style="display:none;max-width:100%;border-radius:8px"/><div id="kyc-doc-pan-ph"><div class="uz-ic"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></div><div class="uz-t">PAN Card *</div></div><input type="file" id="kyc-doc-pan-input" accept="image/jpeg,image/png" style="display:none" onchange="onKYCDocChange(event,'panDoc')"/></div>
-                <div class="uzone" onclick="document.getElementById('kyc-doc-sig-input').click()"><img id="kyc-doc-sig-preview" alt="" style="display:none;max-width:100%;border-radius:8px"/><div id="kyc-doc-sig-ph"><div class="uz-ic"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div><div class="uz-t">Signature *</div></div><input type="file" id="kyc-doc-sig-input" accept="image/jpeg,image/png" style="display:none" onchange="onKYCDocChange(event,'signature')"/></div>
+                <div class="uzone" style="position:relative;overflow:hidden"><img id="kyc-doc-af-preview" alt="" style="display:none;max-width:100%;border-radius:8px"/><div id="kyc-doc-af-ph"><div class="uz-ic"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="8" cy="11" r="2"/><path d="M5.5 16a2.5 2.5 0 0 1 5 0"/><path d="M14 9h5"/><path d="M14 13h5"/></svg></div><div class="uz-t">Aadhaar Front *</div></div><input type="file" id="kyc-doc-af-input" accept="image/jpeg,image/png" onchange="onKYCDocChange(event,'aadhaarFront')" aria-label="Upload Aadhaar front" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer"/></div>
+                <div class="uzone" style="position:relative;overflow:hidden"><img id="kyc-doc-ab-preview" alt="" style="display:none;max-width:100%;border-radius:8px"/><div id="kyc-doc-ab-ph"><div class="uz-ic"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="8" cy="11" r="2"/><path d="M5.5 16a2.5 2.5 0 0 1 5 0"/><path d="M14 9h5"/><path d="M14 13h5"/></svg></div><div class="uz-t">Aadhaar Back *</div></div><input type="file" id="kyc-doc-ab-input" accept="image/jpeg,image/png" onchange="onKYCDocChange(event,'aadhaarBack')" aria-label="Upload Aadhaar back" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer"/></div>
+                <div class="uzone" style="position:relative;overflow:hidden"><img id="kyc-doc-pan-preview" alt="" style="display:none;max-width:100%;border-radius:8px"/><div id="kyc-doc-pan-ph"><div class="uz-ic"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></div><div class="uz-t">PAN Card *</div></div><input type="file" id="kyc-doc-pan-input" accept="image/jpeg,image/png" onchange="onKYCDocChange(event,'panDoc')" aria-label="Upload PAN card" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer"/></div>
+                <div class="uzone" style="position:relative;overflow:hidden"><img id="kyc-doc-sig-preview" alt="" style="display:none;max-width:100%;border-radius:8px"/><div id="kyc-doc-sig-ph"><div class="uz-ic"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div><div class="uz-t">Signature *</div></div><input type="file" id="kyc-doc-sig-input" accept="image/jpeg,image/png" onchange="onKYCDocChange(event,'signature')" aria-label="Upload signature" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer"/></div>
               </div>
               <div class="lic-doc" id="kyc-doc-status"></div>
               <div class="err-box" id="kyc-e"></div>
@@ -1385,7 +1386,7 @@ input[type=range]{accent-color:var(--accent);width:100%}
     <div class="modal-body">
       <div class="fg"><label>Label Name *</label><input id="lb-name" placeholder="Label / imprint name"/></div>
       <div class="fg"><label>Website</label><input id="lb-website" placeholder="https://…"/></div>
-      <div class="fg"><label>Label Logo</label><div class="uzone" onclick="document.getElementById('lb-logo-input').click()" style="padding:16px"><div class="uz-t" id="lb-logo-label">Upload logo (JPG/PNG)</div><input type="file" id="lb-logo-input" accept="image/jpeg,image/png" style="display:none" onchange="lbLogoChange(event)"/></div></div>
+      <div class="fg"><label>Label Logo</label><div class="uzone" style="padding:16px;position:relative;overflow:hidden"><div class="uz-t" id="lb-logo-label">Upload logo (JPG/PNG)</div><input type="file" id="lb-logo-input" accept="image/jpeg,image/png" onchange="lbLogoChange(event)" aria-label="Upload label logo" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer"/></div></div>
       <div class="fg"><label class="remember"><input type="checkbox" id="lb-default"/> Set as Default Label</label></div>
       <div class="err-box" id="lb-err"></div>
     </div>
@@ -1428,6 +1429,7 @@ input[type=range]{accent-color:var(--accent);width:100%}
     <div class="modal-head"><div><h3>Add Collaborator</h3></div><button type="button" class="mclose" onclick="closeModal('collab-modal')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div>
     <div class="modal-body">
       <input type="hidden" id="cm-pfx" value="wz"/>
+      <div class="fg"><label>Name *</label><input id="c-name" placeholder="Collaborator's name"/></div>
       <div class="fg"><label>Email *</label><input id="c-email" placeholder="collaborator@example.com"/></div>
       <div class="fg-row">
         <div class="fg"><label>Role</label><select id="c-role" class="sel"><option>Primary artist</option><option>Featured artist</option><option>Producer</option><option>Songwriter</option><option>Mix engineer</option><option>Master engineer</option><option>Session player</option><option>Label</option></select></div>
@@ -1769,7 +1771,9 @@ function goPage(name) {
     var pm = document.getElementById('mnav-'+parent); if (pm) pm.classList.add('active');
   }
   // (topbar title removed — each page renders its own header)
-  if (name==='overview') { try { updateOverview(); } catch(e) {} }
+  // All page renders are isolated: a render error can never leave the content blank.
+  try {
+  if (name==='overview') { updateOverview(); }
   if (name==='releases') { renderReleases(); checkReleaseDraftBanner(); }
   if (name==='tracks') { renderTracks(); }
   if (name==='archived') { renderArchived(); }
@@ -1797,8 +1801,7 @@ function goPage(name) {
   if (name==='notifs') { loadNotifications(); }
   if (name==='blog') { loadBlog(); }
   if (name==='profile') { loadProfile(); }
-  if (name==='activity') { loadActivityLogs(); }
-  if (name==='loginhistory') { loadLoginHistory(); }
+  } catch(e) { try { console.log('goPage render:', e); } catch(_){} }
   window.scrollTo(0,0);
 }
 
@@ -3293,6 +3296,24 @@ function renderSplitEditor(pfx){
         + '<button class="btn-ghost btn-sm btn-danger-ghost" onclick="splitRemove(\''+pfx+'\','+i+')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>';
     }).join('');
   }
+  updateSplitWarn(pfx);
+}
+function splitSlide(pfx,i,v){ 
+  var st = splitStateOf(pfx);
+  st.collaborators[i].percentage = Number(v)||0;
+  var wrap = document.getElementById(pfx+'-split-editor');
+  if (wrap) { var nums = wrap.querySelectorAll('input[type=number]'); if (nums[i]) nums[i].value = st.collaborators[i].percentage; }
+  updateSplitWarn(pfx);
+}
+function splitNum(pfx,i,v){
+  var st = splitStateOf(pfx);
+  st.collaborators[i].percentage = Math.max(0,Math.min(100,Number(v)||0));
+  var wrap = document.getElementById(pfx+'-split-editor');
+  if (wrap) { var sliders = wrap.querySelectorAll('input[type=range]'); if (sliders[i]) sliders[i].value = st.collaborators[i].percentage; }
+  updateSplitWarn(pfx);
+}
+function updateSplitWarn(pfx){
+  var st = splitStateOf(pfx);
   var total = splitTotal(st);
   var warn = document.getElementById(pfx+'-split-warn');
   if (warn) {
@@ -3302,21 +3323,19 @@ function renderSplitEditor(pfx){
     } else warn.style.display = 'none';
   }
 }
-function splitSlide(pfx,i,v){ splitStateOf(pfx).collaborators[i].percentage = Number(v)||0; renderSplitEditor(pfx); }
-function splitNum(pfx,i,v){ splitStateOf(pfx).collaborators[i].percentage = Math.max(0,Math.min(100,Number(v)||0)); renderSplitEditor(pfx); }
 function splitRemove(pfx,i){ splitStateOf(pfx).collaborators.splice(i,1); renderSplitEditor(pfx); }
 function openCollabModal(pfx){
   document.getElementById('cm-pfx').value = splitTargetOf(pfx);
-  sv('c-email',''); sv('c-pct','10');
+  sv('c-name',''); sv('c-email',''); sv('c-pct','10');
   var e = document.getElementById('c-err'); if(e) e.classList.remove('on');
   openModal('collab-modal');
 }
 function saveCollabModal(){
   var pfx = splitTargetOf(gv('cm-pfx'));
-  var email = gv('c-email'), role = gv('c-role'), pct = Number(gv('c-pct'));
+  var name = gv('c-name'), email = gv('c-email'), role = gv('c-role'), pct = Number(gv('c-pct'));
+  if (!name) { showAl('c-err','Please enter the collaborator\'s name.'); return; }
   if (!email || email.indexOf('@')<0) { showAl('c-err','Please enter a valid email.'); return; }
   if (!(pct>=0) || pct>100) { showAl('c-err','Percentage must be between 0 and 100.'); return; }
-  var name = email.split('@')[0].replace(/[._-]+/g,' ');
   splitStateOf(pfx).collaborators.push({email:email, name:name, role:role, percentage:pct, signed:false});
   closeModal('collab-modal');
   renderSplitEditor(pfx);
@@ -3348,7 +3367,11 @@ async function wzApplyTemplate(){
   renderSplitEditor('wz');
   toast('Template applied');
 }
-function wzDefaultSplit(){
+async function wzDefaultSplit(){
+  if (WZ.split.collaborators && WZ.split.collaborators.length > 1) {
+    var ok = await uiConfirm('This will remove all collaborators and set the split to 100% you. Continue?', 'Replace split');
+    if (!ok) return;
+  }
   var me = (typeof AD !== 'undefined' && AD.name) || (CU && CU.email) || 'Me';
   WZ.split.collaborators = [{email:CU.email, name:me, role:'Primary artist', percentage:100, signed:true}];
   renderSplitEditor('wz');
@@ -4181,6 +4204,8 @@ function wizGo(n){
     if (err) { toast(err); return; }
   }
   WZ.tab = n;
+  clearToasts();
+  try { var wht = document.getElementById('wz-head-title'); if (wht) wht.textContent = (WZ.editingId?'Finish Release':'Create Release')+(WZ.title?' — '+WZ.title:''); } catch(e) {}
   for (var i=1;i<=6;i++){
     var t = document.getElementById('wiz-tab-'+i); if (t){ t.classList.toggle('on', i===n); t.classList.toggle('done', i!==n && wzTabDone(i)); t.classList.toggle('locked', i>n); t.title = i>n ? 'Complete the earlier steps first' : ''; }
     var p = document.getElementById('wiz-pane-'+i); if (p) p.classList.toggle('on', i===n);
@@ -4388,6 +4413,10 @@ function saveTrackEdit(){
   t.stream = document.getElementById('te-stream').checked;
   t.separate = document.getElementById('te-separate').checked;
   t.preview = Math.max(0, Number(gv('te-preview'))||0);
+  if (t.duration > 0 && t.preview >= t.duration) {
+    t.preview = 0;
+    toast('Preview start was beyond the track length — reset to 0s.');
+  }
   t.props = licPropsOf('te-props');
   closeModal('track-edit-modal');
   renderWzTracks(); saveWzDraft();
@@ -4607,6 +4636,7 @@ function updateTerrChip(){
 // ═══════════════ TAB 6 — REVIEW ═══════════════
 function renderWzReview(){
   if (!WZ) return;
+  try { wzSyncInputs(); } catch(e) {}
   var rows = [
     ['Release Title', WZ.title||'—'],
     ['Version', WZ.version||'—'],
@@ -4707,7 +4737,7 @@ function wzValidate(){
 // collections the admin Tracks / Licenses / Split Sheets pages read.
 // Deterministic: doc ids derive from the release id, so editing and
 // resubmitting overwrites instead of duplicating; stale docs are pruned.
-async function syncReleaseMirrors(releaseId, tracks, licenses, splitData, releaseTitle){
+async function syncReleaseMirrors(releaseId, tracks, licenses, splitData, releaseTitle, artistName){
   var now = new Date().toISOString();
   // prune previous mirrors for this release (handles shrunk track/license lists on edit)
   try {
@@ -4751,6 +4781,7 @@ async function syncReleaseMirrors(releaseId, tracks, licenses, splitData, releas
         uid: CU.uid, name: (releaseTitle||'Untitled release') + ' — Release Splits',
         splitType: (splitData&&splitData.type)||'release', collaborators: collabs,
         releaseIds: [releaseId], releaseId: releaseId, releaseTitle: releaseTitle||'',
+        artist: artistName||'',
         status: 'pending', createdAt: now, updatedAt: now
       });
     } catch(e) { console.log('Split mirror:', e); }
@@ -4874,7 +4905,7 @@ async function submitWizardRelease(){
   // ── deterministic mirror sync: top-level tracks / licenses / splits ──
   // Uses stable doc ids (releaseId + suffix) so resubmits/edits overwrite
   // instead of duplicating, and stale mirrors are pruned first.
-  try { await syncReleaseMirrors(releaseId, tracks, data.licenses, data.splits, WZ.title||''); }
+  try { await syncReleaseMirrors(releaseId, tracks, data.licenses, data.splits, WZ.title||'', data.artistName||''); }
   catch(e) { console.log('Mirror sync:', e); }
   try { logActivity('release_submit','Submitted release: '+WZ.title+' ('+tracks.length+' tracks)'); } catch(e) {}
   clearWzDraft();

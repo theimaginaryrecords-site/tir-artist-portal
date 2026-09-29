@@ -1295,7 +1295,9 @@ input[type=range]{accent-color:var(--accent);width:100%}
         <div class="fg"><label>Language of Performance</label><select id="te-lang" class="sel"><option value="">Select…</option><option>English</option><option>Hindi</option><option>Urdu</option><option>Kashmiri</option><option>Punjabi</option><option>Instrumental / No lyrics</option><option>Other</option></select></div>
       </div>
       <div class="fg"><label>Audio File</label><div id="te-audio-box"></div></div>
-      <div class="fg"><label>Display Artist</label><div style="display:flex;gap:8px"><select id="te-role" class="sel"><option>Primary Artist</option><option>Featured Artist</option><option>Remixer</option></select><input id="te-artist" placeholder="Artist name" style="flex:1"/><button class="btn-ghost btn-sm" onclick="openQuickArtistModal()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14"/><path d="M5 12h14"/></svg> New</button></div></div>
+      <div class="fg"><label>Display Artist</label>
+        <div style="display:flex;gap:8px;margin-bottom:8px"><select id="te-artist-pick" class="sel" style="flex:1" onchange="if(this.value){sv('te-artist',this.value);this.value='';}"><option value="">Pick an existing artist…</option></select><button class="btn-ghost btn-sm" onclick="openQuickArtistModal()" title="Add a brand new artist"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14"/><path d="M5 12h14"/></svg> New</button></div>
+        <div style="display:flex;gap:8px"><select id="te-role" class="sel"><option>Primary Artist</option><option>Featured Artist</option><option>Remixer</option></select><input id="te-artist" placeholder="Artist name" style="flex:1"/></div></div>
       <div class="fg"><label>Composers <span class="hint" style="margin:0">(comma separated)</span></label><input id="te-composers" placeholder="Composer names"/></div>
       <div class="fg-row">
         <div class="fg"><label>Arranger <span class="hint" style="margin:0">(musical work)</span></label><input id="te-arranger" placeholder="Arranger"/></div>
@@ -1354,7 +1356,7 @@ input[type=range]{accent-color:var(--accent);width:100%}
     <div class="modal-head"><div><h3>Add Artist</h3></div><button type="button" class="mclose" onclick="closeModal('artist-modal')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div>
     <div class="modal-body">
       <div class="fg"><label>Name *</label><input id="ar-name" placeholder="Artist name"/></div>
-      <div class="fg"><label>Email</label><input id="ar-email" placeholder="artist@example.com"/></div>
+      <div class="fg-row"><div class="fg"><label>Artist Type</label><select id="ar-type" class="sel"><option value="">Select…</option><option>Solo Artist</option><option>Duo</option><option>Band</option><option>Group</option><option>Orchestra</option><option>Choir</option><option>DJ / Producer</option><option>Other</option></select></div><div class="fg"><label>Email</label><input id="ar-email" placeholder="artist@example.com"/></div></div>
       <div class="fg"><label>Bio</label><textarea id="ar-bio" placeholder="Short bio…"></textarea></div>
       <div class="fg-row"><div class="fg"><label>Website</label><input id="ar-website" placeholder="https://…"/></div><div class="fg"><label>Social / Platform Links</label><input id="ar-socials" placeholder="Spotify, Instagram… (comma separated)"/></div></div>
       <div class="eyebrow" style="margin-top:6px">Store Profiles</div>
@@ -2662,7 +2664,7 @@ function openArtistModal(){ ['ar-name','ar-email','ar-bio','ar-website','ar-soci
 async function saveArtistEntry(){
   var name = gv('ar-name');
   if (!name) { showAl('ar-err','Please enter an artist name.'); return; }
-  var entry = {name:name, email:gv('ar-email'), bio:gv('ar-bio'), website:gv('ar-website'), socials:gv('ar-socials'),
+  var entry = {name:name, artistType:gv('ar-type'), email:gv('ar-email'), bio:gv('ar-bio'), website:gv('ar-website'), socials:gv('ar-socials'),
     spotify:gv('ar-spotify'), appleMusic:gv('ar-apple'), soundcloud:gv('ar-soundcloud'), createdAt:new Date().toISOString()};
   try {
     await rhSave('savedArtists', rhGet('savedArtists').concat([entry]));
@@ -4379,6 +4381,16 @@ function openTrackEdit(id){
   document.getElementById('te-sub').textContent = 'Track '+(WZ.tracks.indexOf(t)+1)+' of '+WZ.tracks.length+' · '+t.fileName;
   sv('te-title', t.title); sv('te-version', t.version); sv('te-lang', t.lang);
   sv('te-artist', t.artist); sv('te-role', t.role);
+  try {
+    var pick = document.getElementById('te-artist-pick');
+    if (pick) {
+      var saved = (typeof rhGet==='function' ? rhGet('savedArtists') : []) || [];
+      var names = [];
+      saved.forEach(function(a){ if (a && a.name && names.indexOf(a.name)<0) names.push(a.name); });
+      (WZ.artists||[]).forEach(function(n){ if (n && names.indexOf(n)<0) names.push(n); });
+      pick.innerHTML = '<option value="">Pick an existing artist…</option>' + names.map(function(n){ return '<option value="'+escA2(n)+'">'+escA2(n)+'</option>'; }).join('');
+    }
+  } catch(e) {}
   sv('te-composers', t.composers); sv('te-arranger', t.arranger); sv('te-publisher', t.publisher);
   sv('te-sr-contrib', t.srContrib); sv('te-mixer', t.mixer); sv('te-producer', t.producer);
   sv('te-p-year', t.pYear); sv('te-p-holder', t.pHolder);

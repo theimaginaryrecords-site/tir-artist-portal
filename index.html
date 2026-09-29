@@ -751,38 +751,54 @@ input[type=range]{accent-color:var(--accent);width:100%}
 
         <!-- ══════════ WALLET: PAYMENT METHODS ══════════ -->
         <div class="page" id="page-wallet-methods">
-          <div class="eyebrow">Money · Wallet</div>
+          <div class="eyebrow">Money</div>
           <h2 class="page-h">Payment Methods</h2>
-          <p class="page-sub">Tell us where to send your royalties.</p>
-          <div class="card card-pad">
-            <div class="stepper" id="pm-stepper">
-              <div class="step on" data-s="1"><div class="step-n">1</div><div class="step-l">Account &amp; Currency</div></div><div class="step-line"></div>
-              <div class="step" data-s="2"><div class="step-n">2</div><div class="step-l">Recipient</div></div><div class="step-line"></div>
-              <div class="step" data-s="3"><div class="step-n">3</div><div class="step-l">Payment Method</div></div><div class="step-line"></div>
-              <div class="step" data-s="4"><div class="step-n">4</div><div class="step-l">Review</div></div>
+          <p class="page-sub">Tell us where to send your royalties. Set up one or both methods.</p>
+          <div class="grid-2 mb">
+            <div class="card">
+              <div class="card-head"><h3>Indian Payout Method</h3><span class="chip chip-delivered" id="pm-in-badge" style="display:none">Saved</span></div>
+              <div style="padding:20px 22px">
+                <div class="fg"><label>Method</label><select id="pm-in-method" class="sel" onchange="pmInToggle()"><option value="upi">UPI</option><option value="bank">Bank Transfer (NEFT / IMPS)</option></select></div>
+                <div id="pm-in-upi">
+                  <div class="fg"><label>UPI ID *</label><input id="pm-in-upiid" placeholder="yourname@upi"/></div>
+                  <div class="fg"><label>Account holder name *</label><input id="pm-in-uname" placeholder="Full name"/></div>
+                </div>
+                <div id="pm-in-bank" style="display:none">
+                  <div class="fg"><label>Account holder name *</label><input id="pm-in-bname" placeholder="Full name as per bank records"/></div>
+                  <div class="fg-row"><div class="fg"><label>Account number *</label><input id="pm-in-acc" placeholder="Bank account number"/></div><div class="fg"><label>IFSC *</label><input id="pm-in-ifsc" placeholder="IFSC code"/></div></div>
+                  <div class="fg"><label>Bank name *</label><input id="pm-in-bankname" placeholder="Bank name"/></div>
+                </div>
+                <button class="btn btn-sm" onclick="saveIndianMethod()">Save Indian Method</button>
+                <div class="hint" id="pm-in-current" style="margin-top:12px"></div>
+              </div>
             </div>
-            <div id="pm-pane-1">
-              <div class="fg-row"><div class="fg"><label>Account type</label><select id="pm-acctype"><option>Individual</option><option>Business</option></select></div>
-              <div class="fg"><label>Payout currency</label><select id="pm-currency"><option value="INR">INR — Indian Rupee</option><option value="USD">USD — US Dollar</option><option value="EUR">EUR — Euro</option></select></div></div>
-            </div>
-            <div id="pm-pane-2" style="display:none">
-              <div class="fg-row"><div class="fg"><label>Recipient full name</label><input id="pm-rname" placeholder="As per bank records"/></div>
-              <div class="fg"><label>Recipient email</label><input id="pm-remail" placeholder="you@example.com"/></div></div>
-              <div class="fg"><label>Recipient address</label><input id="pm-raddr" placeholder="Street, city, country"/></div>
-            </div>
-            <div id="pm-pane-3" style="display:none">
-              <div class="fg"><label>Preferred payout method</label><select id="pm-method"><option value="bank">Bank Transfer</option><option value="upi">UPI</option><option value="payoneer">Payoneer</option><option value="paypal">PayPal</option></select></div>
-              <div class="fg"><label>Method details</label><input id="pm-details" placeholder="Account / UPI / Payoneer email"/></div>
-            </div>
-            <div id="pm-pane-4" style="display:none"><div id="pm-review"></div></div>
-            <div style="display:flex;justify-content:space-between;margin-top:22px">
-              <button class="btn-ghost" id="pm-back" onclick="pmStep(-1)" style="visibility:hidden">← Back</button>
-              <button class="btn" id="pm-next" onclick="pmStep(1)">Continue →</button>
+            <div class="card">
+              <div class="card-head"><h3>International Payout Method</h3><span class="chip chip-delivered" id="pm-intl-badge" style="display:none">Saved</span></div>
+              <div style="padding:20px 22px">
+                <div class="fg"><label>Method</label><select id="pm-intl-method" class="sel" onchange="pmIntlToggle()"><option value="paypal">PayPal</option><option value="payoneer">Payoneer</option><option value="wire">Bank Wire Transfer</option></select></div>
+                <div id="pm-intl-paypal">
+                  <div class="fg"><label>PayPal email *</label><input id="pm-intl-ppemail" type="email" placeholder="you@example.com"/></div>
+                  <div class="fg"><label>Recipient full name *</label><input id="pm-intl-ppname" placeholder="Full name on PayPal"/></div>
+                </div>
+                <div id="pm-intl-payoneer" style="display:none">
+                  <div class="fg"><label>Payoneer email *</label><input id="pm-intl-poemail" type="email" placeholder="you@payoneer.com"/></div>
+                  <div class="fg"><label>Recipient full name *</label><input id="pm-intl-poname" placeholder="Full name on Payoneer"/></div>
+                </div>
+                <div id="pm-intl-wire" style="display:none">
+                  <div class="fg"><label>Account holder name *</label><input id="pm-intl-wname" placeholder="Full name as per bank records"/></div>
+                  <div class="fg-row"><div class="fg"><label>IBAN / Account number *</label><input id="pm-intl-wacc" placeholder="IBAN or account number"/></div><div class="fg"><label>SWIFT / BIC *</label><input id="pm-intl-wswift" placeholder="SWIFT / BIC code"/></div></div>
+                  <div class="fg"><label>Bank name *</label><input id="pm-intl-wbank" placeholder="Bank name"/></div>
+                  <div class="fg"><label>Bank country *</label><input id="pm-intl-wcountry" placeholder="Country"/></div>
+                </div>
+                <button class="btn btn-sm" onclick="saveIntlMethod()">Save International Method</button>
+                <div class="hint" id="pm-intl-current" style="margin-top:12px"></div>
+              </div>
             </div>
           </div>
+          <div class="hint">Payouts are processed monthly once KYC is approved. Indian payouts go to your Indian method, international earnings to your international method.</div>
         </div>
 
-        <!-- ══════════ WALLET: FINANCIAL REPORTS ══════════ -->
+<!-- ══════════ WALLET: FINANCIAL REPORTS ══════════ -->
         <div class="page" id="page-wallet-reports">
           <div class="eyebrow">Money · Wallet</div>
           <h2 class="page-h">Financial Reports</h2>
@@ -1081,16 +1097,20 @@ input[type=range]{accent-color:var(--accent);width:100%}
         <!-- ══════════ ACTIVITY LOGS ══════════ -->
         <div class="page" id="page-activity">
           <div class="eyebrow">Account</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px"><div><div class="eyebrow">Account</div>
           <h2 class="page-h">Activity Logs</h2>
-          <p class="page-sub">A trail of actions taken in your portal.</p>
+          <p class="page-sub">A trail of actions taken in your portal. Entries auto-clear after 7 days.</p></div>
+          <button class="btn-ghost btn-sm" onclick="clearActivityLogs()">Clear All</button></div>
           <div class="card"><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Date</th><th>Action</th><th>Detail</th></tr></thead><tbody id="act-tbody"></tbody></table></div></div>
         </div>
 
         <!-- ══════════ LOGIN HISTORY ══════════ -->
         <div class="page" id="page-loginhistory">
           <div class="eyebrow">Account</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px"><div><div class="eyebrow">Account</div>
           <h2 class="page-h">Login History</h2>
-          <p class="page-sub">Every sign-in to your account.</p>
+          <p class="page-sub">Every sign-in to your account. Entries auto-clear after 7 days.</p></div>
+          <button class="btn-ghost btn-sm" onclick="clearLoginHistory()">Clear All</button></div>
           <div class="card"><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Date</th><th>Email</th><th>Device</th></tr></thead><tbody id="lh-tbody"></tbody></table></div></div>
         </div>
 
@@ -1170,7 +1190,7 @@ input[type=range]{accent-color:var(--accent);width:100%}
               <div class="fg"><label>Secondary Genre</label><select id="wz-genre2" class="sel"></select></div>
             </div>
             <div class="fg"><label>Album Format *</label><select id="wz-album-format" class="sel"><option value="Single">Single</option><option value="EP">EP</option><option value="Album">Album</option></select></div>
-            <div class="fg"><label>UPC</label><div style="display:flex;gap:8px"><input id="wz-upc" placeholder="Auto-assigned on submit" style="flex:1"/><button class="btn-ghost btn-sm" onclick="wzAutoUPC()">Auto-assign</button></div></div>
+            <div class="fg"><label>UPC</label><input id="wz-upc" placeholder="Assigned by TIR after approval — leave blank"/></div>
             <div class="fg-row">
               <div class="fg"><label>(C) Year</label><input id="wz-c-year" placeholder="2026"/></div>
               <div class="fg"><label>(C) Holder</label><input id="wz-c-holder" placeholder="© holder name"/></div>
@@ -1295,7 +1315,7 @@ input[type=range]{accent-color:var(--accent);width:100%}
         <div class="fg"><label>Primary Genre</label><select id="te-genre" class="sel"></select></div>
         <div class="fg"><label>Secondary Genre</label><select id="te-genre2" class="sel"></select></div>
       </div>
-      <div class="fg"><label>ISRC</label><div style="display:flex;gap:8px;align-items:center"><input id="te-isrc" placeholder="Auto-assigned on submit" style="flex:1"/><label class="remember"><input type="checkbox" id="te-isrc-auto" checked/> Auto-assign</label></div></div>
+      <div class="fg"><label>ISRC</label><input id="te-isrc" placeholder="Assigned by TIR after approval — leave blank"/></div>
       <div class="fg"><label>Explicit Content</label><div class="radio-row"><label><input type="radio" name="te-explicit" value="explicit"/> Explicit</label><label><input type="radio" name="te-explicit" value="not-explicit" checked/> Not Explicit</label><label><input type="radio" name="te-explicit" value="instrumental"/> Instrumental</label><label><input type="radio" name="te-explicit" value="lyrics"/> Contains Lyrics</label></div></div>
       <div class="fg"><label>Lyricist</label><input id="te-lyricist" placeholder="Lyricist name"/></div>
       <div class="fg"><label>Lyrics</label><textarea id="te-lyrics" placeholder="Paste full lyrics…"></textarea></div>
@@ -1324,7 +1344,7 @@ input[type=range]{accent-color:var(--accent);width:100%}
 <div class="modal-overlay" id="quick-artist-modal">
   <div class="modal-box" style="width:440px">
     <div class="modal-head"><div><h3>Add New Artist</h3></div><button type="button" class="mclose" onclick="closeModal('quick-artist-modal')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div>
-    <div class="modal-body"><div class="fg"><label>Artist Name *</label><input id="qa-name" placeholder="Artist name"/></div><div class="err-box" id="qa-err"></div></div>
+    <div class="modal-body"><div class="fg"><label>Artist Name *</label><input id="qa-name" placeholder="Artist name"/></div><div class="fg-row"><div class="fg"><label>Spotify URL</label><input id="qa-spotify" placeholder="https://open.spotify.com/artist/&#8230;"/></div><div class="fg"><label>Apple Music URL</label><input id="qa-apple" placeholder="https://music.apple.com/&#8230;"/></div></div><div class="err-box" id="qa-err"></div></div>
     <div class="modal-foot"><button class="btn-ghost" onclick="closeModal('quick-artist-modal')">Cancel</button><button class="btn" onclick="saveQuickArtist()">Add Artist</button></div>
   </div>
 </div>
@@ -1761,6 +1781,9 @@ function goPage(name) {
   if (name==='labels') { renderLabelsTbl(); }
   if (name==='wallet') { loadWallet(); loadWithdrawals(); }
   if (name==='wallet-tx') { loadWalletTx(); }
+  if (name==='wallet-methods') { loadPaymentMethods(); }
+  if (name==='activity') { loadActivityLogs(); }
+  if (name==='loginhistory') { loadLoginHistory(); }
   if (name==='wallet-reports') { renderFinReports(); }
   if (name==='analytics') { renderAnalytics(); }
   if (name==='analytics-geo') { renderGeo(); }
@@ -2841,40 +2864,91 @@ async function loadWithdrawals(){
   } catch(e) { console.log('Withdrawals:', e); }
 }
 /* Payment methods stepper */
-var pmCur = 1;
-function pmStep(dir){
-  var next = pmCur + dir;
-  if (next < 1 || next > 4) return;
-  if (dir > 0 && pmCur === 3) {
-    document.getElementById('pm-review').innerHTML =
-      '<div class="rev-row"><span class="rev-k">Account Type</span><span class="rev-v">'+escA2(gv('pm-acctype'))+'</span></div>'
-      + '<div class="rev-row"><span class="rev-k">Currency</span><span class="rev-v">'+escA2(gv('pm-currency'))+'</span></div>'
-      + '<div class="rev-row"><span class="rev-k">Recipient</span><span class="rev-v">'+escA2(gv('pm-rname'))+'</span></div>'
-      + '<div class="rev-row"><span class="rev-k">Email</span><span class="rev-v">'+escA2(gv('pm-remail'))+'</span></div>'
-      + '<div class="rev-row"><span class="rev-k">Method</span><span class="rev-v">'+escA2(gv('pm-method'))+'</span></div>'
-      + '<div class="rev-row"><span class="rev-k">Details</span><span class="rev-v">'+escA2(gv('pm-details')||'—')+'</span></div>';
-  }
-  if (dir > 0 && pmCur === 4) { savePaymentMethod(); return; }
-  pmCur = next;
-  for (var i=1;i<=4;i++) {
-    var p = document.getElementById('pm-pane-'+i); if (p) p.style.display = (i===pmCur?'block':'none');
-    var s = document.querySelector('#pm-stepper .step[data-s="'+i+'"]');
-    if (s) { s.classList.toggle('on', i===pmCur); s.classList.toggle('done', i<pmCur); }
-  }
-  document.getElementById('pm-back').style.visibility = pmCur===1 ? 'hidden' : 'visible';
-  document.getElementById('pm-next').textContent = pmCur===4 ? 'Save Payment Method' : 'Continue →';
+// ═══════════════════════════════════════════════════════════
+// PAYMENT METHODS — Indian + International
+// ═══════════════════════════════════════════════════════════
+function pmInToggle(){
+  var m = gv('pm-in-method');
+  document.getElementById('pm-in-upi').style.display = m==='upi'?'block':'none';
+  document.getElementById('pm-in-bank').style.display = m==='bank'?'block':'none';
 }
-async function savePaymentMethod(){
-  var data = {payoutMethod:{accountType:gv('pm-acctype'), currency:gv('pm-currency'), recipientName:gv('pm-rname'), recipientEmail:gv('pm-remail'), recipientAddress:gv('pm-raddr'), method:gv('pm-method'), details:gv('pm-details'), updatedAt:new Date().toISOString()}};
-  if (!data.payoutMethod.recipientName) { toast('Please enter the recipient name.'); pmCur=2; pmStep(0); return; }
+function pmIntlToggle(){
+  var m = gv('pm-intl-method');
+  document.getElementById('pm-intl-paypal').style.display = m==='paypal'?'block':'none';
+  document.getElementById('pm-intl-payoneer').style.display = m==='payoneer'?'block':'none';
+  document.getElementById('pm-intl-wire').style.display = m==='wire'?'block':'none';
+}
+function pmMethods(){ return (AD && AD.payoutMethods) || {}; }
+async function saveIndianMethod(){
+  var m = gv('pm-in-method'), d = {method:m, updatedAt:new Date().toISOString()};
+  if (m==='upi') {
+    d.upiId = gv('pm-in-upiid'); d.holderName = gv('pm-in-uname');
+    if (!d.upiId || !d.holderName) { toast('Please enter your UPI ID and account holder name.'); return; }
+  } else {
+    d.holderName = gv('pm-in-bname'); d.accountNumber = gv('pm-in-acc'); d.ifsc = gv('pm-in-ifsc'); d.bankName = gv('pm-in-bankname');
+    if (!d.holderName || !d.accountNumber || !d.ifsc || !d.bankName) { toast('Please fill all bank fields.'); return; }
+  }
   try {
-    await _db.collection('users').doc(CU.uid).set(data, {merge:true});
-    AD.payoutMethod = data.payoutMethod;
-    toast('Payment method saved');
-    try { logActivity('payout_method','Payment method updated'); } catch(e) {}
-    goPage('wallet');
-  } catch(e) { toast('Error: '+e.message); }
+    await _db.collection('users').doc(CU.uid).set({payoutMethods:{indian:d}}, {merge:true});
+    AD.payoutMethods = Object.assign({}, pmMethods(), {indian:d});
+    try { logActivity('payout_method','Indian payout method saved ('+(m==='upi'?'UPI':'Bank')+')'); } catch(e) {}
+    toast('Indian payout method saved');
+    loadPaymentMethods();
+  } catch(e) { toast('Could not save: '+e.message); }
 }
+async function saveIntlMethod(){
+  var m = gv('pm-intl-method'), d = {method:m, updatedAt:new Date().toISOString()};
+  if (m==='paypal') {
+    d.email = gv('pm-intl-ppemail'); d.holderName = gv('pm-intl-ppname');
+    if (!d.email || !d.holderName) { toast('Please enter your PayPal email and recipient name.'); return; }
+  } else if (m==='payoneer') {
+    d.email = gv('pm-intl-poemail'); d.holderName = gv('pm-intl-poname');
+    if (!d.email || !d.holderName) { toast('Please enter your Payoneer email and recipient name.'); return; }
+  } else {
+    d.holderName = gv('pm-intl-wname'); d.account = gv('pm-intl-wacc'); d.swift = gv('pm-intl-wswift'); d.bankName = gv('pm-intl-wbank'); d.country = gv('pm-intl-wcountry');
+    if (!d.holderName || !d.account || !d.swift || !d.bankName || !d.country) { toast('Please fill all wire transfer fields.'); return; }
+  }
+  try {
+    await _db.collection('users').doc(CU.uid).set({payoutMethods:{international:d}}, {merge:true});
+    AD.payoutMethods = Object.assign({}, pmMethods(), {international:d});
+    try { logActivity('payout_method','International payout method saved ('+m+')'); } catch(e) {}
+    toast('International payout method saved');
+    loadPaymentMethods();
+  } catch(e) { toast('Could not save: '+e.message); }
+}
+function loadPaymentMethods(){
+  var pm = pmMethods();
+  // Indian
+  var ind = pm.indian || {};
+  if (ind.method) {
+    sv('pm-in-method', ind.method); pmInToggle();
+    sv('pm-in-upiid', ind.upiId||''); sv('pm-in-uname', ind.holderName||'');
+    sv('pm-in-bname', ind.holderName||''); sv('pm-in-acc', ind.accountNumber||'');
+    sv('pm-in-ifsc', ind.ifsc||''); sv('pm-in-bankname', ind.bankName||'');
+    document.getElementById('pm-in-badge').style.display = '';
+    var cur = document.getElementById('pm-in-current');
+    if (cur) cur.textContent = 'Saved: ' + (ind.method==='upi' ? 'UPI '+(ind.upiId||'') : (ind.bankName||'Bank')+' ····'+String(ind.accountNumber||'').slice(-4));
+  } else {
+    document.getElementById('pm-in-badge').style.display = 'none';
+    var cur0 = document.getElementById('pm-in-current'); if (cur0) cur0.textContent = 'Not set up yet.';
+  }
+  // International
+  var intl = pm.international || {};
+  if (intl.method) {
+    sv('pm-intl-method', intl.method); pmIntlToggle();
+    sv('pm-intl-ppemail', intl.email||''); sv('pm-intl-ppname', intl.holderName||'');
+    sv('pm-intl-poemail', intl.email||''); sv('pm-intl-poname', intl.holderName||'');
+    sv('pm-intl-wname', intl.holderName||''); sv('pm-intl-wacc', intl.account||'');
+    sv('pm-intl-wswift', intl.swift||''); sv('pm-intl-wbank', intl.bankName||''); sv('pm-intl-wcountry', intl.country||'');
+    document.getElementById('pm-intl-badge').style.display = '';
+    var cur2 = document.getElementById('pm-intl-current');
+    if (cur2) cur2.textContent = 'Saved: ' + intl.method.toUpperCase() + (intl.email ? ' '+(intl.email||'') : '');
+  } else {
+    document.getElementById('pm-intl-badge').style.display = 'none';
+    var cur3 = document.getElementById('pm-intl-current'); if (cur3) cur3.textContent = 'Not set up yet.';
+  }
+}
+
 function renderFinReports(){
   var tb = document.getElementById('finrep-tbody'); if(!tb) return;
   var agg = royAgg(0);
@@ -3846,8 +3920,19 @@ async function loadNotifCount(){
 // ═══════════════════════════════════════════════════════════
 // ACTIVITY LOGS + LOGIN HISTORY + PROFILE TABS
 // ═══════════════════════════════════════════════════════════
+var LOG_RETENTION_MS = 7*24*60*60*1000;
+async function pruneOldLogs(col){
+  try{
+    var cutoff = Date.now()-LOG_RETENTION_MS;
+    var snap = await _db.collection(col).where('uid','==',CU.uid).get();
+    var batch = _db.batch(), n = 0;
+    snap.forEach(function(d){ var t = new Date(d.data().createdAt||0).getTime(); if (t && t < cutoff) { batch.delete(d.ref); n++; } });
+    if (n) await batch.commit();
+  }catch(e){}
+}
 async function loadActivityLogs(){
   var tb = document.getElementById('act-tbody'); if(!tb) return;
+  await pruneOldLogs('activityLogs');
   try{
     var snap = await _db.collection('activityLogs').where('uid','==',CU.uid).get();
     var rows = [];
@@ -3859,8 +3944,27 @@ async function loadActivityLogs(){
     }).join('') : '<tr class="empty-row"><td colspan="3">No activity yet.</td></tr>';
   }catch(e){ tb.innerHTML = '<tr class="empty-row"><td colspan="3">Could not load activity.</td></tr>'; }
 }
+async function clearActivityLogs(){
+  if (!(await uiConfirm('Clear all activity logs? This cannot be undone.','Clear'))) return;
+  try{
+    var snap = await _db.collection('activityLogs').where('uid','==',CU.uid).get();
+    var batch = _db.batch(); snap.forEach(function(d){ batch.delete(d.ref); });
+    await batch.commit(); toast('Activity logs cleared');
+  }catch(e){ toast('Could not clear: '+e.message); }
+  loadActivityLogs();
+}
+async function clearLoginHistory(){
+  if (!(await uiConfirm('Clear all login history? This cannot be undone.','Clear'))) return;
+  try{
+    var snap = await _db.collection('loginHistory').where('uid','==',CU.uid).get();
+    var batch = _db.batch(); snap.forEach(function(d){ batch.delete(d.ref); });
+    await batch.commit(); toast('Login history cleared');
+  }catch(e){ toast('Could not clear: '+e.message); }
+  loadLoginHistory();
+}
 async function loadLoginHistory(){
   var rows = [];
+  await pruneOldLogs('loginHistory');
   try{
     var snap = await _db.collection('loginHistory').where('uid','==',CU.uid).get();
     snap.forEach(function(d){ rows.push(Object.assign({id:d.id}, d.data())); });
@@ -4143,13 +4247,21 @@ function restoreWizardDraft(){
 async function discardWizardDraft(){
   if (!(await uiConfirm('Discard this draft?','Discard'))) return;
   try{ stopWizardAutosave(); }catch(e){}
-  try{ clearWzDraft(); }catch(e){}
-  try{ clearWzOpen(); }catch(e){}
+  // Remove every wizard draft / open-state key for this user (defensive: covers key-format drift)
+  try{
+    var uid = (typeof CU!=='undefined' && CU && CU.uid) ? CU.uid : '';
+    var drop = [];
+    for (var i=0;i<localStorage.length;i++){ var k=localStorage.key(i);
+      if (k && (k.indexOf('tir-wz-draft-')===0 || k.indexOf('tir-wz-open-')===0)) drop.push(k); }
+    drop.forEach(function(k){ try{ localStorage.removeItem(k); }catch(e){} });
+    if (uid) { try{ localStorage.removeItem('tir-wz-draft-'+uid); }catch(e){} try{ localStorage.removeItem('tir-wz-open-'+uid); }catch(e){} }
+  }catch(e){}
   try{ WZ = newWZ(); }catch(e){}
   try{ var wb=document.getElementById('wiz-draft-banner'); if(wb) wb.style.display='none'; }catch(e){}
   try{ var rb=document.getElementById('rel-draft-banner'); if(rb) rb.style.display='none'; }catch(e){}
   try{ closeModal('wizard-modal'); }catch(e){}
   try{ if(typeof goPage==='function') goPage('releases'); }catch(e){}
+  try{ checkReleaseDraftBanner(); }catch(e){}
   toast('Draft discarded');
 }
 function checkReleaseDraftBanner(){
@@ -4184,7 +4296,7 @@ function wzAddTrack(file, fromCatalog){
     props:[], version:'', lang:'', role:'Primary Artist', artist:(WZ.primaryArtist||''),
     composers:'', arranger:'', publisher:'', srContrib:'', mixer:'', producer:'',
     pYear:String(new Date().getFullYear()), pHolder:'', genre:'', genre2:'',
-    isrc:'', isrcAuto:true, explicit:'not-explicit', lyricist:'', lyrics:'',
+    isrc:'', isrcAuto:false, explicit:'not-explicit', lyricist:'', lyrics:'',
     dl:true, stream:true, separate:true, preview:30, catalogId:(fromCatalog&&fromCatalog.id)||'' };
   if (fromCatalog && fromCatalog.audioUrl) { t.audioUrl = fromCatalog.audioUrl; t.uploading = false; t.duration = fromCatalog.duration||0; t.size = fromCatalog.size||0; }
   WZ.tracks.push(t);
@@ -4229,7 +4341,7 @@ function openTrackEdit(id){
   sv('te-sr-contrib', t.srContrib); sv('te-mixer', t.mixer); sv('te-producer', t.producer);
   sv('te-p-year', t.pYear); sv('te-p-holder', t.pHolder);
   sv('te-genre', t.genre); sv('te-genre2', t.genre2);
-  sv('te-isrc', t.isrc); document.getElementById('te-isrc-auto').checked = !!t.isrcAuto;
+  sv('te-isrc', t.isrc);
   document.querySelectorAll('input[name="te-explicit"]').forEach(function(r){ r.checked = (r.value===(t.explicit||'not-explicit')); });
   sv('te-lyricist', t.lyricist); sv('te-lyrics', t.lyrics);
   document.getElementById('te-dl').checked = t.dl!==false;
@@ -4252,7 +4364,7 @@ function saveTrackEdit(){
   t.srContrib = gv('te-sr-contrib'); t.mixer = gv('te-mixer'); t.producer = gv('te-producer');
   t.pYear = gv('te-p-year'); t.pHolder = gv('te-p-holder');
   t.genre = gv('te-genre'); t.genre2 = gv('te-genre2');
-  t.isrc = gv('te-isrc'); t.isrcAuto = document.getElementById('te-isrc-auto').checked;
+  t.isrc = gv('te-isrc'); t.isrcAuto = false;
   var ex = document.querySelector('input[name="te-explicit"]:checked'); t.explicit = ex?ex.value:'not-explicit';
   t.lyricist = gv('te-lyricist'); t.lyrics = gv('te-lyrics');
   t.dl = document.getElementById('te-dl').checked;
@@ -4299,7 +4411,13 @@ async function saveQuickArtist(){
   var name = gv('qa-name');
   if (!name) { showAl('qa-err','Please enter an artist name.'); return; }
   try {
-    await rhSave('savedArtists', rhGet('savedArtists').concat([{name:name, createdAt:new Date().toISOString()}]));
+    var entry = {name:name, spotifyUrl:gv('qa-spotify'), appleMusicUrl:gv('qa-apple'), createdAt:new Date().toISOString()};
+    var saved = rhGet('savedArtists') || [];
+    var ix = -1;
+    for (var i=0;i<saved.length;i++){ if (saved[i] && saved[i].name===name) { ix=i; break; } }
+    if (ix>=0) saved[ix] = Object.assign({}, saved[ix], entry); else saved.push(entry);
+    await rhSave('savedArtists', saved);
+    sv('qa-name',''); sv('qa-spotify',''); sv('qa-apple','');
     if (WZ.artists.indexOf(name)<0) WZ.artists.push(name);
     WZ.primaryArtist = WZ.primaryArtist || name;
     closeModal('quick-artist-modal');
@@ -4532,10 +4650,6 @@ function wzValidate(){
   if (WZ.split.collaborators.length && splitTotal(WZ.split)!==100) return {tab:5, msg:'Royalty splits must total exactly 100%.'};
   return null;
 }
-function wzAutoISRC(t){
-  var yy = String(new Date().getFullYear()).slice(2);
-  return 'IN' + 'TIR' + yy + String(Math.floor(10000+Math.random()*89999));
-}
 // Mirror a release's tracks, licenses and split sheet into the top-level
 // collections the admin Tracks / Licenses / Split Sheets pages read.
 // Deterministic: doc ids derive from the release id, so editing and
@@ -4606,10 +4720,8 @@ async function submitWizardRelease(){
   if (v) { errBox.textContent = v.msg; errBox.classList.add('on'); wizGo(v.tab); return; }
   var btn = document.getElementById('wz-submit-btn');
   btn.disabled = true; btn.innerHTML = IC.send+' Submitting…';
-  if (!WZ.upc) WZ.upc = String(Math.floor(100000000000 + Math.random()*899999999999));
   if (!WZ.catno) WZ.catno = 'TIR-'+new Date().getFullYear()+'-'+String(Math.floor(1000+Math.random()*9000));
   var tracks = WZ.tracks.map(function(t,i){
-    if (t.isrcAuto && !t.isrc) t.isrc = wzAutoISRC(t);
     return {
       title:t.title, fileName:t.fileName||'', size:t.size||0, duration:t.duration||0,
       audioUrl:t.audioUrl||'', audioPublicId:t.audioPublicId||'', props:t.props||[], trackVersion:t.version||'', version:t.version||'',

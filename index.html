@@ -311,6 +311,7 @@ input[type=range]{accent-color:var(--accent);width:100%}
 .wiz-tab .wt-n{width:24px;height:24px;border-radius:50%;background:var(--card2);border:1px solid var(--brd2);font-size:11px;display:flex;align-items:center;justify-content:center;font-weight:800}
 .wiz-tab.on{color:var(--accent);border-bottom-color:var(--accent)}
 .wiz-tab.on .wt-n{background:var(--accent);border-color:var(--accent);color:#fff}
+.wiz-tab.locked{opacity:.45;cursor:not-allowed}
 .wiz-tab.done .wt-n{background:var(--green-dim);border-color:var(--green);color:var(--green)}
 .wiz-body{padding:26px}
 .wiz-pane{display:none}
@@ -1166,14 +1167,14 @@ input[type=range]{accent-color:var(--accent);width:100%}
         <div class="grid-2">
           <div>
             <div class="eyebrow">Artwork</div>
-            <div class="uzone" id="wz-artwork-zone" onclick="document.getElementById('wz-artwork-input').click()">
+            <div class="uzone" id="wz-artwork-zone" style="position:relative;overflow:hidden">
               <img id="wz-artwork-preview" alt="" style="display:none;max-width:220px;border-radius:10px;margin:0 auto"/>
               <div id="wz-artwork-ph"><div class="uz-ic"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.09-3.09a2 2 0 0 0-2.82 0L6 21"/></svg></div><div class="uz-t">Upload Cover Art</div><div class="uz-s">JPG or PNG · square · min 3000×3000 · under 10MB</div></div>
-              <input type="file" id="wz-artwork-input" accept="image/jpeg,image/png" style="display:none" onchange="wzArtworkChange(event)"/>
+              <input type="file" id="wz-artwork-input" accept="image/jpeg,image/png" onchange="wzArtworkChange(event)" aria-label="Upload cover art" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer"/>
             </div>
             <div class="note-box" style="margin-top:12px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg> <strong>Artwork rules:</strong> Square JPG/PNG, minimum 3000×3000px, under 10MB. No blurry or pixelated images, no URLs or social handles, no pricing or "new single" badges, no explicit imagery. The artwork must match the release title and artist.</div>
             <div class="eyebrow" style="margin-top:18px">Apple Motion Art <span style="color:var(--txt3);text-transform:none;letter-spacing:0">(optional)</span></div>
-            <div class="uzone" onclick="document.getElementById('wz-motion-input').click()" style="padding:16px"><div class="uz-t" id="wz-motion-label"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px"><rect x="2" y="2" width="20" height="20" rx="2.18"/><path d="M7 2v20M17 2v20M2 12h20M2 7h5M2 17h5M17 17h5M17 7h5"/></svg>Upload Motion Art (MP4 / MOV)</div><div class="uz-s">3×4 and 1×1 crops accepted</div><input type="file" id="wz-motion-input" accept="video/mp4,video/quicktime" style="display:none" onchange="wzMotionChange(event)"/></div>
+            <div class="uzone" style="padding:16px;position:relative;overflow:hidden"><div class="uz-t" id="wz-motion-label"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px"><rect x="2" y="2" width="20" height="20" rx="2.18"/><path d="M7 2v20M17 2v20M2 12h20M2 7h5M2 17h5M17 17h5M17 7h5"/></svg>Upload Motion Art (MP4 / MOV)</div><div class="uz-s">3×4 and 1×1 crops accepted</div><input type="file" id="wz-motion-input" accept="video/mp4,video/quicktime" onchange="wzMotionChange(event)" aria-label="Upload motion art" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer"/></div>
           </div>
           <div>
             <div class="fg"><label>Version</label><input id="wz-version" placeholder="e.g. Slowed + Reverb, Remix"/></div>
@@ -1273,7 +1274,7 @@ input[type=range]{accent-color:var(--accent);width:100%}
     <div class="wiz-foot">
       <button class="btn-ghost" id="wz-back" onclick="wizGo(WZ.tab-1)">← Back</button>
       <div style="display:flex;gap:10px">
-        <button class="btn-ghost" onclick="wizSkip()">Skip for now</button>
+        <button class="btn-ghost" onclick="wizSkip()" title="Save progress as a draft and exit the wizard">Save &amp; exit</button>
         <button class="btn" id="wz-next" onclick="wizGo(WZ.tab+1)">Save &amp; Continue →</button>
       </div>
     </div>
@@ -1844,7 +1845,9 @@ async function doLogin() {
   } catch(e) {
     var m = 'Login failed. ';
     if (e.code === 'auth/user-not-found' || e.code === 'auth/wrong-password' || e.code === 'auth/invalid-credential') m += 'Wrong email or password.';
-    else m += e.message;
+    else if (e.code === 'auth/too-many-requests') m += 'Too many attempts — please wait a minute and try again.';
+    else if (e.code === 'auth/network-request-failed' || e.code === 'auth/the-service-is-currently-unavailable') m += 'The service is temporarily unavailable. Please try again in a moment.';
+    else m += 'Something went wrong. Please try again.';
     err.textContent = m; err.classList.add('on');
     btn.disabled = false; btn.textContent = 'Sign In to Portal';
   }
@@ -4048,6 +4051,12 @@ async function startWizardFromTitle(){
   var kyc = await freshKYC();
   if (!kyc || kyc.status!=='approved') { closeModal('rel-title-modal'); showKycGate(); return; }
   closeModal('rel-title-modal');
+  var old = null; try { old = getWzDraft(); } catch(e) {}
+  if (old && old.title) {
+    var startFresh = await uiConfirm('You have an unfinished draft ("'+old.title+'", saved '+fmtDT(old.savedAt||'')+'). Starting "'+title+'" will replace it.', 'Start new');
+    if (!startFresh) { openWizard(true); return; } // resume the old draft instead
+    clearWzDraft();
+  }
   WZ = newWZ();
   WZ.title = title;
   openWizardShell();
@@ -4173,7 +4182,7 @@ function wizGo(n){
   }
   WZ.tab = n;
   for (var i=1;i<=6;i++){
-    var t = document.getElementById('wiz-tab-'+i); if (t){ t.classList.toggle('on', i===n); t.classList.toggle('done', i!==n && wzTabDone(i)); }
+    var t = document.getElementById('wiz-tab-'+i); if (t){ t.classList.toggle('on', i===n); t.classList.toggle('done', i!==n && wzTabDone(i)); t.classList.toggle('locked', i>n); t.title = i>n ? 'Complete the earlier steps first' : ''; }
     var p = document.getElementById('wiz-pane-'+i); if (p) p.classList.toggle('on', i===n);
   }
   var sn = document.getElementById('wz-step-n'); if (sn) sn.textContent = n;
@@ -4441,7 +4450,7 @@ function renderWzArtists(){
   saved.concat(WZ.artists).forEach(function(n){ if (n && all.indexOf(n)<0) all.push(n); });
   if (!WZ.primaryArtist && all.length) WZ.primaryArtist = all[0];
   el.innerHTML = all.length ? all.map(function(n){
-    return '<label class="remember" style="display:flex;margin-bottom:8px"><input type="radio" name="wz-primary" value="'+escA2(n)+'"'+(WZ.primaryArtist===n?' checked':'')+' onchange="wzPrimaryPick(this.value)"/> '+escA2(n)+'</label>';
+    return '<label style="display:flex;align-items:center;gap:9px;margin-bottom:8px;font-size:13.5px;color:var(--txt);cursor:pointer"><input type="radio" name="wz-primary" value="'+escA2(n)+'"'+(WZ.primaryArtist===n?' checked':'')+' onchange="wzPrimaryPick(this.value)" style="accent-color:var(--accent);width:16px;height:16px;flex:none;cursor:pointer"/> <span>'+escA2(n)+'</span></label>';
   }).join('') : '<div class="hint">No artists yet — add one above.</div>';
 }
 function wzPrimaryPick(v){ WZ.primaryArtist = v; saveWzDraft(); }
@@ -4653,6 +4662,11 @@ function wzTabError(tab){
     if (!WZ.tracks || !WZ.tracks.length) return 'Please add at least one track first.';
     if (WZ.tracks.some(function(t){ return t.uploading; })) return 'Please wait for audio uploads to finish.';
     if (WZ.tracks.some(function(t){ return !t.audioUrl; })) return 'Some tracks have no audio — re-upload or remove them.';
+    if (WZ.tracks.length === 1) {
+      var tt1 = (WZ.tracks[0].title||'').trim().toLowerCase();
+      if (tt1 && tt1 !== (WZ.title||'').trim().toLowerCase())
+        return 'Single-track release: the track title must match the release title.';
+    }
   }
   if (tab === 2) {
     if (!WZ.artwork) return 'Please upload cover artwork.';
@@ -4676,6 +4690,12 @@ function wzValidate(){
   if (pend.length) return {tab:1, msg:'Please wait for all audio uploads to finish.'};
   var noUrl = WZ.tracks.filter(function(t){ return !t.audioUrl; });
   if (noUrl.length) return {tab:1, msg:'Some tracks have no audio. Re-upload or remove them.'};
+  // Single-track rule: release title must match the track title (as stated in the wizard).
+  if (WZ.tracks.length === 1) {
+    var tt = (WZ.tracks[0].title||'').trim().toLowerCase();
+    if (tt && tt !== (WZ.title||'').trim().toLowerCase())
+      return {tab:1, msg:'Single-track release: the track title must match the release title ("'+WZ.title+'").'};
+  }
   if (!WZ.artwork) return {tab:2, msg:'Please upload cover artwork.'};
   if (!WZ.primaryArtist) return {tab:2, msg:'Please choose a primary artist.'};
   if (!WZ.genre) return {tab:2, msg:'Please select a primary genre.'};

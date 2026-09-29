@@ -558,7 +558,6 @@ input[type=range]{accent-color:var(--accent);width:100%}
     </aside>
     <div class="main">
       <div class="topbar">
-        <h1 id="topbar-title">Overview</h1>
         <div class="topbar-right">
           <button class="icon-btn" id="theme-toggle" onclick="toggleTheme()" title="Toggle dark mode"><span id="theme-icon-moon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></span><span id="theme-icon-sun" style="display:none"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg></span></button>
           <button class="icon-btn" onclick="goPage('notifs')" title="Notifications" aria-label="Notifications"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><span class="nbadge" id="notif-count" style="display:none">0</span></button>
@@ -1096,7 +1095,6 @@ input[type=range]{accent-color:var(--accent);width:100%}
 
         <!-- ══════════ ACTIVITY LOGS ══════════ -->
         <div class="page" id="page-activity">
-          <div class="eyebrow">Account</div>
           <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px"><div><div class="eyebrow">Account</div>
           <h2 class="page-h">Activity Logs</h2>
           <p class="page-sub">A trail of actions taken in your portal. Entries auto-clear after 7 days.</p></div>
@@ -1106,7 +1104,6 @@ input[type=range]{accent-color:var(--accent);width:100%}
 
         <!-- ══════════ LOGIN HISTORY ══════════ -->
         <div class="page" id="page-loginhistory">
-          <div class="eyebrow">Account</div>
           <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px"><div><div class="eyebrow">Account</div>
           <h2 class="page-h">Login History</h2>
           <p class="page-sub">Every sign-in to your account. Entries auto-clear after 7 days.</p></div>
@@ -1667,7 +1664,7 @@ function uiConfirm(msg, okLabel){
   return new Promise(function(resolve){
     var old = document.getElementById('ui-confirm-modal'); if (old) old.remove();
     var d = document.createElement('div');
-    d.className = 'modal-overlay'; d.id = 'ui-confirm-modal';
+    d.className = 'modal-overlay on'; d.id = 'ui-confirm-modal';
     d.innerHTML = '<div class="modal-box" style="max-width:420px" role="alertdialog" aria-modal="true"><div class="modal-head"><div><h3>Please confirm</h3></div></div>'
       + '<div class="modal-body"><p style="margin:0;color:var(--txt2);font-size:14px;line-height:1.6" id="ui-confirm-msg"></p></div>'
       + '<div class="modal-foot"><button type="button" class="btn-ghost" id="ui-confirm-no">Cancel</button>'
@@ -1770,9 +1767,8 @@ function goPage(name) {
     var pn = document.getElementById('nav-'+parent); if (pn) pn.classList.add('active');
     var pm = document.getElementById('mnav-'+parent); if (pm) pm.classList.add('active');
   }
-  var t = document.getElementById('topbar-title');
-  if (t) t.textContent = pageNames[name]||'';
-  if (name==='overview') { updateOverview(); }
+  // (topbar title removed — each page renders its own header)
+  if (name==='overview') { try { updateOverview(); } catch(e) {} }
   if (name==='releases') { renderReleases(); checkReleaseDraftBanner(); }
   if (name==='tracks') { renderTracks(); }
   if (name==='archived') { renderArchived(); }
@@ -2085,7 +2081,7 @@ async function showDash(user) {
   try { await loadWallet(); } catch(e) {}
   try { loadKYC(); } catch(e) {}
   try { updateOverview(); } catch(e) {}
-  try { logActivity('dashboard_view','Opened dashboard'); } catch(e) {}
+  try { if (!window._dashViewLogged) { window._dashViewLogged = true; logActivity('dashboard_view','Opened dashboard'); } } catch(e) {}
   // restore last page (refresh keeps you where you were)
   var _sp = null;
   try { _sp = localStorage.getItem('tir-page-'+user.uid); } catch(e) {}
@@ -2305,38 +2301,45 @@ function topEntries(obj, n){
 // OVERVIEW
 // ═══════════════════════════════════════════════════════════
 function updateOverview(){
-  var name = (AD && AD.name) || (CU && CU.displayName) || 'there';
-  var h = document.getElementById('ov-hello'); if (h) h.textContent = 'Hello, ' + name;
-  var agg = royAgg(0);
-  var wb = (AD && typeof AD.walletBalance==='number') ? AD.walletBalance : 0;
-  var sb = document.getElementById('ov-balance'); if (sb) sb.textContent = fmtINR(wb);
-  var rv = document.getElementById('ov-revenue'); if (rv) rv.textContent = fmtINR(agg.total);
-  var st = document.getElementById('ov-streams'); if (st) st.textContent = agg.units.toLocaleString('en-IN');
-  var ka = document.getElementById('kyc-alert'); if (ka) ka.style.display = kycApproved() ? 'none' : 'flex';
-  // top tracks
-  var tt = document.getElementById('ov-top-tracks');
-  if (tt) {
-    var tops = topEntries(agg.byTrack, 5);
-    tt.innerHTML = tops.length ? tops.map(function(x,i){
-      return '<div class="rev-row"><span class="rev-k"><strong style="color:var(--accent);margin-right:8px">'+(i+1)+'</strong>'+escA2(x.k)+'</span><span class="rev-v">'+fmtINR(x.v)+'</span></div>';
-    }).join('') : '<div class="hint" style="padding:14px 0">No streaming data yet — it appears here once your releases earn.</div>';
-  }
-  // latest releases
-  var lr = document.getElementById('ov-latest');
-  if (lr) {
-    var rels = allRels.slice().sort(function(a,b){ return new Date(b.submittedAt||b.createdAt||0)-new Date(a.submittedAt||a.createdAt||0); }).slice(0,4);
-    lr.innerHTML = rels.length ? rels.map(relCardHTML).join('') : '<div class="hint" style="padding:20px;grid-column:1/-1">No releases yet. <span class="link" onclick="openReleaseTitleDialog()">Create your first release →</span></div>';
-  }
-  // countries
-  var co = document.getElementById('ov-countries');
-  if (co) {
-    var cs = topEntries(agg.byCountry, 5);
-    co.innerHTML = cs.length ? cs.map(function(x){
-      var pct = agg.total ? Math.round(x.v/agg.total*100) : 0;
-      return '<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:5px"><strong>'+escA2(x.k)+'</strong><span style="color:var(--txt3)">'+fmtINR(x.v)+' · '+pct+'%</span></div><div class="prog"><div style="width:'+pct+'%"></div></div></div>';
-    }).join('') : '<div class="hint">Country data appears here once your releases earn.</div>';
-  }
-  drawOverviewCharts();
+  // Each section is isolated: one bad section can never blank the whole page.
+  var agg = null;
+  try { agg = royAgg(0); } catch(e) { agg = {total:0, units:0, byStore:{}, byTrack:{}, byRelease:{}, byCountry:{}, byLabel:{}, byArtist:{}, monthly:{}}; }
+  try {
+    var name = (AD && AD.name) || (CU && CU.displayName) || 'there';
+    var h = document.getElementById('ov-hello'); if (h) h.textContent = 'Hello, ' + name;
+    var wb = (AD && typeof AD.walletBalance==='number') ? AD.walletBalance : 0;
+    var sb = document.getElementById('ov-balance'); if (sb) sb.textContent = fmtINR(wb);
+    var rv = document.getElementById('ov-revenue'); if (rv) rv.textContent = fmtINR(agg.total);
+    var st = document.getElementById('ov-streams'); if (st) st.textContent = (agg.units||0).toLocaleString('en-IN');
+    var ka = document.getElementById('kyc-alert'); if (ka) ka.style.display = kycApproved() ? 'none' : 'flex';
+  } catch(e) {}
+  try {
+    var tt = document.getElementById('ov-top-tracks');
+    if (tt) {
+      var tops = topEntries(agg.byTrack, 5);
+      tt.innerHTML = tops.length ? tops.map(function(x,i){
+        return '<div class="rev-row"><span class="rev-k"><strong style="color:var(--accent);margin-right:8px">'+(i+1)+'</strong>'+escA2(x.k)+'</span><span class="rev-v">'+fmtINR(x.v)+'</span></div>';
+      }).join('') : '<div class="hint" style="padding:14px 0">No streaming data yet — it appears here once your releases earn.</div>';
+    }
+  } catch(e) {}
+  try {
+    var lr = document.getElementById('ov-latest');
+    if (lr) {
+      var rels = allRels.slice().sort(function(a,b){ return new Date(b.submittedAt||b.createdAt||0)-new Date(a.submittedAt||a.createdAt||0); }).slice(0,4);
+      lr.innerHTML = rels.length ? rels.map(relCardHTML).join('') : '<div class="hint" style="padding:20px;grid-column:1/-1">No releases yet. <span class="link" onclick="openReleaseTitleDialog()">Create your first release →</span></div>';
+    }
+  } catch(e) {}
+  try {
+    var co = document.getElementById('ov-countries');
+    if (co) {
+      var cs = topEntries(agg.byCountry, 5);
+      co.innerHTML = cs.length ? cs.map(function(x){
+        var pct = agg.total ? Math.round(x.v/agg.total*100) : 0;
+        return '<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:5px"><strong>'+escA2(x.k)+'</strong><span style="color:var(--txt3)">'+fmtINR(x.v)+' · '+pct+'%</span></div><div class="prog"><div style="width:'+pct+'%"></div></div></div>';
+      }).join('') : '<div class="hint">Country data appears here once your releases earn.</div>';
+    }
+  } catch(e) {}
+  try { drawOverviewCharts(); } catch(e) {}
 }
 function drawOverviewCharts(){
   var agg = royAgg(0);
@@ -4163,6 +4166,11 @@ function closeWizard(){
 function wizGo(n){
   if (!WZ) return;
   n = Math.max(1, Math.min(6, n));
+  // Validate the current tab before moving forward (Next), never on Back.
+  if (n > WZ.tab) {
+    var err = wzTabError(WZ.tab);
+    if (err) { toast(err); return; }
+  }
   WZ.tab = n;
   for (var i=1;i<=6;i++){
     var t = document.getElementById('wiz-tab-'+i); if (t){ t.classList.toggle('on', i===n); t.classList.toggle('done', i!==n && wzTabDone(i)); }
@@ -4635,6 +4643,31 @@ function wzSyncInputs(){
   var pb = document.getElementById('wz-price-band'); if (pb) WZ.priceBand = pb.value;
   WZ.releaseDate = gv('wz-release-date');
   WZ.endDate = gv('wz-enddate-val');
+}
+// Per-tab required-field check used when moving FORWARD in the wizard.
+// Returns an error message, or null when the tab is complete.
+function wzTabError(tab){
+  if (!WZ) return null;
+  if (tab === 1) {
+    if (!WZ.title) return 'Please enter a release title first.';
+    if (!WZ.tracks || !WZ.tracks.length) return 'Please add at least one track first.';
+    if (WZ.tracks.some(function(t){ return t.uploading; })) return 'Please wait for audio uploads to finish.';
+    if (WZ.tracks.some(function(t){ return !t.audioUrl; })) return 'Some tracks have no audio — re-upload or remove them.';
+  }
+  if (tab === 2) {
+    if (!WZ.artwork) return 'Please upload cover artwork.';
+    if (!WZ.primaryArtist) return 'Please choose a primary artist.';
+    if (!WZ.genre) return 'Please select a primary genre.';
+    if (!WZ.albumFormat) return 'Please select an album format.';
+  }
+  if (tab === 4) {
+    if (!WZ.releaseDate) return 'Please set a release date.';
+  }
+  if (tab === 5) {
+    if (WZ.split && WZ.split.collaborators && WZ.split.collaborators.length && splitTotal(WZ.split) !== 100)
+      return 'Royalty splits must total exactly 100%.';
+  }
+  return null;
 }
 function wzValidate(){
   if (!WZ.title) return {tab:1, msg:'Release title is missing.'};

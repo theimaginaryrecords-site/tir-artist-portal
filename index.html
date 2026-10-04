@@ -1635,13 +1635,16 @@ function initFirebase() {
   }
 
   // ── AUTH STATE ──────────────────────────────────────────
-  _auth.onAuthStateChanged(function(user) {
+  _auth.onAuthStateChanged(async function(user) {
     hideLd();
     if (user) {
       CU = user;
       // MANDATORY 2FA: password-only sessions must enroll a TOTP factor before
       // reaching the onboarding gate / dashboard.
-      var factors=[]; try{ factors=user.multiFactor?user.multiFactor.enrolledFactors:[]; }catch(e){}
+      // NOTE: enrolled factors are read via the module-bundle MFA bridge only.
+      // The compat user.multiFactor accessor must NOT be touched — it sets a
+      // reload listener that conflicts with the TOTP bridge (auth/internal-error).
+      var factors = await _getMfaFactors(user);
       if(!factors.length && _mfaMode!=='enroll'){
         document.getElementById('auth').style.display='none';
         document.getElementById('dash').style.display='none';
@@ -1937,6 +1940,18 @@ function _mfaBridge(){
   if(!mod) throw new Error('Security module still loading — please wait a moment and try again.');
   return mod;
 }
+/* Reads enrolled MFA factors via the module-bundle bridge only (never touches
+   compat user.multiFactor — see note in onAuthStateChanged). */
+async function _getMfaFactors(user){
+  try{
+    var mod=_mfaBridge();
+    var mu=(user && user._delegate)?user._delegate:user;
+    if(!mu) return [];
+    var mfu=mod.multiFactor(mu);
+    try{ await mu.reload(); }catch(e){}
+    return mfu.enrolledFactors||[];
+  }catch(e){ return []; }
+}
 /* The modular Auth/User instances hidden inside the compat SDK — same session,
    so TOTP enrollment + challenges act on the user that just signed in. */
 function _modAuth(){ return _auth._delegate || _auth; }
@@ -2001,9 +2016,18 @@ async function mfaVerify(){
       }).catch(function(){ checkOnboardingGate(_auth.currentUser); });
     } else if(_mfaMode==='challenge'){
       var mod2=_mfaBridge();
+      // The compat error lacks the operationType the modular resolver asserts.
+      // Patch it (accurately — this IS a sign-in) before resolving.
+      try{
+        _mfaError.operationType='signIn';
+        _mfaError.customData=_mfaError.customData||{};
+        _mfaError.customData.operationType='signIn';
+      }catch(e){}
       var resolver=mod2.getMultiFactorResolver(_modAuth(), _mfaError);
       var hint=resolver.hints[0];
       var assertion2=mod2.TotpMultiFactorGenerator.assertionForSignIn(hint.uid,code);
+      // resolveSignIn updates the shared (_delegate) auth instance, so the
+      // compat SDK picks up the signed-in user — no page reload needed.
       var cred=await resolver.resolveSignIn(assertion2);
       try { await _auth.setPersistence(_mfaRemember ? firebase.auth.Auth.Persistence.LOCAL : firebase.auth.Auth.Persistence.SESSION); } catch(e) {}
       try { await _db.collection('loginHistory').add({uid:cred.user.uid,email:cred.user.email||'',createdAt:new Date().toISOString(),userAgent:(navigator.userAgent||'').substring(0,250),mfa:true}); } catch(e) {}

@@ -12,10 +12,11 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script type="module">
 /* TOTP 2FA lives in the modular SDK (compat 10.12.0 does not export it).
-   This bridges the modular TOTP functions onto the same Firebase app/auth
-   instance the compat SDK uses, so enrollment + challenges share the session. */
-import { getAuth, multiFactor, TotpMultiFactorGenerator, getMultiFactorResolver } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-window._mfaMod = { getAuth: getAuth, multiFactor: multiFactor, TotpMultiFactorGenerator: TotpMultiFactorGenerator, getMultiFactorResolver: getMultiFactorResolver };
+   We import only the pure TOTP functions and run them against the modular
+   instances hidden inside the compat SDK (auth._delegate / user._delegate),
+   so enrollment + challenges share the exact same session — no second app. */
+import { multiFactor, TotpMultiFactorGenerator, getMultiFactorResolver } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+window._mfaMod = { multiFactor: multiFactor, TotpMultiFactorGenerator: TotpMultiFactorGenerator, getMultiFactorResolver: getMultiFactorResolver };
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <style>
@@ -1936,6 +1937,10 @@ function _mfaBridge(){
   if(!mod) throw new Error('Security module still loading — please wait a moment and try again.');
   return mod;
 }
+/* The modular Auth/User instances hidden inside the compat SDK — same session,
+   so TOTP enrollment + challenges act on the user that just signed in. */
+function _modAuth(){ return _auth._delegate || _auth; }
+function _modUser(){ var u=_auth.currentUser; return (u && u._delegate) ? u._delegate : u; }
 function mfaShow(){
   document.getElementById('mfa-err').classList.remove('on');
   document.getElementById('mfa-code').value='';
@@ -1952,7 +1957,7 @@ async function mfaStartEnrollment(user){
   _mfaMode='enroll'; _mfaResolver=null; _mfaError=null;
   try{
     var mod=_mfaBridge();
-    var modUser=mod.getAuth().currentUser;
+    var modUser=_modUser();
     if(!modUser) throw new Error('Session expired — please sign in again.');
     var session=await mod.multiFactor(modUser).getSession();
     _mfaSecret=await mod.TotpMultiFactorGenerator.generateSecret(session);
@@ -1982,7 +1987,7 @@ async function mfaVerify(){
   try{
     if(_mfaMode==='enroll'){
       var mod=_mfaBridge();
-      var modUser=mod.getAuth().currentUser; if(!modUser) throw new Error('Session expired — please sign in again.');
+      var modUser=_modUser(); if(!modUser) throw new Error('Session expired — please sign in again.');
       var assertion=mod.TotpMultiFactorGenerator.assertionForEnrollment(_mfaSecret,code);
       await mod.multiFactor(modUser).enroll(assertion,'Authenticator app');
       _mfaMode=null; _mfaSecret=null; mfaHide();
@@ -1996,7 +2001,7 @@ async function mfaVerify(){
       }).catch(function(){ checkOnboardingGate(_auth.currentUser); });
     } else if(_mfaMode==='challenge'){
       var mod2=_mfaBridge();
-      var resolver=mod2.getMultiFactorResolver(mod2.getAuth(), _mfaError);
+      var resolver=mod2.getMultiFactorResolver(_modAuth(), _mfaError);
       var hint=resolver.hints[0];
       var assertion2=mod2.TotpMultiFactorGenerator.assertionForSignIn(hint.uid,code);
       var cred=await resolver.resolveSignIn(assertion2);

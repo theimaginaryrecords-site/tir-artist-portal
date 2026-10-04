@@ -9,6 +9,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <style>
 /* ═══════════════════════════════════════════════════════════
@@ -499,7 +500,25 @@ input[type=range]{accent-color:var(--accent);width:100%}
       </div>
       <button class="btn-green" id="blg" onclick="doLogin()">Sign In to Portal</button>
       <div class="auth-note" style="color:#5d6a82">Not registered yet? Contact the administrator to create your account.</div>
+      <div class="auth-note" style="color:#5d6a82">🔒 Protected by password + authenticator app (2-step verification)</div>
     </div>
+  </div>
+</div>
+
+<!-- ═══ TWO-STEP VERIFICATION (TOTP) ═══ -->
+<div class="modal-overlay" id="mfa-modal">
+  <div class="modal-box" style="max-width:420px;background:#12161f;border-color:#232a3a">
+    <div class="modal-head"><div><h3 id="mfa-title" style="color:#f1f4fa">Two-step verification</h3><p class="modal-sub" id="mfa-sub" style="color:#9aa3b5">Enter the 6-digit code from your authenticator app.</p></div></div>
+    <div class="modal-body">
+      <div class="err-box" id="mfa-err"></div>
+      <div id="mfa-enroll" style="display:none">
+        <p style="font-size:13px;color:#9aa3b5;margin:0 0 12px">Scan this QR code with Google Authenticator, Authy, or any TOTP app, then enter the 6-digit code below.</p>
+        <div id="mfa-qr" style="display:flex;justify-content:center;padding:12px;background:#fff;border-radius:12px;margin-bottom:12px"></div>
+        <div style="font-size:11.5px;color:#5d6a82;margin-bottom:12px;word-break:break-all">Can't scan? Enter this key manually:<br><b id="mfa-key" style="color:#f1f4fa;font-family:monospace"></b></div>
+      </div>
+      <div class="fg"><label style="color:#9aa3b5">6-digit code</label><input id="mfa-code" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="123456" autocomplete="one-time-code" style="text-align:center;font-size:22px;letter-spacing:8px;font-family:monospace;background:#0f1420;border-color:#2e3749;color:#f1f4fa" onkeydown="if(event.key==='Enter')mfaVerify()"/></div>
+    </div>
+    <div class="modal-foot"><button class="btn-ghost" id="mfa-cancel" onclick="mfaCancel()">Cancel</button><button class="btn" id="mfa-go" onclick="mfaVerify()">Verify</button></div>
   </div>
 </div>
 
@@ -1296,7 +1315,7 @@ input[type=range]{accent-color:var(--accent);width:100%}
       </div>
       <div class="fg"><label>Audio File</label><div id="te-audio-box"></div></div>
       <div class="fg"><label>Display Artist</label>
-        <div style="display:flex;gap:8px;margin-bottom:8px"><select id="te-artist-pick" class="sel" style="flex:1" onchange="if(this.value){sv('te-artist',this.value);this.value='';}"><option value="">Pick an existing artist…</option></select><button class="btn-ghost btn-sm" onclick="openQuickArtistModal()" title="Add a brand new artist"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14"/><path d="M5 12h14"/></svg> New</button></div>
+        <div style="display:flex;gap:8px;margin-bottom:8px"><select id="te-artist-pick" class="sel" style="flex:1" onchange="teArtistPick(this)"><option value="">Pick an existing artist…</option></select><button class="btn-ghost btn-sm" onclick="openQuickArtistModal()" title="Add a brand new artist"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14"/><path d="M5 12h14"/></svg> New</button></div>
         <div style="display:flex;gap:8px"><select id="te-role" class="sel"><option>Primary Artist</option><option>Featured Artist</option><option>Remixer</option></select><input id="te-artist" placeholder="Artist name" style="flex:1"/></div></div>
       <div class="fg"><label>Composers <span class="hint" style="margin:0">(comma separated)</span></label><input id="te-composers" placeholder="Composer names"/></div>
       <div class="fg-row">
@@ -1345,7 +1364,7 @@ input[type=range]{accent-color:var(--accent);width:100%}
 <div class="modal-overlay" id="quick-artist-modal">
   <div class="modal-box" style="width:440px">
     <div class="modal-head"><div><h3>Add New Artist</h3></div><button type="button" class="mclose" onclick="closeModal('quick-artist-modal')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div>
-    <div class="modal-body"><div class="fg"><label>Artist Name *</label><input id="qa-name" placeholder="Artist name"/></div><div class="fg-row"><div class="fg"><label>Spotify URL</label><input id="qa-spotify" placeholder="https://open.spotify.com/artist/&#8230;"/></div><div class="fg"><label>Apple Music URL</label><input id="qa-apple" placeholder="https://music.apple.com/&#8230;"/></div></div><div class="err-box" id="qa-err"></div></div>
+    <div class="modal-body"><div class="fg"><label>Artist Name *</label><input id="qa-name" placeholder="Artist name"/></div><div class="fg"><label>Artist Type</label><select id="qa-type" class="sel"><option value="">Select…</option><option>Solo Artist</option><option>Duo</option><option>Band</option><option>Group</option><option>Orchestra</option><option>Choir</option><option>DJ / Producer</option><option>Other</option></select></div><div class="fg-row"><div class="fg"><label>Spotify URL</label><input id="qa-spotify" placeholder="https://open.spotify.com/artist/&#8230;"/></div><div class="fg"><label>Apple Music URL</label><input id="qa-apple" placeholder="https://music.apple.com/&#8230;"/></div></div><div class="err-box" id="qa-err"></div></div>
     <div class="modal-foot"><button class="btn-ghost" onclick="closeModal('quick-artist-modal')">Cancel</button><button class="btn" onclick="saveQuickArtist()">Add Artist</button></div>
   </div>
 </div>
@@ -1612,7 +1631,25 @@ function initFirebase() {
     hideLd();
     if (user) {
       CU = user;
-      checkOnboardingGate(user);
+      // MANDATORY 2FA: password-only sessions must enroll a TOTP factor before
+      // reaching the onboarding gate / dashboard.
+      var factors=[]; try{ factors=user.multiFactor?user.multiFactor.enrolledFactors:[]; }catch(e){}
+      if(!factors.length && _mfaMode!=='enroll'){
+        document.getElementById('auth').style.display='none';
+        document.getElementById('dash').style.display='none';
+        mfaStartEnrollment(user);
+        return;
+      }
+      if(_mfaMode==='enroll') return; // enrollment modal is up; wait for it
+      // SECURITY: instant account kill-switch — a disabled profile signs out immediately.
+      _db.collection('users').doc(user.uid).get().then(function(doc){
+        var d = doc.exists ? doc.data() : {};
+        if (d.disabled === true) {
+          try{ toast('This account has been disabled. Contact the administrator.'); }catch(e){}
+          _auth.signOut(); return;
+        }
+        checkOnboardingGate(user);
+      }).catch(function(){ checkOnboardingGate(user); });
     } else {
       CU = null;
       document.getElementById('auth').style.display = 'flex';
@@ -1848,6 +1885,26 @@ async function doLogin() {
     try { logActivity('login','Signed in'); } catch(e) {}
     toast('Welcome back');
   } catch(e) {
+    if (e.code === 'auth/multi-factor-auth-required') {
+      // Second factor enrolled → ask for the 6-digit authenticator code.
+      try {
+        _mfaResolver = firebase.auth.getMultiFactorResolver(_auth, e);
+        _mfaMode = 'challenge'; _mfaSecret = null;
+        document.getElementById('mfa-title').textContent = 'Two-step verification';
+        document.getElementById('mfa-sub').textContent = 'Enter the 6-digit code from your authenticator app.';
+        document.getElementById('mfa-enroll').style.display = 'none';
+        // Remember-me preference still applies after the challenge succeeds.
+        try {
+          var rememberMe2 = document.getElementById('lrm').checked;
+          if (rememberMe2) { localStorage.setItem('tir_remember','1'); localStorage.setItem('tir_email',em); }
+          else { localStorage.removeItem('tir_remember'); localStorage.removeItem('tir_email'); }
+          _mfaRemember = rememberMe2;
+        } catch(e2) {}
+        mfaShow();
+        btn.disabled = false; btn.textContent = 'Sign In to Portal';
+        return;
+      } catch(re) { e = re; }
+    }
     var m = 'Login failed. ';
     if (e.code === 'auth/user-not-found' || e.code === 'auth/wrong-password' || e.code === 'auth/invalid-credential') m += 'Wrong email or password.';
     else if (e.code === 'auth/too-many-requests') m += 'Too many attempts — please wait a minute and try again.';
@@ -1855,6 +1912,90 @@ async function doLogin() {
     else m += 'Something went wrong. Please try again.';
     err.textContent = m; err.classList.add('on');
     btn.disabled = false; btn.textContent = 'Sign In to Portal';
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   TWO-STEP VERIFICATION (TOTP authenticator) — MANDATORY
+   Every artist/label account must enroll a second factor. First login after
+   this update shows a QR setup; every later login asks for the 6-digit code.
+   Lost authenticator? The admin can disable 2FA for the account in Firebase
+   Console → Authentication → Users → Disable 2FA. */
+var _mfaMode = null, _mfaResolver = null, _mfaSecret = null, _mfaRemember = false;
+function mfaShow(){
+  document.getElementById('mfa-err').classList.remove('on');
+  document.getElementById('mfa-code').value='';
+  openModal('mfa-modal');
+  setTimeout(function(){ try{ document.getElementById('mfa-code').focus(); }catch(e){} },150);
+}
+function mfaHide(){ closeModal('mfa-modal'); }
+async function mfaCancel(){
+  // 2FA is mandatory — cancelling signs the session out.
+  _mfaMode=null; _mfaResolver=null; _mfaSecret=null; mfaHide();
+  try{ await _auth.signOut(); }catch(e){}
+}
+async function mfaStartEnrollment(user){
+  _mfaMode='enroll'; _mfaResolver=null;
+  try{
+    var session=await user.multiFactor.getSession();
+    _mfaSecret=await firebase.auth.TotpMultiFactorGenerator.generateSecret(session);
+    var key=_mfaSecret.secretKey;
+    var otpauth='otpauth://totp/'+encodeURIComponent('TIR Portal')+':'+encodeURIComponent(user.email||'artist')+'?secret='+encodeURIComponent(key)+'&issuer='+encodeURIComponent('TheImaginaryRecords');
+    document.getElementById('mfa-title').textContent='Set up two-step verification';
+    document.getElementById('mfa-sub').textContent='Scan the code with your authenticator app, then enter the 6-digit code to finish setup. Required from now on.';
+    document.getElementById('mfa-enroll').style.display='block';
+    document.getElementById('mfa-key').textContent=key;
+    var qrEl=document.getElementById('mfa-qr'); qrEl.innerHTML='';
+    try{ new QRCode(qrEl,{text:otpauth,width:180,height:180,correctLevel:QRCode.CorrectLevel.M}); }
+    catch(qe){ qrEl.innerHTML='<span style="font-size:12px;color:#666">QR unavailable — enter the key manually.</span>'; }
+    mfaShow();
+  }catch(e){
+    _mfaMode=null;
+    try{ await _auth.signOut(); }catch(e2){}
+    var err=document.getElementById('aerr'); err.textContent='Could not start 2-step setup: '+e.message; err.classList.add('on');
+    document.getElementById('auth').style.display='flex';
+  }
+}
+async function mfaVerify(){
+  var codeEl=document.getElementById('mfa-code'), err=document.getElementById('mfa-err'), btn=document.getElementById('mfa-go');
+  var code=(codeEl.value||'').trim();
+  err.classList.remove('on');
+  if(!/^\d{6}$/.test(code)){ err.textContent='Enter the 6-digit code.'; err.classList.add('on'); return; }
+  btn.disabled=true; btn.textContent='Verifying...';
+  try{
+    if(_mfaMode==='enroll'){
+      var user=_auth.currentUser; if(!user) throw new Error('Session expired — please sign in again.');
+      var assertion=firebase.auth.TotpMultiFactorGenerator.assertionForEnrollment(_mfaSecret,code);
+      await user.multiFactor.enroll(assertion,'Authenticator app');
+      _mfaMode=null; _mfaSecret=null; mfaHide();
+      try{ logActivity('mfa_enroll','Two-step verification enabled'); }catch(e){}
+      toast('Two-step verification enabled ✓');
+      // Re-run the disabled-account check before entering the gate.
+      _db.collection('users').doc(user.uid).get().then(function(doc){
+        var d = doc.exists ? doc.data() : {};
+        if (d.disabled === true) { try{ toast('This account has been disabled. Contact the administrator.'); }catch(e2){} _auth.signOut(); return; }
+        checkOnboardingGate(_auth.currentUser);
+      }).catch(function(){ checkOnboardingGate(_auth.currentUser); });
+    } else if(_mfaMode==='challenge'){
+      var hint=_mfaResolver.hints[0];
+      var assertion2=firebase.auth.TotpMultiFactorGenerator.assertionForSignIn(hint.uid,code);
+      var cred=await _mfaResolver.resolveSignIn(assertion2);
+      try { await _auth.setPersistence(_mfaRemember ? firebase.auth.Auth.Persistence.LOCAL : firebase.auth.Auth.Persistence.SESSION); } catch(e) {}
+      try { await _db.collection('loginHistory').add({uid:cred.user.uid,email:cred.user.email||'',createdAt:new Date().toISOString(),userAgent:(navigator.userAgent||'').substring(0,250),mfa:true}); } catch(e) {}
+      try { logActivity('login','Signed in (2-step verified)'); } catch(e) {}
+      _mfaMode=null; _mfaResolver=null; mfaHide();
+      toast('Welcome back');
+      // onAuthStateChanged fires and routes to the dashboard.
+    } else {
+      throw new Error('No verification in progress.');
+    }
+  }catch(e){
+    var m='Verification failed. ';
+    if(e.code==='auth/invalid-verification-code'||/invalid/i.test(e.message)) m+='Wrong code — check your authenticator app time sync and try again.';
+    else m+=e.message;
+    err.textContent=m; err.classList.add('on');
+  }finally{
+    btn.disabled=false; btn.textContent='Verify';
   }
 }
 var _signingOut=false;
@@ -2687,7 +2828,7 @@ function renderArtistsTbl(){
     var storeLinks = [['spotify',a.spotify],['apple music',a.appleMusic],['soundcloud',a.soundcloud]].filter(function(s){ return s[1]; }).map(function(s){
       return '<a class="link" style="margin-right:8px" href="'+safeUrl(s[1])+'" target="_blank" rel="noopener" title="'+escA2(prettyStore(s[0]))+'">'+storeLogo(s[0],20)+'</a>';
     });
-    return '<tr><td><div class="cover">'+escA2((a.name||'A')[0].toUpperCase())+'</div></td><td><div class="row-title">'+escA2(a.name)+'</div><div class="row-sub">Artist</div></td><td>'+escA2(a.email||'—')+'</td>'
+    return '<tr><td><div class="cover">'+escA2((a.name||'A')[0].toUpperCase())+'</div></td><td><div class="row-title">'+escA2(a.name)+'</div><div class="row-sub">'+escA2(a.artistType||'Artist')+'</div></td><td>'+escA2(a.email||'—')+'</td>'
       + '<td style="max-width:260px"><div class="row-sub">'+escA2(a.bio||'—')+'</div></td>'
       + '<td>'+(storeLinks.join('')||'')+(links.length?links.map(function(l){ return '<a class="link" style="margin-right:8px" href="'+safeUrl(l)+'" target="_blank" rel="noopener" aria-label="Open link"><span class="link-ic">'+IC.link+'</span></a>'; }).join(''):(storeLinks.length?'':'—'))+'</td>'
       + '<td><button class="btn-ghost btn-sm btn-danger-ghost" onclick="rhDelete(\'savedArtists\','+x.i+',\'renderArtistsTbl\')">Remove</button></td></tr>';
@@ -2844,10 +2985,15 @@ async function requestWithdrawal(){
   if (!details) return fail('Please enter your payment details.');
   var btn = document.getElementById('wd-btn'); btn.disabled = true; btn.textContent = 'Submitting…';
   try {
-    // FRESH Firestore re-read immediately before the action — never the cached copy
+    // FRESH Firestore re-read immediately before the action — never the cached copy or DOM text
     var _kycDoc = await _db.collection('users').doc(CU.uid).get();
-    var _kycStatus = _kycDoc.exists ? (_kycDoc.data().kycStatus||'none') : 'none';
+    var _u = _kycDoc.exists ? _kycDoc.data() : {};
+    var _kycStatus = _u.kycStatus||'none';
     if (_kycStatus!=='approved') { btn.disabled=false; btn.textContent='Submit Request'; return fail('KYC verification is required before requesting a withdrawal.'); }
+    // SECURITY: re-read the real wallet balance from the server — the on-screen figure is display only.
+    var _avail = Number(_u.walletBalance)||0;
+    if (!(amt>0)) { btn.disabled=false; btn.textContent='Submit Request'; return fail('Please enter a valid amount.'); }
+    if (amt>_avail) { btn.disabled=false; btn.textContent='Submit Request'; return fail('Amount exceeds your available balance (₹'+_avail.toFixed(2)+').'); }
     await _db.collection('withdrawals').add({uid:CU.uid, amount:amt, method:method, details:details, status:'pending', createdAt:new Date().toISOString()});
     document.getElementById('wd-amount').value=''; document.getElementById('wd-method').value=''; document.getElementById('wd-details').value='';
     okS.textContent='Withdrawal request submitted. TIR will process it shortly.'; okS.classList.add('on');
@@ -3350,7 +3496,7 @@ async function wzSaveTemplate(pfx){
   var st = splitStateOf(pfx);
   if (!st.collaborators.length) { toast('Add collaborators before saving a template.'); return; }
   try {
-    await _db.collection('splits').add({uid:CU.uid, name:name, splitType:st.type, collaborators:st.collaborators, releaseIds:[], status:'template', createdAt:new Date().toISOString()});
+    await _db.collection('splits').add({uid:CU.uid, name:name, splitType:st.type, collaborators:st.collaborators, collaboratorEmails:collabEmails(st.collaborators), releaseIds:[], status:'template', createdAt:new Date().toISOString()});
     nameEl.value = '';
     toast('Template saved');
     try { logActivity('split_template','Saved split template: '+name); } catch(e) {}
@@ -3440,9 +3586,9 @@ async function saveSplitModal(){
   var editId = document.getElementById('split-modal').getAttribute('data-edit');
   try {
     if (editId) {
-      await _db.collection('splits').doc(editId).update({name:name, splitType:SPM.type, collaborators:SPM.collaborators});
+      await _db.collection('splits').doc(editId).update({name:name, splitType:SPM.type, collaborators:SPM.collaborators, collaboratorEmails:collabEmails(SPM.collaborators)});
     } else {
-      await _db.collection('splits').add({uid:CU.uid, name:name, splitType:SPM.type, collaborators:SPM.collaborators, releaseIds:[], status:'pending', createdAt:new Date().toISOString()});
+      await _db.collection('splits').add({uid:CU.uid, name:name, splitType:SPM.type, collaborators:SPM.collaborators, collaboratorEmails:collabEmails(SPM.collaborators), releaseIds:[], status:'pending', createdAt:new Date().toISOString()});
     }
     closeModal('split-modal');
     await loadSplits(); await loadSplitsOverview();
@@ -3524,6 +3670,13 @@ function loadSplitInvites(){
       + '<td style="white-space:nowrap">'+act+'</td></tr>';
   }).join('');
 }
+/* SECURITY: flat lowercased collaborator email list, used by Firestore rules so
+   co-signers can read/sign their splits without exposing them to everyone. */
+function collabEmails(collabs){
+  var out=[];
+  (collabs||[]).forEach(function(c){ var e=String(c.email||'').toLowerCase().trim(); if(e && out.indexOf(e)<0) out.push(e); });
+  return out;
+}
 async function signSplit(id){
   if (!(await uiConfirm('Sign this split agreement?','Sign'))) return;
   try {
@@ -3531,10 +3684,25 @@ async function signSplit(id){
     if (!doc.exists) return;
     var s = doc.data();
     var myEmail = (CU.email||'').toLowerCase();
+    // SECURITY: verify the caller is actually a listed collaborator.
+    var me = (s.collaborators||[]).filter(function(c){ return (c.email||'').toLowerCase()===myEmail; })[0];
+    if (!me) { toast('You are not a collaborator on this split.'); return; }
+    if (me.signed) { toast('You have already signed this split.'); return; }
     var collabs = (s.collaborators||[]).map(function(c){
-      if ((c.email||'').toLowerCase()===myEmail) c.signed = true;
-      return c;
+      var o = {email:c.email, name:c.name, role:c.role, percentage:c.percentage, signed:!!c.signed};
+      if ((c.email||'').toLowerCase()===myEmail) o.signed = true; // only flip caller's own entry
+      return o;
     });
+    // SECURITY: rebuild entries from the fresh server read (drops any console-tampered
+    // fields) and refuse if percentages were altered between read and sign.
+    var total = 0, tampered = false;
+    collabs.forEach(function(c,i){
+      var orig = (s.collaborators||[])[i]||{};
+      if (Number(c.percentage)!==Number(orig.percentage) || c.email!==orig.email) tampered = true;
+      total += Number(c.percentage)||0;
+    });
+    if (tampered) { toast('Split data changed — please reload and try again.'); return; }
+    if (Math.abs(total-100) > 0.01) { toast('Split percentages must total 100%.'); return; }
     var allSigned = collabs.length && collabs.every(function(c){ return c.signed; });
     await _db.collection('splits').doc(id).update({collaborators:collabs, status: allSigned?'active':(s.status||'pending')});
     await loadSplits(); loadSplitInvites(); await loadSplitsOverview();
@@ -4094,6 +4262,9 @@ async function openWizard(resume, releaseId){
   } else if (releaseId) {
     var r = (typeof findRel==='function') ? findRel(releaseId) : null;
     if (!r) { try { var doc = await _db.collection('releases').doc(releaseId).get(); if (doc.exists) r = Object.assign({id:doc.id}, doc.data()); } catch(e){} }
+    // SECURITY (IDOR fix): never open/edit a release that doesn't belong to this user,
+    // even if the doc could be fetched. Ownership is also enforced by Firestore rules.
+    if (r && r.userId && CU && r.userId !== CU.uid) { try{ toast('Access denied: this release belongs to another account.'); }catch(e){} r = null; }
     if (r) { WZ = wzFromRelease(r); WZ._fromDraft = false; openWizardShell(); return; }
     WZ = newWZ();
   } else if (!WZ || !WZ.title) {
@@ -4375,22 +4546,34 @@ async function wzTrackRemove(id){
   WZ.tracks = WZ.tracks.filter(function(t){ return t.id!==id; });
   renderWzTracks(); saveWzDraft();
 }
+/* Track editor artist picker — the dropdown stays on the chosen artist (visible
+   selection) and always mirrors the value into the Display Artist input. */
+function refreshTeArtistPick(selected){
+  try {
+    var pick = document.getElementById('te-artist-pick');
+    if (!pick) return;
+    var saved = (typeof rhGet==='function' ? rhGet('savedArtists') : []) || [];
+    var names = [];
+    saved.forEach(function(a){ if (a && a.name && names.indexOf(a.name)<0) names.push(a.name); });
+    (WZ.artists||[]).forEach(function(n){ if (n && names.indexOf(n)<0) names.push(n); });
+    if (selected && names.indexOf(selected)<0) names.push(selected);
+    pick.innerHTML = '<option value="">Pick an existing artist…</option>' + names.map(function(n){ return '<option value="'+escA2(n)+'"'+(n===selected?' selected':'')+'>'+escA2(n)+'</option>'; }).join('');
+  } catch(e) {}
+}
+function teArtistPick(sel){
+  var v = sel ? sel.value : '';
+  if (!v) return;
+  sv('te-artist', v);   // fill the Display Artist input…
+  sel.value = v;        // …and keep the dropdown visibly on the chosen artist
+  try { toast('Artist: '+v); } catch(e) {}
+}
 function openTrackEdit(id){
   var t = wzTrackFind(id); if(!t) return;
   WZ_EDITING_TRACK = id;
   document.getElementById('te-sub').textContent = 'Track '+(WZ.tracks.indexOf(t)+1)+' of '+WZ.tracks.length+' · '+t.fileName;
   sv('te-title', t.title); sv('te-version', t.version); sv('te-lang', t.lang);
   sv('te-artist', t.artist); sv('te-role', t.role);
-  try {
-    var pick = document.getElementById('te-artist-pick');
-    if (pick) {
-      var saved = (typeof rhGet==='function' ? rhGet('savedArtists') : []) || [];
-      var names = [];
-      saved.forEach(function(a){ if (a && a.name && names.indexOf(a.name)<0) names.push(a.name); });
-      (WZ.artists||[]).forEach(function(n){ if (n && names.indexOf(n)<0) names.push(n); });
-      pick.innerHTML = '<option value="">Pick an existing artist…</option>' + names.map(function(n){ return '<option value="'+escA2(n)+'">'+escA2(n)+'</option>'; }).join('');
-    }
-  } catch(e) {}
+  refreshTeArtistPick(t.artist);
   sv('te-composers', t.composers); sv('te-arranger', t.arranger); sv('te-publisher', t.publisher);
   sv('te-sr-contrib', t.srContrib); sv('te-mixer', t.mixer); sv('te-producer', t.producer);
   sv('te-p-year', t.pYear); sv('te-p-holder', t.pHolder);
@@ -4461,7 +4644,7 @@ function wzAddCatalogTrack(id){
   toast('Track added');
 }
 function openQuickArtistModal(){
-  sv('qa-name','');
+  sv('qa-name',''); sv('qa-type','');
   var e = document.getElementById('qa-err'); if(e) e.classList.remove('on');
   openModal('quick-artist-modal');
 }
@@ -4469,7 +4652,7 @@ async function saveQuickArtist(){
   var name = gv('qa-name');
   if (!name) { showAl('qa-err','Please enter an artist name.'); return; }
   try {
-    var entry = {name:name, spotifyUrl:gv('qa-spotify'), appleMusicUrl:gv('qa-apple'), createdAt:new Date().toISOString()};
+    var entry = {name:name, artistType:gv('qa-type'), spotifyUrl:gv('qa-spotify'), appleMusicUrl:gv('qa-apple'), createdAt:new Date().toISOString()};
     var saved = rhGet('savedArtists') || [];
     var ix = -1;
     for (var i=0;i<saved.length;i++){ if (saved[i] && saved[i].name===name) { ix=i; break; } }
@@ -4480,6 +4663,14 @@ async function saveQuickArtist(){
     WZ.primaryArtist = WZ.primaryArtist || name;
     closeModal('quick-artist-modal');
     renderWzArtists();
+    // If the track editor is open, select the new artist there immediately.
+    try {
+      var teModal = document.getElementById('track-edit-modal');
+      if (teModal && teModal.classList.contains('on')) {
+        sv('te-artist', name);
+        refreshTeArtistPick(name);
+      }
+    } catch(e) {}
     saveWzDraft();
     toast('Artist added');
   } catch(e) { showAl('qa-err','Could not save: '+e.message); }
@@ -4851,6 +5042,7 @@ async function submitWizardRelease(){
     type: WZ.albumFormat||'Single',
     releaseType: WZ.albumFormat||'Single', albumFormat: WZ.albumFormat||'Single',
     artists: artistNames, primaryArtist: WZ.primaryArtist||'',
+    primaryArtistType: primProf.artistType||'',
     featuredArtists: artistNames.filter(function(a){ return a!==artistName; }).join(', '),
     spotifyArtistUrl: primProf.spotifyUrl||'', appleMusicArtistUrl: primProf.appleMusicUrl||'',
     label: WZ.label||'', labelAddress: '',
@@ -4893,7 +5085,11 @@ async function submitWizardRelease(){
   var releaseId = WZ.editingId || null;
   try {
     if (releaseId) {
-      await _db.collection('releases').doc(releaseId).update(data);
+      // SECURITY: on edit, never overwrite ownership — strip userId/status so an
+      // edited resubmission can't transfer or re-approve a release. (Rules enforce too.)
+      var udata = Object.assign({}, data);
+      delete udata.userId; delete udata.status;
+      await _db.collection('releases').doc(releaseId).update(udata);
     } else {
       var ref = await _db.collection('releases').add(data);
       releaseId = ref.id;
@@ -4953,9 +5149,12 @@ async function submitWizardRelease(){
       if (name==='services') { try { renderServicesGrid(); } catch(e){} }
     };
   } catch(e) {}
-  // ── Esc closes any open modal ──
+  // ── Esc closes any open modal (except the mandatory MFA modal) ──
   document.addEventListener('keydown', function(e){
     if (e.key === 'Escape') {
+      // SECURITY: the 2FA modal can only be dismissed via its Cancel button
+      // (which signs the session out) — Esc must not strand a half-authed session.
+      if (typeof _mfaMode!=='undefined' && _mfaMode) return;
       document.querySelectorAll('.modal-overlay.on').forEach(function(m){ m.classList.remove('on'); if (m.id==='wizard-modal') { try{ clearWzOpen(); }catch(_){}} });
       document.body.style.overflow = '';
       try { closeProfileMenu(); } catch(_){}

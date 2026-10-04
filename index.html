@@ -1974,8 +1974,11 @@ async function mfaStartEnrollment(user){
     var mod=_mfaBridge();
     var modUser=_modUser();
     if(!modUser) throw new Error('Session expired — please sign in again.');
-    var session=await mod.multiFactor(modUser).getSession();
-    _mfaSecret=await mod.TotpMultiFactorGenerator.generateSecret(session);
+    // Bypass mod.multiFactor() entirely: generateSecret only needs {user, credential}.
+    // (multiFactor() registers a reload listener; calling it here as well as in
+    // _getMfaFactors risks an auth/internal-error on the shared user instance.)
+    var idToken=await modUser.getIdToken();
+    _mfaSecret=await mod.TotpMultiFactorGenerator.generateSecret({user: modUser, credential: idToken});
     var key=_mfaSecret.secretKey;
     var otpauth='otpauth://totp/'+encodeURIComponent('TIR Portal')+':'+encodeURIComponent(user.email||'artist')+'?secret='+encodeURIComponent(key)+'&issuer='+encodeURIComponent('TheImaginaryRecords');
     document.getElementById('mfa-title').textContent='Set up two-step verification';
@@ -2004,7 +2007,10 @@ async function mfaVerify(){
       var mod=_mfaBridge();
       var modUser=_modUser(); if(!modUser) throw new Error('Session expired — please sign in again.');
       var assertion=mod.TotpMultiFactorGenerator.assertionForEnrollment(_mfaSecret,code);
-      await mod.multiFactor(modUser).enroll(assertion,'Authenticator app');
+      // Finalize directly (bypasses multiFactor().enroll to avoid the reload-listener conflict).
+      var enrollIdToken=await modUser.getIdToken();
+      await assertion._finalizeEnroll(modUser.auth, enrollIdToken, 'Authenticator app');
+      try{ await modUser.getIdToken(true); }catch(e){}
       _mfaMode=null; _mfaSecret=null; mfaHide();
       try{ logActivity('mfa_enroll','Two-step verification enabled'); }catch(e){}
       toast('Two-step verification enabled ✓');

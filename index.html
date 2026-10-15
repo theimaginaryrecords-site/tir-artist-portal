@@ -406,6 +406,7 @@ function initFirebase(){
   _fbReady=true;
   // AUTH STATE — mirrors the real portal: kill-switch first, then load.
   _auth.onAuthStateChanged(async function(user){
+    AUTH_RESOLVED=true;
     if(user){
       CU=user;
       try{
@@ -424,12 +425,17 @@ function initFirebase(){
         S.bank=bankFromUserDoc(d);
         await loadAllFromFirestore();
         var h=location.hash||'';
-        if(h==='#/login'||h===''||h==='#/'||h==='#'){ go('#/app'); }
+        if(h==='#/login'||h===''||h==='#/'||h==='#'){
+          /* After login, return to the route the user was trying to reach
+             (saved when the auth gate redirected them), else home. */
+          var dest=takeIntended();
+          if(isAppHash(dest)){ go(dest); } else { go('#/app'); }
+        }
         else{ render(true); }
       }catch(e){ S.auth=true; render(true); }
     }else{
       CU=null; AD={}; S.auth=false;
-      if((location.hash||'').indexOf('#/app')===0){ go('#/login'); }
+      if((location.hash||'').indexOf('#/app')===0){ saveIntended(location.hash); go('#/login'); }
       else{ render(true); }
     }
   });
@@ -806,11 +812,33 @@ const ARTICLES=[
 function parseHash(){const raw=location.hash.replace(/^#\/?/,'');const [path,q]=raw.split('?');return{parts:path.split('/').filter(Boolean),q:new URLSearchParams(q||'')}}
 function go(h){if(location.hash===h)render();else location.hash=h}
 let lastKey='';
+/* ---------- route persistence (refresh-safe routing) ---------- */
+/* Root cause of the refresh bug: the boot render() ran before Firebase auth
+   resolved, so the auth gate redirected to #/login and DESTROYED the deep-link
+   hash. These helpers persist the route on every navigation and remember the
+   intended route across the login gate. */
+let AUTH_RESOLVED=false;
+function ssGet(k){ try{ return sessionStorage.getItem(k)||''; }catch(e){ return ''; } }
+function ssSet(k,v){ try{ sessionStorage.setItem(k,v||''); }catch(e){} }
+function isAppHash(h){ return (h||'').indexOf('#/app')===0; }
+function saveRoute(h){ ssSet('tir_route',h||location.hash||''); }
+function saveIntended(h){ ssSet('tir_intended',h||''); }
+function takeIntended(){ const v=ssGet('tir_intended'); ssSet('tir_intended',''); return v; }
 function render(keep){
   const sy=window.scrollY;const {parts,q}=parseHash();const root=$('#root');
   S.ui.menu=false;
   let html;
-  if(parts[0]==='app'){ if(!S.auth){go('#/login');return} html=appShell(parts.slice(1),q); }
+  if(parts[0]==='app'){
+    if(!S.auth){
+      /* Auth not resolved yet, or profile still loading (CU set) — show a
+         loading state instead of redirecting, so the deep-link hash survives. */
+      if(!AUTH_RESOLVED||CU){ root.innerHTML='<div class="pub"><main><p class="mute" style="text-align:center;padding:40px">Loading…</p></main></div>'; return; }
+      saveIntended(location.hash);
+      go('#/login');return;
+    }
+    saveRoute(location.hash);
+    html=appShell(parts.slice(1),q);
+  }
   else { html='<div class="pub"><main>'+pLogin()+'</main></div>'; }
   root.innerHTML=html;
   const key=parts.join('/');
@@ -1185,5 +1213,13 @@ document.addEventListener('drop',e=>{const d=e.target.closest('[data-drop]');if(
 function afterRender(){const d=$('#tl-date');if(d&&!$('#tl-out').innerHTML)$('#tl-out').innerHTML=timelinePlan(d.value);const s=$('#saved');if(s&&lsGet('tir_draft_v1'))s.textContent='Draft autosaves'}
 window.addEventListener('hashchange',()=>render());
 $('#root')||0;
+/* Boot: if the URL hash is empty, restore the last persisted route so a
+   refresh lands back on the same page (the auth gate + intended-route logic
+   above handle the signed-out case). */
+(function(){
+  const h=location.hash||'';
+  const saved=ssGet('tir_route');
+  if((h===''||h==='#'||h==='#/')&&isAppHash(saved)){ location.hash=saved; }
+})();
 render();
 </script></body></html>

@@ -812,6 +812,7 @@ function render(keep){
   S.ui.menu=false;
   let html;
   if(parts[0]==='app'){ if(!S.auth){go('#/login');return} html=appShell(parts.slice(1),q); }
+  else if(!S.auth&&location.hash===''){ html=pubShell(['login'],q); }
   else html=pubShell(parts,q);
   root.innerHTML=html;
   const key=parts.join('/');
@@ -825,6 +826,7 @@ const NAV=[['','Home'],['how','How it works'],['pricing','Pricing'],['stores','S
 function pubShell(parts,q){
   const p=parts[0]||'';let body;
   switch(p){case'':body=pHome();break;case'how':body=pHow();break;case'pricing':body=pPricing();break;case'stores':body=pStores();break;case'resources':body=pResources(parts[1]);break;case'contact':body=pContact();break;case'login':body=pLogin();break;default:body=pHome()}
+  if(p==='login') return `<div class="pub"><main>${body}</main></div>`;
   return `<div class="pub"><header class="ph"><div class="in"><a href="#/" class="brand">${logoMark}<span>TIR</span></a><nav id="pnav" aria-label="Main">${NAV.map(([h,l])=>`<a href="#/${h}" class="${p===h?'on':''}">${l}</a>`).join('')}</nav><div class="row hide-m" style="margin-left:auto"><a class="btn ghost" href="#/login">Log in</a><a class="btn primary" href="#/contact">Request access</a></div><button class="icobtn burger" data-act="pnav" aria-label="Menu">${ic('menu','l')}</button></div></header><main>${body}</main>
   <footer class="pf"><div class="wrapc"><div><a href="#/" class="brand" style="color:#fff">${logoMark}<span>TIR</span></a><p style="margin-top:12px;max-width:300px">The Imaginary Records. Independent music label and distribution company.</p><p style="margin-top:8px;max-width:300px" class="mute small">support@theimaginaryrecords.in · +91 9541543424 · theimaginaryrecords.in</p><p style="margin-top:6px;max-width:300px" class="mute small"><a class="teal" href="https://forms.gle/p9g1vRK9DRWwTotj9" target="_blank" rel="noopener">Artist registration</a> · <a class="teal" href="https://forms.gle/DDh59DjoThpbXSpe6" target="_blank" rel="noopener">Release submission</a></p></div><div><h4>Product</h4><a href="#/how">How it works</a><a href="#/pricing">Pricing</a><a href="#/stores">Stores</a></div><div><h4>Learn</h4><a href="#/resources">Resources</a><a href="#/resources/checklist">Release checklist</a><a href="#/resources/artwork">Artwork specs</a></div><div><h4>Company</h4><a href="#/contact">Contact</a><a href="#/login">Log in</a></div></div></footer></div>`;
 }
